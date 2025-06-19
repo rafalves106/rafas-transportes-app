@@ -66,3 +66,21 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-container aside {
+  width: 220px;
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-right: 1px solid #dee2e6;
+}
+
+.app-container main {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f8f9fa;
+}

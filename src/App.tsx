@@ -1,15 +1,19 @@
 import { Outlet } from "react-router-dom";
+import { GlobalStyle } from "./styles/GlobalStyle";
 
 function App() {
   return (
-    <div className="app-container">
-      <aside>
-        <p>Menu Lateral</p>
-      </aside>
-      <main>
-        <Outlet />
-      </main>
-    </div>
+    <>
+      <GlobalStyle />
+      <div className="app-container">
+        <aside>
+          <p>Menu Lateral</p>
+        </aside>
+        <main>
+          <Outlet />
+        </main>
+      </div>
+    </>
   );
 }
 
