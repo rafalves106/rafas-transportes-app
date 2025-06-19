@@ -19,9 +19,9 @@ export const tripsData: Trip[] = [
     id: 1,
     title: "Reserva Juliana",
     clientName: "Juliana Camargo",
-    startDate: "2025-06-25",
+    startDate: "2025-06-15",
     startTime: "09:30",
-    endDate: "2025-06-30",
+    endDate: "2025-06-18",
     endTime: "18:30",
     startLocation:
       "Buscar passageiros no bairro Palmares e deixá-los no aeroporto de Confins. ",
@@ -36,9 +36,9 @@ export const tripsData: Trip[] = [
     id: 2,
     title: "Reserva Paulo",
     clientName: "Paulo Alves",
-    startDate: "2025-06-25",
+    startDate: "2025-06-18",
     startTime: "09:30",
-    endDate: "2025-06-30",
+    endDate: "2025-06-25",
     endTime: "18:30",
     startLocation:
       "Buscar passageiros no bairro Palmares e deixá-los no aeroporto de Confins. ",
@@ -119,6 +119,41 @@ export const tripsData: Trip[] = [
   },
   {
     id: 7,
+    title: "Reserva Paulo",
+    clientName: "Paulo Alves",
+    startDate: "2025-06-25",
+    startTime: "09:30",
+    endDate: "2025-06-30",
+    endTime: "18:30",
+    startLocation:
+      "Buscar passageiros no bairro Palmares e deixá-los no aeroporto de Confins. ",
+    endLocation:
+      "Retornar com passageiros no aeroporto de Confins e desembarca-los no bairro Palmares",
+    value: 500.0,
+    status: "Agendada",
+    vehicleId: 2,
+    driverId: 2,
+  },
+  {
+    id: 8,
+    title: "Reserva Paulo",
+    clientName: "Paulo Alves",
+    startDate: "2025-06-25",
+    startTime: "09:30",
+    endDate: "2025-06-30",
+    endTime: "18:30",
+    startLocation:
+      "Buscar passageiros no bairro Palmares e deixá-los no aeroporto de Confins. ",
+    endLocation:
+      "Retornar com passageiros no aeroporto de Confins e desembarca-los no bairro Palmares",
+    value: 500.0,
+    status: "Agendada",
+    vehicleId: 2,
+    driverId: 2,
+  },
+
+  {
+    id: 9,
     title: "Reserva Paulo",
     clientName: "Paulo Alves",
     startDate: "2025-06-25",

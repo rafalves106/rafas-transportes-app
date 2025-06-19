@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
-import { tripsData } from "../../../data/TripsData";
+import type { Trip } from "../../../data/TripsData";
 import { CardDeViagem } from "./CardDeViagem";
 
 const ListaContainer = styled.div`
@@ -14,39 +14,39 @@ const ListaContainer = styled.div`
 
 const PaginacaoContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: end;
   align-items: center;
-  padding: 2rem 0;
-  gap: 1rem;
 `;
 
 const BotaoPaginacao = styled.button`
-  padding: 0.5rem 1rem;
-  background-color: var(--cor-secundaria);
-  color: var(--cor-primaria);
-  font-weight: 600;
-  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  background-color: transparent;
 
-  &:hover:not(:disabled) {
-    background-color: var(--cor-fundo-card);
+  img {
+    width: 18px;
   }
 
   &:disabled {
-    color: #ccc;
     cursor: not-allowed;
   }
 `;
 
-export function ListaDeViagens() {
+interface ListaDeViagensProps {
+  viagens: Trip[];
+}
+
+export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const ITENS_POR_PAGINA = 6;
 
-  const totalDePaginas = Math.ceil(tripsData.length / ITENS_POR_PAGINA);
+  useEffect(() => {
+    setPaginaAtual(1);
+  }, [viagens]);
+
+  const totalDePaginas = Math.ceil(viagens.length / ITENS_POR_PAGINA);
   const indiceInicial = (paginaAtual - 1) * ITENS_POR_PAGINA;
   const indiceFinal = paginaAtual * ITENS_POR_PAGINA;
-  const viagensDaPagina = tripsData.slice(indiceInicial, indiceFinal);
+  const viagensDaPagina = viagens.slice(indiceInicial, indiceFinal);
 
   const proximaPagina = () => {
     if (paginaAtual < totalDePaginas) {
@@ -60,6 +60,10 @@ export function ListaDeViagens() {
     }
   };
 
+  if (viagens.length === 0) {
+    return <p>Nenhuma viagem encontrada para este filtro.</p>;
+  }
+
   return (
     <>
       <ListaContainer>
@@ -71,18 +75,14 @@ export function ListaDeViagens() {
       {totalDePaginas > 1 && (
         <PaginacaoContainer>
           <BotaoPaginacao onClick={paginaAnterior} disabled={paginaAtual === 1}>
-            Anterior
+            <img src="src/assets/Expand Arrow.png"></img>
           </BotaoPaginacao>
-
-          <span>
-            Página {paginaAtual} de {totalDePaginas}
-          </span>
 
           <BotaoPaginacao
             onClick={proximaPagina}
             disabled={paginaAtual === totalDePaginas}
           >
-            Próxima
+            <img src="src/assets/Expand Arrow-right.png"></img>
           </BotaoPaginacao>
         </PaginacaoContainer>
       )}
