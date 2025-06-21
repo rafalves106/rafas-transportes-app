@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import type { Trip } from "../../../data/TripsData";
 
 const CardContainer = styled.div`
-  max-width: 360px;
+  max-width: 20rem;
   background-color: var(--cor-de-fundo-cards);
   border-radius: 8px;
   padding: 11px;
@@ -13,7 +13,7 @@ const CardTitle = styled.h3`
   margin: 0;
   font-weight: 600;
   color: var(--cor-titulos);
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 8px;
 `;
 
@@ -25,7 +25,7 @@ const CardInfoContainer = styled.div`
 
 const CardInfoTitle = styled.p`
   color: var(--cor-titulos-secundaria);
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   margin-right: 16px;
 `;
@@ -33,7 +33,7 @@ const CardInfoTitle = styled.p`
 const CardInfoDate = styled.span`
   background-color: var(--cor-secundaria);
   color: var(--cor-textos-infos);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   padding: 0px 6px;
   border-radius: 20px;
@@ -43,14 +43,14 @@ const CardInfoDate = styled.span`
 const CardInfoTime = styled.span`
   background-color: var(--cor-primaria);
   color: var(--cor-secundaria);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   padding: 0px 6px;
   border-radius: 20px;
 `;
 
 const CardInfoDesc = styled.p`
-  font-size: 14px;
+  font-size: 10px;
   color: var(--cor-textos);
   font-weight: 500;
   margin-bottom: 8px;
@@ -64,7 +64,8 @@ const CardContainerPrice = styled.div`
 `;
 
 const CardInfoPriceTitle = styled.h4`
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--cor-titulos);
   margin: 0;
 `;
@@ -72,7 +73,7 @@ const CardInfoPriceTitle = styled.h4`
 const CardInfoPrice = styled.span`
   background-color: var(--cor-secundaria);
   color: var(--cor-textos-infos);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   padding: 0px 6px;
   border-radius: 20px;

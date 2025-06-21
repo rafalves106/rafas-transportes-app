@@ -7,7 +7,7 @@ import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
 
 const ListaContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr auto;
   column-gap: 2rem;
   row-gap: 2rem;
   padding: 0 2rem;

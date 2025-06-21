@@ -7,6 +7,7 @@ import { HeaderGlobal } from "./components/HeaderGlobal";
 const AppContainer = styled.div`
   display: flex;
   min-height: 100vh;
+  max-height: 100vh;
 `;
 
 const ConteudoPrincipal = styled.div`
@@ -17,15 +18,12 @@ const ConteudoPrincipal = styled.div`
 
 const AreaDaPagina = styled.main`
   flex: 1;
-  background-color: #f8f9fa;
 `;
 
-// --- COMPONENTE APP ---
 function App() {
-  const location = useLocation(); // Hook para saber a URL atual
-  const navigate = useNavigate(); // Hook para navegar entre páginas
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Objeto de configuração para cada rota
   const pageConfig: {
     [key: string]: {
       icon: string;
@@ -76,7 +74,10 @@ function App() {
     <>
       <GlobalStyle />
       <AppContainer>
-        <Sidebar />
+        <Sidebar
+          novoItemLabel={configAtual.novoLabel}
+          onNovoItemClick={handleNovoItemClick}
+        />
         <ConteudoPrincipal>
           <HeaderGlobal
             appIcon={configAtual.icon}

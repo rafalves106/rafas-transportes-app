@@ -1,3 +1,152 @@
-export function Sidebar() {
-  return <div></div>;
+import { NavLink } from "react-router-dom";
+import styled from "styled-components";
+import logo from "../../src/assets/logo.webp";
+import planLogo from "../assets/planlogo.png";
+import manuLogo from "../assets/manulogo.png";
+import frotaLogo from "../assets/frotalogo.png";
+import motoLogo from "../assets/motologo.png";
+import adicionar from "../assets/Plus.png";
+
+interface SidebarProps {
+  novoItemLabel: string;
+  onNovoItemClick: () => void;
+}
+
+const SidebarContainer = styled.aside`
+  width: 280px;
+  margin: 2.5rem 0;
+  padding: 0 2rem;
+  border-right: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
+`;
+
+const EmpresaInfo = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 2.25rem;
+`;
+
+const LogoContainer = styled.div`
+  img {
+    width: 4.5rem;
+    height: auto;
+  }
+`;
+
+const DataContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: end;
+`;
+
+const Naming = styled.h4`
+  font-size: 0.9rem;
+  font-weight: 600;
+`;
+
+const Data = styled.p`
+  font-size: 0.7rem;
+`;
+
+const NovoItemButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-color: var(--cor-primaria);
+  color: white;
+  padding: 0.6rem 0.5rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 400;
+  font-size: 1.1rem;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
+  margin-bottom: 1.5rem;
+
+  img {
+    width: 1.4rem;
+    margin-right: 0.5rem;
+  }
+
+  &:hover {
+    background-color: var(--cor-secundaria);
+  }
+`;
+
+const NavList = styled.nav`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const StyledNavLink = styled(NavLink)`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  gap: 0.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--cor-titulo);
+  font-weight: 400;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+
+  img {
+    width: auto;
+    height: 0.9rem;
+  }
+
+  &:hover {
+    background-color: var(--cor-de-fundo-cards);
+  }
+
+  &.active {
+    background-color: var(--cor-de-fundo-cards);
+    color: var(--cor-titulo);
+  }
+`;
+
+export function Sidebar({ novoItemLabel, onNovoItemClick }: SidebarProps) {
+  return (
+    <SidebarContainer>
+      <EmpresaInfo>
+        <LogoContainer>
+          <img src={logo} alt="Logo" />
+        </LogoContainer>
+        <DataContainer>
+          <Naming>Rafas Transportes</Naming>
+          <Data>11.434.565/0001-01</Data>
+        </DataContainer>
+      </EmpresaInfo>
+      <NovoItemButton onClick={onNovoItemClick}>
+        <img src={adicionar} alt="Adicionar" />
+        {novoItemLabel}
+      </NovoItemButton>
+
+      <NavList>
+        <StyledNavLink to="/" end>
+          <img src={planLogo} alt="Planejamento" />
+          Planejamento
+        </StyledNavLink>
+        <StyledNavLink to="/manutencoes">
+          <img src={manuLogo} alt="Planejamento" />
+          Manutenções
+        </StyledNavLink>
+        <StyledNavLink to="/frota">
+          {" "}
+          <img src={frotaLogo} alt="Planejamento" />
+          Frota de Veículos
+        </StyledNavLink>
+        <StyledNavLink to="/motoristas">
+          {" "}
+          <img src={motoLogo} alt="Planejamento" />
+          Motoristas
+        </StyledNavLink>
+      </NavList>
+    </SidebarContainer>
+  );
 }
