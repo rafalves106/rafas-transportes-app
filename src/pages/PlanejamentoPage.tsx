@@ -35,8 +35,6 @@ export function PlanejamentoPage() {
 
   return (
     <div>
-      <h1>Planejamento de Viagens</h1>
-
       <FiltroGlobal
         termoBusca={termoBusca}
         onTermoBuscaChange={(e) => setTermoBusca(e.target.value)}

@@ -28,7 +28,7 @@ const router = createBrowserRouter([
         element: <MotoristaPage />,
       },
       {
-        path: "/frotas",
+        path: "/frota",
         element: <FrotaPage />,
       },
     ],

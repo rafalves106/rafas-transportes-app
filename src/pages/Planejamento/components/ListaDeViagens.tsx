@@ -2,17 +2,22 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import type { Trip } from "../../../data/TripsData";
 import { CardDeViagem } from "./CardDeViagem";
+import BtnPagLft from "../../../assets/Expand Arrow.png";
+import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
 
 const ListaContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 6rem;
+  column-gap: 2rem;
   row-gap: 2rem;
-  padding: 1rem;
-  justify-items: center;
+  padding: 0 2rem;
 `;
 
 const PaginacaoContainer = styled.div`
+  position: absolute;
+  bottom: 2rem;
+  right: 0;
+  padding-right: 2rem;
   display: flex;
   justify-content: end;
   align-items: center;
@@ -23,7 +28,7 @@ const BotaoPaginacao = styled.button`
   background-color: transparent;
 
   img {
-    width: 18px;
+    width: 22px;
   }
 
   &:disabled {
@@ -75,14 +80,14 @@ export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
       {totalDePaginas > 1 && (
         <PaginacaoContainer>
           <BotaoPaginacao onClick={paginaAnterior} disabled={paginaAtual === 1}>
-            <img src="src/assets/Expand Arrow.png"></img>
+            <img src={BtnPagLft}></img>
           </BotaoPaginacao>
 
           <BotaoPaginacao
             onClick={proximaPagina}
             disabled={paginaAtual === totalDePaginas}
           >
-            <img src="src/assets/Expand Arrow-right.png"></img>
+            <img src={BtnPagRgt}></img>
           </BotaoPaginacao>
         </PaginacaoContainer>
       )}

@@ -9,12 +9,12 @@ export const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
         border: none;
         outline: none;
+        font-family: 'Poppins', sans-serif;
     }
     
     body {
         background-color: var(--cor-de-fundo);
         color: var(--cor-titulos);
-        font-family: 'Poppins', sans-serif;
     }
 
     :root {
@@ -26,5 +26,6 @@ export const GlobalStyle = createGlobalStyle`
         --cor-titulos-secundaria: #929FA9;
         --cor-textos: #333333;
         --cor-textos-infos: #E8F3FB;
+        --cor-bordas: #D6E0E8;
     } 
 `;

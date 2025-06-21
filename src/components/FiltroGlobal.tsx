@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import React from "react";
+import loupe from "../../src/assets/Loupe.png";
 
 export interface Filtro {
   id: string;
@@ -17,37 +18,46 @@ interface FiltroGlobalProps {
 
 const TopBarContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: start;
   align-items: center;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.5rem;
+  padding: 0.25rem 2rem;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid var(--cor-bordas);
+  border-bottom: 1px solid var(--cor-bordas);
 `;
 
 const FilterTabsContainer = styled.div`
-  padding: 0 1rem 1rem;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 3rem;
+  padding-left: 2rem;
+  margin-bottom: 1.5rem;
+`;
+
+const ImgInput = styled.img`
+  width: 14px;
+  height: 14px;
 `;
 
 const SearchInput = styled.input`
-  padding: 0.75rem 1rem;
-  border: 1px solid #dee2e6;
+  color: var(--cor-titulos-secundaria);
+  padding: 0.75rem 0.5rem;
+  font-weight: 500;
+  background-color: transparent;
   border-radius: 6px;
   min-width: 250px;
   font-size: 1rem;
 `;
 
 const BotaoFiltro = styled.button<{ isActive: boolean }>`
-  padding: 0.5rem 1rem;
+  font-size: 16px;
   border-radius: 20px;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid var(--cor-primaria);
-  background-color: ${(props) =>
-    props.isActive ? "var(--cor-primaria)" : "transparent"};
-  color: ${(props) => (props.isActive ? "white" : "var(--cor-primaria)")};
+  background-color: transparent;
+  color: ${(props) =>
+    props.isActive ? "var(--cor-titulos)" : "var(--cor-titulos-secundaria)"};
 `;
 
 export function FiltroGlobal({
@@ -61,9 +71,10 @@ export function FiltroGlobal({
   return (
     <>
       <TopBarContainer>
+        <ImgInput src={loupe}></ImgInput>
         <SearchInput
           type="text"
-          placeholder="Pesquisar viagem..."
+          placeholder="Pesquisar viagem"
           value={termoBusca}
           onChange={onTermoBuscaChange}
         />

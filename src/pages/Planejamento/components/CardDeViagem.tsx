@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import type { Trip } from "../../../data/TripsData";
 
 const CardContainer = styled.div`
-  max-width: 240px;
+  max-width: 360px;
   background-color: var(--cor-de-fundo-cards);
   border-radius: 8px;
   padding: 11px;
@@ -11,30 +11,30 @@ const CardContainer = styled.div`
 
 const CardTitle = styled.h3`
   margin: 0;
+  font-weight: 600;
   color: var(--cor-titulos);
-  font-size: 16px;
-  margin-bottom: 14px;
+  font-size: 18px;
+  margin-bottom: 8px;
 `;
 
 const CardInfoContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 6px;
 `;
 
 const CardInfoTitle = styled.p`
   color: var(--cor-titulos-secundaria);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   margin-right: 16px;
 `;
 
 const CardInfoDate = styled.span`
   background-color: var(--cor-secundaria);
   color: var(--cor-textos-infos);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   padding: 0px 6px;
   border-radius: 20px;
   margin-right: 8px;
@@ -43,17 +43,17 @@ const CardInfoDate = styled.span`
 const CardInfoTime = styled.span`
   background-color: var(--cor-primaria);
   color: var(--cor-secundaria);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   padding: 0px 6px;
   border-radius: 20px;
 `;
 
 const CardInfoDesc = styled.p`
-  font-size: 10px;
+  font-size: 14px;
   color: var(--cor-textos);
   font-weight: 500;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 `;
 
 const CardContainerPrice = styled.div`
@@ -64,7 +64,7 @@ const CardContainerPrice = styled.div`
 `;
 
 const CardInfoPriceTitle = styled.h4`
-  font-size: 14px;
+  font-size: 16px;
   color: var(--cor-titulos);
   margin: 0;
 `;
@@ -72,7 +72,7 @@ const CardInfoPriceTitle = styled.h4`
 const CardInfoPrice = styled.span`
   background-color: var(--cor-secundaria);
   color: var(--cor-textos-infos);
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 600;
   padding: 0px 6px;
   border-radius: 20px;
