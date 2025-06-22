@@ -3,10 +3,15 @@ import { useState } from "react";
 import { tripsData, type Trip } from "../data/TripsData";
 
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
+import { ModalGlobal } from "../components/ModalGlobal";
+import { useOutlet, useNavigate } from "react-router-dom";
 
 export function PlanejamentoPage() {
   const [filtroAtivo, setFiltroAtivo] = useState("em_andamento");
   const [termoBusca, setTermoBusca] = useState("");
+
+  const outlet = useOutlet();
+  const navigate = useNavigate();
 
   const filtrosPlanejamento: Filtro[] = [
     { id: "em_andamento", label: "Em Andamento" },
@@ -44,6 +49,16 @@ export function PlanejamentoPage() {
       />
 
       <ListaDeViagens viagens={viagensFiltradas} />
+
+      {outlet && (
+        <ModalGlobal
+          title="Título da Reserva"
+          onClose={() => navigate("/")}
+          formId="form-nova-viagem"
+        >
+          {outlet}
+        </ModalGlobal>
+      )}
     </div>
   );
 }

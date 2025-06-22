@@ -9,6 +9,7 @@ import { PlanejamentoPage } from "./pages/PlanejamentoPage.tsx";
 import { ManutencaoPage } from "./pages/ManutencaoPage.tsx";
 import { MotoristaPage } from "./pages/MotoristaPage.tsx";
 import { FrotaPage } from "./pages/FrotaPage.tsx";
+import { FormNovaViagem } from "./pages/Planejamento/components/FormNovaViagem.tsx";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,12 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <PlanejamentoPage />,
+        children: [
+          {
+            path: "novo",
+            element: <FormNovaViagem />,
+          },
+        ],
       },
       {
         path: "/manutencoes",

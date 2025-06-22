@@ -36,7 +36,13 @@ function App() {
       icon: "📅",
       title: "Planejamento",
       novoLabel: "Nova Viagem",
-      novoPath: "/planejamento/novo",
+      novoPath: "/novo",
+    },
+    "/novo": {
+      icon: "📅",
+      title: "Planejamento",
+      novoLabel: "Nova Viagem",
+      novoPath: "/novo",
     },
     "/manutencoes": {
       icon: "🔧",
