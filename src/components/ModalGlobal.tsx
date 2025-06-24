@@ -28,7 +28,8 @@ const ModalContainer = styled.div`
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
-  max-width: 580px;
+  max-width: 70vw;
+  max-height: 90vh;
   overflow: hidden;
 `;
 
@@ -66,6 +67,7 @@ const CloseButton = styled.button`
 
 const ModalBody = styled.div`
   padding: 1.5rem 2rem;
+  overflow-y: auto;
 `;
 
 const ModalFooter = styled.footer`

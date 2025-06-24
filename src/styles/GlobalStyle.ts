@@ -11,6 +11,24 @@ export const GlobalStyle = createGlobalStyle`
         outline: none;
         font-family: 'Poppins', sans-serif;
     }
+
+    ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+    background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+    }
     
     body {
         background-color: var(--cor-de-fundo);

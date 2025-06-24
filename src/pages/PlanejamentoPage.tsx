@@ -1,12 +1,14 @@
-import { ListaDeViagens } from "./Planejamento/components/ListaDeViagens";
 import { useState } from "react";
-import { tripsData, type Trip } from "../data/TripsData";
+import { useOutlet, useNavigate, Outlet } from "react-router-dom";
 
-import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
+import { tripsData as initialTripsData } from "../data/TripsData";
+import { ListaDeViagens } from "./Planejamento/components/ListaDeViagens";
 import { ModalGlobal } from "../components/ModalGlobal";
-import { useOutlet, useNavigate } from "react-router-dom";
+import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
+import type { Trip } from "../data/TripsData";
 
 export function PlanejamentoPage() {
+  const [viagens, setViagens] = useState<Trip[]>(initialTripsData);
   const [filtroAtivo, setFiltroAtivo] = useState("em_andamento");
   const [termoBusca, setTermoBusca] = useState("");
 
@@ -19,7 +21,7 @@ export function PlanejamentoPage() {
     { id: "realizadas", label: "Realizadas" },
   ];
 
-  const viagensFiltradas = tripsData.filter((viagem: Trip) => {
+  const viagensFiltradas = viagens.filter((viagem: Trip) => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const dataInicio = new Date(viagem.startDate + "T00:00");
@@ -38,6 +40,19 @@ export function PlanejamentoPage() {
     return correspondeAoFiltro && correspondeABusca;
   });
 
+  const handleAdicionarViagem = (
+    dadosDoFormulario: Omit<Trip, "id" | "status">
+  ) => {
+    const novaViagem = {
+      id: Date.now(),
+      status: "Agendada" as const,
+      ...dadosDoFormulario,
+    };
+
+    setViagens((viagensAnteriores) => [novaViagem, ...viagensAnteriores]);
+    navigate("/");
+  };
+
   return (
     <div>
       <FiltroGlobal
@@ -52,11 +67,11 @@ export function PlanejamentoPage() {
 
       {outlet && (
         <ModalGlobal
-          title="Título da Reserva"
+          title="Adicionar Nova Viagem"
           onClose={() => navigate("/")}
           formId="form-nova-viagem"
         >
-          {outlet}
+          <Outlet context={{ onAdicionarViagem: handleAdicionarViagem }} />
         </ModalGlobal>
       )}
     </div>

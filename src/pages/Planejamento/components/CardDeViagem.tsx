@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { format } from "date-fns";
-import type { Trip } from "../../../data/TripsData";
+import type { Trip } from "../../../data/tripsData";
 
 const CardContainer = styled.div`
   max-width: 20rem;
