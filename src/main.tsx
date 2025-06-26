@@ -24,6 +24,10 @@ const router = createBrowserRouter([
             path: "novo",
             element: <FormularioNovaViagem />,
           },
+          {
+            path: "editar/:tripId",
+            element: <FormularioNovaViagem />,
+          },
         ],
       },
       {

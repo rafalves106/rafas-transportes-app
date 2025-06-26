@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
-import type { Trip } from "../../../data/TripsData";
+import type { Trip } from "../../../data/tripsData";
 import { CardDeViagem } from "./CardDeViagem";
 import BtnPagLft from "../../../assets/Expand Arrow.png";
 import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
@@ -36,6 +36,10 @@ const BotaoPaginacao = styled.button`
   }
 `;
 
+const MensagemNaoEncontrada = styled.p`
+  margin: 1rem 0 0 2rem;
+`;
+
 interface ListaDeViagensProps {
   viagens: Trip[];
 }
@@ -66,7 +70,11 @@ export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
   };
 
   if (viagens.length === 0) {
-    return <p>Nenhuma viagem encontrada para este filtro.</p>;
+    return (
+      <MensagemNaoEncontrada>
+        Nenhuma viagem encontrada para este filtro.
+      </MensagemNaoEncontrada>
+    );
   }
 
   return (

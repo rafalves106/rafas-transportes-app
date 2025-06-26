@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { format } from "date-fns";
 import type { Trip } from "../../../data/tripsData";
+import { Link } from "react-router-dom";
 
 const CardContainer = styled.div`
   max-width: 20rem;
@@ -9,12 +10,27 @@ const CardContainer = styled.div`
   padding: 11px;
 `;
 
+const CardTitleContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
 const CardTitle = styled.h3`
   margin: 0;
   font-weight: 600;
   color: var(--cor-titulos);
   font-size: 16px;
   margin-bottom: 8px;
+`;
+
+const CardDetailsTitle = styled(Link)`
+  margin: 0;
+  font-weight: 600;
+  color: var(--cor-titulos-secundaria);
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
 `;
 
 const CardInfoContainer = styled.div`
@@ -86,7 +102,10 @@ interface CardDeViagemProps {
 export function CardDeViagem({ trip }: CardDeViagemProps) {
   return (
     <CardContainer className="trip-card">
-      <CardTitle>{trip.title}</CardTitle>
+      <CardTitleContainer>
+        <CardTitle>{trip.title}</CardTitle>
+        <CardDetailsTitle to={`/editar/${trip.id}`}>Detalhes</CardDetailsTitle>
+      </CardTitleContainer>
 
       <CardInfoContainer>
         <CardInfoTitle>Início</CardInfoTitle>

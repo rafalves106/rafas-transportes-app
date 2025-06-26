@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 
 import { driversData } from "../../../data/driversData";
 import { vehiclesData } from "../../../data/vehiclesData";
-import type { Trip } from "../../../data/TripsData";
+import type { Trip } from "../../../data/tripsData";
+import { tripsData } from "../../../data/tripsData";
+import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
 const FormContainer = styled.form``;
 const FormGrid = styled.div`
@@ -46,6 +48,22 @@ const InputRow = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
 `;
+
+const RotaVeiculoBloco = styled.div`
+  border-left: 3px solid #dee2e6;
+  padding-left: 1rem;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const RotaHorarioContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
 const LabelContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -106,30 +124,23 @@ const ErrorMessage = styled.span`
   font-size: 0.8rem;
   font-weight: 500;
 `;
-const RotaHorarioContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-const RotaVeiculoBloco = styled.div`
-  border-left: 3px solid #dee2e6;
-  padding-left: 1rem;
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
 
 interface FormContextType {
   onAdicionarViagem: (dados: Omit<Trip, "id" | "status">) => void;
+  onEditarViagem: (id: number, dados: Omit<Trip, "id" | "status">) => void;
+  onExcluirViagem: (id: number) => void;
 }
 
 export function FormularioNovaViagem() {
-  const { onAdicionarViagem } = useOutletContext<FormContextType>();
+  const { tripId } = useParams();
+  const { onAdicionarViagem, onEditarViagem, onExcluirViagem } =
+    useOutletContext<FormContextType>();
+  const isEditing = !!tripId;
 
   const [dadosFormulario, setDadosFormulario] = useState({
     title: "",
     clientName: "",
+    telefone: "",
     value: "",
     tipoViagem: "ida_e_volta_mg",
     startDate: "",
@@ -144,6 +155,78 @@ export function FormularioNovaViagem() {
   });
 
   const [erros, setErros] = useState<{ [key: string]: string }>({});
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (isEditing && tripId) {
+      const viagemParaEditar = tripsData.find(
+        (trip) => trip.id === parseInt(tripId)
+      );
+      if (viagemParaEditar) {
+        setDadosFormulario({
+          title: viagemParaEditar.title,
+          clientName: viagemParaEditar.clientName,
+          telefone: "",
+          value: String(viagemParaEditar.value),
+          tipoViagem: "ida_e_volta_mg",
+          startDate: viagemParaEditar.startDate,
+          startTime: viagemParaEditar.startTime,
+          startLocation: viagemParaEditar.startLocation,
+          endDate: viagemParaEditar.endDate,
+          endTime: viagemParaEditar.endTime,
+          endLocation: viagemParaEditar.endLocation,
+          veiculos: [{ id: String(viagemParaEditar.vehicleId) }],
+          motoristas: [{ id: String(viagemParaEditar.driverId) }],
+          rota: [],
+        });
+      }
+    }
+  }, [tripId, isEditing]);
+
+  useEffect(() => {
+    if (isEditing) return;
+
+    let textoIda = "";
+    let textoVolta = "";
+
+    switch (dadosFormulario.tipoViagem) {
+      case "fretamento_aeroporto":
+        textoIda =
+          "Buscar passageiros em [ENDEREÇO] e levar ao Aeroporto de Confins.";
+        textoVolta =
+          "Buscar passageiros no Aeroporto de Confins e levar para [ENDEREÇO].";
+        break;
+      case "ida_e_volta_mg":
+        textoIda = "Percurso de ida para [CIDADE-DESTINO].";
+        textoVolta = "Percurso de volta de [CIDADE-DESTINO].";
+        break;
+      case "somente_ida_mg":
+        textoIda = "Percurso somente de ida para [CIDADE-DESTINO].";
+        textoVolta = "";
+        break;
+      case "ida_e_volta_fora_mg":
+        textoIda =
+          "Percurso ida e volta saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
+        textoVolta =
+          "Volta do percurso saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
+        break;
+      case "somente_ida_fora_mg":
+        textoIda =
+          "Percurso somente ida saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
+        textoVolta = "";
+        break;
+      default:
+        textoIda = "";
+        textoVolta = "";
+        break;
+    }
+
+    setDadosFormulario((prev) => ({
+      ...prev,
+      startLocation: textoIda,
+      endLocation: textoVolta,
+    }));
+  }, [dadosFormulario.tipoViagem, isEditing]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -242,15 +325,19 @@ export function FormularioNovaViagem() {
       novosErros.clientName = "Nome é obrigatório.";
     if (!dadosFormulario.value || parseFloat(dadosFormulario.value) <= 0)
       novosErros.value = "Valor é obrigatório.";
-
     const isRota = dadosFormulario.tipoViagem === "rota_colaboradores";
-    if (!isRota && !dadosFormulario.startDate) {
-      novosErros.startDate = "Data de início é obrigatória.";
+    if (!isRota) {
+      if (!dadosFormulario.startDate)
+        novosErros.startDate = "Data de início é obrigatória.";
+      if (!dadosFormulario.startTime)
+        novosErros.startTime = "Hora de saída é obrigatória.";
     }
-
     const isIdaEVolta = dadosFormulario.tipoViagem.includes("ida_e_volta");
-    if (isIdaEVolta && !dadosFormulario.endDate) {
-      novosErros.endDate = "Data de retorno é obrigatória.";
+    if (isIdaEVolta) {
+      if (!dadosFormulario.endDate)
+        novosErros.endDate = "Data de retorno é obrigatória.";
+      if (!dadosFormulario.endTime)
+        novosErros.endTime = "Hora de volta é obrigatória.";
     }
     return novosErros;
   };
@@ -263,7 +350,6 @@ export function FormularioNovaViagem() {
       return;
     }
     setErros({});
-
     const dadosParaSalvar = {
       title: dadosFormulario.title,
       clientName: dadosFormulario.clientName,
@@ -277,7 +363,22 @@ export function FormularioNovaViagem() {
       vehicleId: parseInt(dadosFormulario.veiculos[0]?.id) || 0,
       driverId: parseInt(dadosFormulario.motoristas[0]?.id) || 0,
     };
-    onAdicionarViagem(dadosParaSalvar);
+    if (isEditing && tripId) {
+      onEditarViagem(parseInt(tripId), dadosParaSalvar);
+    } else {
+      onAdicionarViagem(dadosParaSalvar);
+    }
+  };
+
+  const handleExcluirClick = () => {
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmarExclusao = () => {
+    if (!tripId) return;
+
+    onExcluirViagem(parseInt(tripId));
+    setIsConfirmModalOpen(false);
   };
 
   const isRota = dadosFormulario.tipoViagem === "rota_colaboradores";
@@ -286,334 +387,384 @@ export function FormularioNovaViagem() {
     "somente_ida_mg",
     "ida_e_volta_fora_mg",
     "somente_ida_fora_mg",
+    "fretamento_aeroporto",
   ].includes(dadosFormulario.tipoViagem);
   const mostraPercursoVolta = [
     "ida_e_volta_mg",
     "ida_e_volta_fora_mg",
+    "fretamento_aeroporto",
   ].includes(dadosFormulario.tipoViagem);
 
   return (
-    <FormContainer id="form-nova-viagem" onSubmit={handleSubmit}>
-      <FormGrid>
-        <FormSectionSide>
-          <InputGroup>
-            <SectionTitle>Dados da Reserva</SectionTitle>
-            <Label htmlFor="title">Título da Reserva</Label>
-            <Input
-              id="title"
-              name="title"
-              type="text"
-              value={dadosFormulario.title}
-              onChange={handleInputChange}
-              hasError={!!erros.title}
-            />
-            {erros.title && <ErrorMessage>{erros.title}</ErrorMessage>}
-          </InputGroup>
-          <InputGroup>
-            <SectionTitle>Dados Cliente</SectionTitle>
-            <Label htmlFor="clientName">Nome Cliente</Label>
-            <Input
-              id="clientName"
-              name="clientName"
-              type="text"
-              value={dadosFormulario.clientName}
-              onChange={handleInputChange}
-              hasError={!!erros.clientName}
-            />
-            {erros.clientName && (
-              <ErrorMessage>{erros.clientName}</ErrorMessage>
-            )}
-          </InputGroup>
-
-          {!isRota && (
+    <>
+      <FormContainer
+        id={isEditing ? `form-editar-viagem-${tripId}` : "form-nova-viagem"}
+        onSubmit={handleSubmit}
+      >
+        <FormGrid>
+          <FormSectionSide>
             <InputGroup>
-              <SectionTitle>Veículos</SectionTitle>
-              {dadosFormulario.veiculos.map((veiculo, index) => (
+              <SectionTitle>Dados da Reserva</SectionTitle>
+              <Label htmlFor="title">Título da Reserva</Label>
+              <Input
+                id="title"
+                name="title"
+                type="text"
+                value={dadosFormulario.title}
+                onChange={handleInputChange}
+                hasError={!!erros.title}
+              />
+              {erros.title && <ErrorMessage>{erros.title}</ErrorMessage>}
+            </InputGroup>
+
+            <InputGroup>
+              <SectionTitle>Dados Cliente</SectionTitle>
+              <Label htmlFor="clientName">Nome Cliente</Label>
+              <Input
+                id="clientName"
+                name="clientName"
+                type="text"
+                value={dadosFormulario.clientName}
+                onChange={handleInputChange}
+                hasError={!!erros.clientName}
+              />
+              {erros.clientName && (
+                <ErrorMessage>{erros.clientName}</ErrorMessage>
+              )}
+              <Label htmlFor="telefone">Telefone Cliente</Label>
+              <Input
+                id="telefone"
+                name="telefone"
+                type="text"
+                value={dadosFormulario.telefone}
+                onChange={handleInputChange}
+              />
+            </InputGroup>
+
+            {!isRota && (
+              <InputGroup>
+                <SectionTitle>Veículos</SectionTitle>
+                {dadosFormulario.veiculos.map((veiculo, index) => (
+                  <div key={index}>
+                    <LabelContainer>
+                      <Label htmlFor={`veiculo-${index}`}>
+                        Veículo {index + 1}
+                      </Label>
+                      {index > 0 && (
+                        <RemoveButton
+                          type="button"
+                          onClick={() => removeFromList(index, "veiculos")}
+                        >
+                          &times;
+                        </RemoveButton>
+                      )}
+                    </LabelContainer>
+                    <Select
+                      id={`veiculo-${index}`}
+                      value={veiculo.id}
+                      onChange={(e) =>
+                        handleDynamicListChange(index, e, "veiculos")
+                      }
+                    >
+                      <option value="">Selecione</option>
+                      {vehiclesData.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.model} ({v.plate})
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                ))}
+                <AddButton type="button" onClick={() => addToList("veiculos")}>
+                  + Adicionar Veículo
+                </AddButton>
+              </InputGroup>
+            )}
+
+            <InputGroup>
+              <SectionTitle>Motoristas</SectionTitle>
+              {dadosFormulario.motoristas.map((motorista, index) => (
                 <div key={index}>
                   <LabelContainer>
-                    <Label htmlFor={`veiculo-${index}`}>
-                      Veículo {index + 1}
+                    <Label htmlFor={`motorista-${index}`}>
+                      Motorista {index + 1}
                     </Label>
                     {index > 0 && (
                       <RemoveButton
                         type="button"
-                        onClick={() => removeFromList(index, "veiculos")}
+                        onClick={() => removeFromList(index, "motoristas")}
                       >
                         &times;
                       </RemoveButton>
                     )}
                   </LabelContainer>
                   <Select
-                    id={`veiculo-${index}`}
-                    value={veiculo.id}
+                    id={`motorista-${index}`}
+                    value={motorista.id}
                     onChange={(e) =>
-                      handleDynamicListChange(index, e, "veiculos")
+                      handleDynamicListChange(index, e, "motoristas")
                     }
                   >
                     <option value="">Selecione</option>
-                    {vehiclesData.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.model} ({v.plate})
+                    {driversData.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name}
                       </option>
                     ))}
                   </Select>
                 </div>
               ))}
-              <AddButton type="button" onClick={() => addToList("veiculos")}>
-                + Adicionar Veículo
+              <AddButton type="button" onClick={() => addToList("motoristas")}>
+                + Adicionar Motorista
               </AddButton>
             </InputGroup>
-          )}
 
-          <InputGroup>
-            <SectionTitle>Motoristas</SectionTitle>
-            {dadosFormulario.motoristas.map((motorista, index) => (
-              <div key={index}>
-                <LabelContainer>
-                  <Label htmlFor={`motorista-${index}`}>
-                    Motorista {index + 1}
-                  </Label>
-                  {index > 0 && (
-                    <RemoveButton
-                      type="button"
-                      onClick={() => removeFromList(index, "motoristas")}
-                    >
-                      &times;
-                    </RemoveButton>
-                  )}
-                </LabelContainer>
-                <Select
-                  id={`motorista-${index}`}
-                  value={motorista.id}
-                  onChange={(e) =>
-                    handleDynamicListChange(index, e, "motoristas")
-                  }
-                >
-                  <option value="">Selecione</option>
-                  {driversData.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            ))}
-            <AddButton type="button" onClick={() => addToList("motoristas")}>
-              + Adicionar Motorista
-            </AddButton>
-          </InputGroup>
-
-          <InputGroup>
-            <SectionTitle>Valores</SectionTitle>
-            <Label htmlFor="value">Valor do Serviço</Label>
-            <Input
-              id="value"
-              name="value"
-              type="number"
-              placeholder="R$"
-              value={dadosFormulario.value}
-              onChange={handleInputChange}
-              hasError={!!erros.value}
-            />
-            {erros.value && <ErrorMessage>{erros.value}</ErrorMessage>}
-          </InputGroup>
-        </FormSectionSide>
-
-        <FormSection>
-          <InputGroup>
-            <Label htmlFor="tipoViagem">Tipo de Viagem</Label>
-            <Select
-              id="tipoViagem"
-              name="tipoViagem"
-              value={dadosFormulario.tipoViagem}
-              onChange={handleInputChange}
-            >
-              <option value="ida_e_volta_mg">Viagem Ida e Volta - MG</option>
-              <option value="somente_ida_mg">Viagem Somente Ida - MG</option>
-              <option value="ida_e_volta_fora_mg">
-                Viagem Ida e Volta - Fora de MG
-              </option>
-              <option value="somente_ida_fora_mg">
-                Viagem Somente Ida - Fora de MG
-              </option>
-              <option value="rota_colaboradores">Rota de Colaboradores</option>
-            </Select>
-          </InputGroup>
-
-          {mostraPercursoIda && (
-            <>
-              <SectionTitle>Percurso de Ida</SectionTitle>
-              <InputRow>
-                <InputGroup>
-                  <Label htmlFor="startDate">Data de Início</Label>
-                  <Input
-                    id="startDate"
-                    name="startDate"
-                    type="date"
-                    value={dadosFormulario.startDate}
-                    onChange={handleInputChange}
-                    hasError={!!erros.startDate}
-                  />
-                  {erros.startDate && (
-                    <ErrorMessage>{erros.startDate}</ErrorMessage>
-                  )}
-                </InputGroup>
-                <InputGroup>
-                  <Label htmlFor="startTime">Hora Saída</Label>
-                  <Input
-                    id="startTime"
-                    name="startTime"
-                    type="time"
-                    value={dadosFormulario.startTime}
-                    onChange={handleInputChange}
-                  />
-                </InputGroup>
-              </InputRow>
-              <InputGroup>
-                <Label htmlFor="startLocation">Descrição (Ida)</Label>
-                <Textarea
-                  id="startLocation"
-                  name="startLocation"
-                  value={dadosFormulario.startLocation}
-                  onChange={handleInputChange}
-                />
-              </InputGroup>
-            </>
-          )}
-
-          {mostraPercursoVolta && (
-            <>
-              <SectionTitle>Percurso de Volta</SectionTitle>
-              <InputRow>
-                <InputGroup>
-                  <Label htmlFor="endDate">Data de Retorno</Label>
-                  <Input
-                    id="endDate"
-                    name="endDate"
-                    type="date"
-                    value={dadosFormulario.endDate}
-                    onChange={handleInputChange}
-                    hasError={!!erros.endDate}
-                  />
-                  {erros.endDate && (
-                    <ErrorMessage>{erros.endDate}</ErrorMessage>
-                  )}
-                </InputGroup>
-                <InputGroup>
-                  <Label htmlFor="endTime">Hora Volta</Label>
-                  <Input
-                    id="endTime"
-                    name="endTime"
-                    type="time"
-                    value={dadosFormulario.endTime}
-                    onChange={handleInputChange}
-                  />
-                </InputGroup>
-              </InputRow>
-              <InputGroup>
-                <Label htmlFor="endLocation">Descrição (Volta)</Label>
-                <Textarea
-                  id="endLocation"
-                  name="endLocation"
-                  value={dadosFormulario.endLocation}
-                  onChange={handleInputChange}
-                />
-              </InputGroup>
-            </>
-          )}
-
-          {isRota && (
             <InputGroup>
-              <SectionTitle>Veículos e Horários da Rota</SectionTitle>
-              {dadosFormulario.rota.map((itemRota, veiculoIndex) => (
-                <RotaVeiculoBloco key={veiculoIndex}>
-                  <LabelContainer>
-                    <Label>Veículo</Label>
-                    {veiculoIndex > 0 && (
-                      <RemoveButton
-                        type="button"
-                        onClick={() => removerVeiculoRota(veiculoIndex)}
-                      >
-                        &times;
-                      </RemoveButton>
+              <SectionTitle>Valores</SectionTitle>
+              <Label htmlFor="value">Valor do Serviço</Label>
+              <Input
+                id="value"
+                name="value"
+                type="number"
+                placeholder="R$"
+                value={dadosFormulario.value}
+                onChange={handleInputChange}
+                hasError={!!erros.value}
+              />
+              {erros.value && <ErrorMessage>{erros.value}</ErrorMessage>}
+            </InputGroup>
+          </FormSectionSide>
+
+          <FormSection>
+            <InputGroup>
+              <Label htmlFor="tipoViagem">Tipo de Viagem</Label>
+              <Select
+                id="tipoViagem"
+                name="tipoViagem"
+                value={dadosFormulario.tipoViagem}
+                onChange={handleInputChange}
+              >
+                <option value="fretamento_aeroporto">
+                  Fretamento Aeroporto
+                </option>
+                <option value="ida_e_volta_mg">Viagem Ida e Volta - MG</option>
+                <option value="somente_ida_mg">Viagem Somente Ida - MG</option>
+                <option value="ida_e_volta_fora_mg">
+                  Viagem Ida e Volta - Fora de MG
+                </option>
+                <option value="somente_ida_fora_mg">
+                  Viagem Somente Ida - Fora de MG
+                </option>
+                <option value="rota_colaboradores">
+                  Rota de Colaboradores
+                </option>
+              </Select>
+            </InputGroup>
+
+            {mostraPercursoIda && (
+              <>
+                <SectionTitle>Percurso de Ida</SectionTitle>
+                <InputRow>
+                  <InputGroup>
+                    <Label htmlFor="startDate">Data de Início</Label>
+                    <Input
+                      id="startDate"
+                      name="startDate"
+                      type="date"
+                      value={dadosFormulario.startDate}
+                      onChange={handleInputChange}
+                      hasError={!!erros.startDate}
+                    />
+                    {erros.startDate && (
+                      <ErrorMessage>{erros.startDate}</ErrorMessage>
                     )}
-                  </LabelContainer>
-                  <Select
-                    value={itemRota.veiculoId}
-                    onChange={(e) => handleRotaVeiculoChange(veiculoIndex, e)}
-                  >
-                    <option value="">Selecione</option>
-                    {vehiclesData.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.model}
-                      </option>
-                    ))}
-                  </Select>
-                  <Label>Horários do Veículo</Label>
-                  {itemRota.horarios.map((horario, horarioIndex) => (
-                    <RotaHorarioContainer key={horarioIndex}>
-                      <InputGroup>
-                        <Label>Início</Label>
-                        <Input
-                          type="time"
-                          name="inicio"
-                          value={horario.inicio}
-                          onChange={(e) =>
-                            handleHorarioRotaChange(
-                              veiculoIndex,
-                              horarioIndex,
-                              e
-                            )
-                          }
-                        />
-                      </InputGroup>
-                      <InputGroup>
-                        <Label>Fim</Label>
-                        <Input
-                          type="time"
-                          name="fim"
-                          value={horario.fim}
-                          onChange={(e) =>
-                            handleHorarioRotaChange(
-                              veiculoIndex,
-                              horarioIndex,
-                              e
-                            )
-                          }
-                        />
-                      </InputGroup>
-                      {horarioIndex > 0 && (
+                  </InputGroup>
+                  <InputGroup>
+                    <Label htmlFor="startTime">Hora Saída</Label>
+                    <Input
+                      id="startTime"
+                      name="startTime"
+                      type="time"
+                      value={dadosFormulario.startTime}
+                      onChange={handleInputChange}
+                      hasError={!!erros.startTime}
+                    />
+                    {erros.startTime && (
+                      <ErrorMessage>{erros.startTime}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                </InputRow>
+                <InputGroup>
+                  <Label htmlFor="startLocation">Descrição (Ida)</Label>
+                  <Textarea
+                    id="startLocation"
+                    name="startLocation"
+                    value={dadosFormulario.startLocation}
+                    onChange={handleInputChange}
+                  />
+                </InputGroup>
+              </>
+            )}
+
+            {mostraPercursoVolta && (
+              <>
+                <SectionTitle>Percurso de Volta</SectionTitle>
+                <InputRow>
+                  <InputGroup>
+                    <Label htmlFor="endDate">Data de Retorno</Label>
+                    <Input
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      value={dadosFormulario.endDate}
+                      onChange={handleInputChange}
+                      hasError={!!erros.endDate}
+                    />
+                    {erros.endDate && (
+                      <ErrorMessage>{erros.endDate}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                  <InputGroup>
+                    <Label htmlFor="endTime">Hora Volta</Label>
+                    <Input
+                      id="endTime"
+                      name="endTime"
+                      type="time"
+                      value={dadosFormulario.endTime}
+                      onChange={handleInputChange}
+                      hasError={!!erros.endTime}
+                    />
+                    {erros.endTime && (
+                      <ErrorMessage>{erros.endTime}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                </InputRow>
+                <InputGroup>
+                  <Label htmlFor="endLocation">Descrição (Volta)</Label>
+                  <Textarea
+                    id="endLocation"
+                    name="endLocation"
+                    value={dadosFormulario.endLocation}
+                    onChange={handleInputChange}
+                  />
+                </InputGroup>
+              </>
+            )}
+
+            {isRota && (
+              <InputGroup>
+                <SectionTitle>Veículos e Horários da Rota</SectionTitle>
+                {dadosFormulario.rota.map((itemRota, veiculoIndex) => (
+                  <RotaVeiculoBloco key={veiculoIndex}>
+                    <LabelContainer>
+                      <Label>Veículo</Label>
+                      {veiculoIndex > 0 && (
                         <RemoveButton
-                          style={{ alignSelf: "flex-end" }}
                           type="button"
-                          onClick={() =>
-                            removerHorario(veiculoIndex, horarioIndex)
-                          }
+                          onClick={() => removerVeiculoRota(veiculoIndex)}
                         >
                           &times;
                         </RemoveButton>
                       )}
-                    </RotaHorarioContainer>
-                  ))}
-                  <AddButton
-                    type="button"
-                    onClick={() => adicionarHorario(veiculoIndex)}
-                  >
-                    + Adicionar Horário
-                  </AddButton>
-                </RotaVeiculoBloco>
-              ))}
-              <AddButton
-                type="button"
-                onClick={adicionarVeiculoRota}
-                style={{ marginTop: "1rem" }}
+                    </LabelContainer>
+                    <Select
+                      value={itemRota.veiculoId}
+                      onChange={(e) => handleRotaVeiculoChange(veiculoIndex, e)}
+                    >
+                      <option value="">Selecione</option>
+                      {vehiclesData.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.model}
+                        </option>
+                      ))}
+                    </Select>
+                    <Label>Horários do Veículo</Label>
+                    {itemRota.horarios.map((horario, horarioIndex) => (
+                      <RotaHorarioContainer key={horarioIndex}>
+                        <InputGroup>
+                          <Label>Início</Label>
+                          <Input
+                            type="time"
+                            name="inicio"
+                            value={horario.inicio}
+                            onChange={(e) =>
+                              handleHorarioRotaChange(
+                                veiculoIndex,
+                                horarioIndex,
+                                e
+                              )
+                            }
+                          />
+                        </InputGroup>
+                        <InputGroup>
+                          <Label>Fim</Label>
+                          <Input
+                            type="time"
+                            name="fim"
+                            value={horario.fim}
+                            onChange={(e) =>
+                              handleHorarioRotaChange(
+                                veiculoIndex,
+                                horarioIndex,
+                                e
+                              )
+                            }
+                          />
+                        </InputGroup>
+                        {horarioIndex > 0 && (
+                          <RemoveButton
+                            style={{ alignSelf: "flex-end" }}
+                            type="button"
+                            onClick={() =>
+                              removerHorario(veiculoIndex, horarioIndex)
+                            }
+                          >
+                            &times;
+                          </RemoveButton>
+                        )}
+                      </RotaHorarioContainer>
+                    ))}
+                    <AddButton
+                      type="button"
+                      onClick={() => adicionarHorario(veiculoIndex)}
+                    >
+                      + Adicionar Horário
+                    </AddButton>
+                  </RotaVeiculoBloco>
+                ))}
+                <AddButton
+                  type="button"
+                  onClick={adicionarVeiculoRota}
+                  style={{ marginTop: "1rem" }}
+                >
+                  + Adicionar Veículo à Rota
+                </AddButton>
+              </InputGroup>
+            )}
+
+            {isEditing && (
+              <div
+                style={{
+                  marginTop: "auto",
+                  paddingTop: "1rem",
+                  borderTop: "1px solid #eee",
+                }}
               >
-                + Adicionar Veículo à Rota
-              </AddButton>
-            </InputGroup>
-          )}
-        </FormSection>
-      </FormGrid>
-    </FormContainer>
+                <RemoveButton type="button" onClick={handleExcluirClick}>
+                  Excluir Viagem
+                </RemoveButton>
+              </div>
+            )}
+          </FormSection>
+        </FormGrid>
+      </FormContainer>
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmarExclusao}
+        title="Confirmar Exclusão"
+        message={`Tem certeza que deseja excluir permanentemente a reserva "${dadosFormulario.title}"?`}
+      />
+    </>
   );
 }

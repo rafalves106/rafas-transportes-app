@@ -1,0 +1,97 @@
+import styled from "styled-components";
+
+interface ConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+}
+
+const Backdrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+`;
+
+const ModalBox = styled.div`
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+`;
+
+const ModalTitle = styled.h2`
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #343a40;
+`;
+
+const ModalMessage = styled.p`
+  margin-bottom: 2rem;
+  color: #495057;
+  font-size: 1rem;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+`;
+
+const ConfirmButton = styled.button`
+  background-color: var(--cor-primaria);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+`;
+
+const CancelButton = styled.button`
+  background-color: white;
+  color: #555;
+  border: 1px solid #ccc;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+`;
+
+export function ConfirmationModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+}: ConfirmationModalProps) {
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <Backdrop onClick={onClose}>
+      <ModalBox onClick={(e) => e.stopPropagation()}>
+        <ModalTitle>{title}</ModalTitle>
+        <ModalMessage>{message}</ModalMessage>
+        <ButtonContainer>
+          <CancelButton onClick={onClose}>Voltar</CancelButton>
+          <ConfirmButton onClick={onConfirm}>Confirmar</ConfirmButton>
+        </ButtonContainer>
+      </ModalBox>
+    </Backdrop>
+  );
+}

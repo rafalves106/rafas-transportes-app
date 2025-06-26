@@ -45,5 +45,6 @@ export const GlobalStyle = createGlobalStyle`
         --cor-textos: #333333;
         --cor-textos-infos: #E8F3FB;
         --cor-bordas: #D6E0E8;
+        --cor-remover: #d9534f;
     } 
 `;
