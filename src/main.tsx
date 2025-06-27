@@ -9,7 +9,9 @@ import { PlanejamentoPage } from "./pages/PlanejamentoPage.tsx";
 import { ManutencaoPage } from "./pages/ManutencaoPage.tsx";
 import { MotoristaPage } from "./pages/MotoristaPage.tsx";
 import { FrotaPage } from "./pages/FrotaPage.tsx";
+
 import { FormularioNovaViagem } from "./pages/Planejamento/components/FormNovaViagem.tsx";
+import { FormularioNovoVeiculo } from "./pages/Frota/components/FormularioNovoVeiculo.tsx";
 
 const router = createBrowserRouter([
   {
@@ -39,8 +41,18 @@ const router = createBrowserRouter([
         element: <MotoristaPage />,
       },
       {
-        path: "/frota",
+        path: "frota",
         element: <FrotaPage />,
+        children: [
+          {
+            path: "novo",
+            element: <FormularioNovoVeiculo />,
+          },
+          {
+            path: "editar/:vehicleId",
+            element: <FormularioNovoVeiculo />,
+          },
+        ],
       },
     ],
   },
