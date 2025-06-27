@@ -18,12 +18,18 @@ interface FiltroGlobalProps {
 
 const TopBarContainer = styled.div`
   display: flex;
-  justify-content: start;
+  justify-content: space-between;
   align-items: center;
   padding: 0.25rem 2rem;
   margin-bottom: 1.5rem;
   border-top: 1px solid var(--cor-bordas);
   border-bottom: 1px solid var(--cor-bordas);
+`;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 `;
 
 const FilterTabsContainer = styled.div`
@@ -71,27 +77,31 @@ export function FiltroGlobal({
   return (
     <>
       <TopBarContainer>
-        <ImgInput src={loupe}></ImgInput>
-        <SearchInput
-          type="text"
-          placeholder="Pesquisar viagem"
-          value={termoBusca}
-          onChange={onTermoBuscaChange}
-        />
-        <div>{children}</div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <ImgInput src={loupe}></ImgInput>
+          <SearchInput
+            type="text"
+            placeholder="Pesquisar viagem"
+            value={termoBusca}
+            onChange={onTermoBuscaChange}
+          />
+        </div>
+        <ActionsContainer>{children}</ActionsContainer>
       </TopBarContainer>
 
-      <FilterTabsContainer>
-        {filtros.map((filtro) => (
-          <BotaoFiltro
-            key={filtro.id}
-            isActive={filtroAtivo === filtro.id}
-            onClick={() => onFiltroChange(filtro.id)}
-          >
-            {filtro.label}
-          </BotaoFiltro>
-        ))}
-      </FilterTabsContainer>
+      {filtros.length > 0 && (
+        <FilterTabsContainer>
+          {filtros.map((filtro) => (
+            <BotaoFiltro
+              key={filtro.id}
+              isActive={filtroAtivo === filtro.id}
+              onClick={() => onFiltroChange(filtro.id)}
+            >
+              {filtro.label}
+            </BotaoFiltro>
+          ))}
+        </FilterTabsContainer>
+      )}
     </>
   );
 }

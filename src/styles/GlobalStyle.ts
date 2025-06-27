@@ -40,6 +40,7 @@ export const GlobalStyle = createGlobalStyle`
         --cor-secundaria: #16527D;
         --cor-de-fundo: #F5FBFF;
         --cor-de-fundo-cards: #E8F3FB;
+        --cor-de-fundo-cards-ativo:rgb(175, 222, 255);
         --cor-titulos: #000;
         --cor-titulos-secundaria: #929FA9;
         --cor-textos: #333333;

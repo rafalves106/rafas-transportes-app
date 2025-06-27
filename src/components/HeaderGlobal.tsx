@@ -10,17 +10,17 @@ interface HeaderGlobalProps {
 }
 
 const HeaderContainer = styled.header`
-  padding: 3rem 2rem 0 2rem;
+  padding: 1rem 2rem 0 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const AppInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 `;
 
 const AppIconContainer = styled.div`

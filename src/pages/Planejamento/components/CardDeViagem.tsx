@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { format } from "date-fns";
 import type { Trip } from "../../../data/tripsData";
 import { Link } from "react-router-dom";
+import { vehiclesData } from "../../../data/vehiclesData";
+import { driversData } from "../../../data/driversData";
 
 const CardContainer = styled.div`
   max-width: 20rem;
@@ -95,13 +97,30 @@ const CardInfoPrice = styled.span`
   border-radius: 20px;
 `;
 
+const CardAssignmentContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+`;
+
+const AssignmentTag = styled.span`
+  color: var(--cor-titulos);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 20px;
+`;
+
 interface CardDeViagemProps {
   trip: Trip;
 }
 
 export function CardDeViagem({ trip }: CardDeViagemProps) {
+  const veiculo = vehiclesData.find((v) => v.id === trip.vehicleId);
+  const motorista = driversData.find((d) => d.id === trip.driverId);
+
   return (
-    <CardContainer className="trip-card">
+    <CardContainer>
       <CardTitleContainer>
         <CardTitle>{trip.title}</CardTitle>
         <CardDetailsTitle to={`/editar/${trip.id}`}>Detalhes</CardDetailsTitle>
@@ -124,6 +143,15 @@ export function CardDeViagem({ trip }: CardDeViagemProps) {
         <CardInfoTime>{trip.endTime}</CardInfoTime>
       </CardInfoContainer>
       <CardInfoDesc>{trip.endLocation}</CardInfoDesc>
+
+      <CardAssignmentContainer>
+        {veiculo && (
+          <AssignmentTag>
+            {veiculo.model} ({veiculo.plate})
+          </AssignmentTag>
+        )}
+        {motorista && <AssignmentTag>{motorista.name}</AssignmentTag>}
+      </CardAssignmentContainer>
 
       <CardContainerPrice>
         <CardInfoPriceTitle>Valor do Serviço</CardInfoPriceTitle>
