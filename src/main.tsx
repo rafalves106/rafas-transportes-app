@@ -12,6 +12,7 @@ import { FrotaPage } from "./pages/FrotaPage.tsx";
 
 import { FormularioNovaViagem } from "./pages/Planejamento/components/FormNovaViagem.tsx";
 import { FormularioNovoVeiculo } from "./pages/Frota/components/FormularioNovoVeiculo.tsx";
+import { FormularioNovaManutencao } from "./pages/Manutencoes/components/FormularioNovaManutencao.tsx";
 
 const router = createBrowserRouter([
   {
@@ -33,8 +34,18 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "/manutencoes",
+        path: "manutencoes",
         element: <ManutencaoPage />,
+        children: [
+          {
+            path: "novo",
+            element: <FormularioNovaManutencao />,
+          },
+          {
+            path: "editar/:maintenanceId",
+            element: <FormularioNovaManutencao />,
+          },
+        ],
       },
       {
         path: "/motoristas",

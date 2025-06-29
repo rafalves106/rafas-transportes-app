@@ -9,6 +9,7 @@ import { tripsData } from "../../../data/tripsData";
 import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
 const FormContainer = styled.form``;
+
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 30% 1fr;
