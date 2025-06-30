@@ -3,6 +3,8 @@ import { useParams, useOutletContext } from "react-router-dom";
 import { vehiclesData } from "../../../data/vehiclesData";
 import type { Maintenance } from "../../../data/maintenanceData";
 
+import { Button } from "../../../components/ui/Button";
+
 import {
   FormContainer,
   InputGroup,
@@ -11,8 +13,6 @@ import {
   Input,
   ErrorMessage,
 } from "../../../components/ui/Form";
-
-import { RemoveButton } from "../../../components/ui/Button";
 
 import { InputRow } from "../../../components/ui/Layout";
 
@@ -209,9 +209,9 @@ export function FormularioNovaManutencao() {
       </InputGroup>
 
       {isEditing && (
-        <RemoveButton type="button" onClick={handleExcluir}>
+        <Button variant="danger" type="button" onClick={handleExcluir}>
           Excluir Manutenção
-        </RemoveButton>
+        </Button>
       )}
     </FormContainer>
   );

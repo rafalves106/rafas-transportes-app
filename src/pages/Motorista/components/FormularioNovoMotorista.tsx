@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import type { Driver } from "../../../data/driversData";
 
+import { Button } from "../../../components/ui/Button";
+
 import {
   FormContainer,
   InputGroup,
@@ -10,8 +12,6 @@ import {
   Select,
   ErrorMessage,
 } from "../../../components/ui/Form";
-
-import { RemoveButton } from "../../../components/ui/Button";
 
 interface FormContextType {
   onAdicionar: (dados: Omit<Driver, "id">) => void;
@@ -138,9 +138,9 @@ export function FormularioNovoMotorista() {
         </Select>
       </InputGroup>
       {isEditing && (
-        <RemoveButton type="button" onClick={handleExcluir}>
+        <Button variant="danger" type="button" onClick={handleExcluir}>
           Excluir Motorista
-        </RemoveButton>
+        </Button>
       )}
     </FormContainer>
   );

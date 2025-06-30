@@ -7,6 +7,8 @@ import frotaLogo from "../assets/frotalogo.png";
 import motoLogo from "../assets/motologo.png";
 import adicionar from "../assets/Plus.png";
 
+import { Button } from "./ui/Button";
+
 interface SidebarProps {
   novoItemLabel: string;
   onNovoItemClick: () => void;
@@ -48,33 +50,6 @@ const Naming = styled.h4`
 
 const Data = styled.p`
   font-size: 0.7rem;
-`;
-
-const NovoItemButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  background-color: var(--cor-primaria);
-  color: white;
-  padding: 0.6rem 0.5rem;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 400;
-  font-size: 1.1rem;
-  text-align: center;
-  transition: background-color 0.2s ease-in-out;
-  margin-bottom: 1.5rem;
-
-  img {
-    width: 1.4rem;
-    margin-right: 0.5rem;
-  }
-
-  &:hover {
-    background-color: var(--cor-secundaria);
-  }
 `;
 
 const NavList = styled.nav`
@@ -122,10 +97,14 @@ export function Sidebar({ novoItemLabel, onNovoItemClick }: SidebarProps) {
           <Data>11.434.565/0001-01</Data>
         </DataContainer>
       </EmpresaInfo>
-      <NovoItemButton onClick={onNovoItemClick}>
-        <img src={adicionar} alt="Adicionar" />
+      <Button variant="primary" onClick={onNovoItemClick}>
+        <img
+          src={adicionar}
+          alt="Adicionar"
+          style={{ width: "1.4rem", height: "1.4rem" }}
+        />
         {novoItemLabel}
-      </NovoItemButton>
+      </Button>
 
       <NavList>
         <StyledNavLink to="/" end>

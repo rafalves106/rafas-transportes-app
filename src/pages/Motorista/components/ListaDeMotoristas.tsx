@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Driver } from "../../../data/driversData";
 import { CardDoMotorista } from "./CardDoMotorista";
 
-import { BotaoPaginacao } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/Button";
 
 import {
   ListaContainer,
@@ -39,18 +39,23 @@ export function ListaDeMotoristas({ motoristas }: ListaDeMotoristasProps) {
       </ListaContainer>
       {totalPaginas > 1 && (
         <PaginacaoContainer>
-          <BotaoPaginacao onClick={paginaAnterior} disabled={paginaAtual === 1}>
+          <Button
+            variant="secondary"
+            onClick={paginaAnterior}
+            disabled={paginaAtual === 1}
+          >
             Anterior
-          </BotaoPaginacao>
+          </Button>
           <span>
             Página {paginaAtual} de {totalPaginas}
           </span>
-          <BotaoPaginacao
+          <Button
+            variant="secondary"
             onClick={proximaPagina}
             disabled={paginaAtual === totalPaginas}
           >
             Próxima
-          </BotaoPaginacao>
+          </Button>
         </PaginacaoContainer>
       )}
     </>

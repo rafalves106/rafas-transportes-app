@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import styled from "styled-components";
 import React from "react";
 
+import { Button } from "./ui/Button";
+
 interface ModalGlobalProps {
   title: string;
   onClose: () => void;
@@ -47,6 +49,19 @@ const ModalHeader = styled.header`
   }
 `;
 
+const ModalBody = styled.div`
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+`;
+
+const ModalFooter = styled.footer`
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+`;
+
 const CloseButton = styled.button`
   position: absolute;
   right: 0.5rem;
@@ -63,47 +78,6 @@ const CloseButton = styled.button`
   cursor: pointer;
   color: white;
   font-weight: 400;
-`;
-
-const ModalBody = styled.div`
-  padding: 1.5rem 2rem;
-  overflow-y: auto;
-`;
-
-const ModalFooter = styled.footer`
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-`;
-
-const BotaoAcao = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.7rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: filter 0.2s ease-in-out;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
-`;
-
-const SalvarButton = styled(BotaoAcao)`
-  background-color: var(--cor-primaria);
-  color: white;
-  border: none;
-`;
-
-const CancelarButton = styled(BotaoAcao)`
-  background-color: white;
-  color: #555;
-  border: 1px solid #ccc;
 `;
 
 export function ModalGlobal({
@@ -131,12 +105,12 @@ export function ModalGlobal({
         <ModalBody>{children}</ModalBody>
 
         <ModalFooter>
-          <SalvarButton type="submit" form={formId}>
-            Salvar
-          </SalvarButton>
-          <CancelarButton type="button" onClick={onClose}>
+          <Button variant="secondary" type="button" onClick={onClose}>
             Cancelar
-          </CancelarButton>
+          </Button>
+          <Button variant="primary" type="submit" form={formId}>
+            Salvar
+          </Button>
         </ModalFooter>
       </ModalContainer>
     </Backdrop>

@@ -11,7 +11,7 @@ import {
 
 import { ErrorMessage } from "../../../components/ui/Form";
 
-import { BotaoPaginacao } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/Button";
 
 interface ListaDeViagensProps {
   viagens: Trip[];
@@ -58,16 +58,21 @@ export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
 
       {totalDePaginas > 1 && (
         <PaginacaoContainer>
-          <BotaoPaginacao onClick={paginaAnterior} disabled={paginaAtual === 1}>
-            <img src={BtnPagLft}></img>
-          </BotaoPaginacao>
+          <Button
+            variant="secondary"
+            onClick={paginaAnterior}
+            disabled={paginaAtual === 1}
+          >
+            <img src={BtnPagLft} alt="Página Anterior" />
+          </Button>
 
-          <BotaoPaginacao
+          <Button
+            variant="secondary"
             onClick={proximaPagina}
             disabled={paginaAtual === totalDePaginas}
           >
-            <img src={BtnPagRgt}></img>
-          </BotaoPaginacao>
+            <img src={BtnPagRgt} alt="Próxima Página" />
+          </Button>
         </PaginacaoContainer>
       )}
     </>

@@ -8,6 +8,8 @@ import type { Trip } from "../../../data/tripsData";
 import { tripsData } from "../../../data/tripsData";
 import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
+import { Button } from "../../../components/ui/Button";
+
 import {
   FormContainer,
   InputGroup,
@@ -17,8 +19,6 @@ import {
   ErrorMessage,
   Textarea,
 } from "../../../components/ui/Form";
-
-import { AddButton, RemoveButton } from "../../../components/ui/Button";
 
 import { InputRow } from "../../../components/ui/Layout";
 
@@ -399,12 +399,13 @@ export function FormularioNovaViagem() {
                         Veículo {index + 1}
                       </Label>
                       {index > 0 && (
-                        <RemoveButton
+                        <Button
+                          variant="danger"
                           type="button"
                           onClick={() => removeFromList(index, "veiculos")}
                         >
                           &times;
-                        </RemoveButton>
+                        </Button>
                       )}
                     </LabelContainer>
                     <Select
@@ -423,9 +424,13 @@ export function FormularioNovaViagem() {
                     </Select>
                   </div>
                 ))}
-                <AddButton type="button" onClick={() => addToList("veiculos")}>
+                <Button
+                  variant="primary"
+                  type="button"
+                  onClick={() => addToList("veiculos")}
+                >
                   + Adicionar Veículo
-                </AddButton>
+                </Button>
               </InputGroup>
             )}
 
@@ -438,12 +443,13 @@ export function FormularioNovaViagem() {
                       Motorista {index + 1}
                     </Label>
                     {index > 0 && (
-                      <RemoveButton
+                      <Button
+                        variant="danger"
                         type="button"
                         onClick={() => removeFromList(index, "motoristas")}
                       >
                         &times;
-                      </RemoveButton>
+                      </Button>
                     )}
                   </LabelContainer>
                   <Select
@@ -462,9 +468,13 @@ export function FormularioNovaViagem() {
                   </Select>
                 </div>
               ))}
-              <AddButton type="button" onClick={() => addToList("motoristas")}>
+              <Button
+                variant="primary"
+                type="button"
+                onClick={() => addToList("motoristas")}
+              >
                 + Adicionar Motorista
-              </AddButton>
+              </Button>
             </InputGroup>
 
             <InputGroup>
@@ -607,12 +617,13 @@ export function FormularioNovaViagem() {
                     <LabelContainer>
                       <Label>Veículo</Label>
                       {veiculoIndex > 0 && (
-                        <RemoveButton
+                        <Button
+                          variant="danger"
                           type="button"
                           onClick={() => removerVeiculoRota(veiculoIndex)}
                         >
                           &times;
-                        </RemoveButton>
+                        </Button>
                       )}
                     </LabelContainer>
                     <Select
@@ -660,7 +671,8 @@ export function FormularioNovaViagem() {
                           />
                         </InputGroup>
                         {horarioIndex > 0 && (
-                          <RemoveButton
+                          <Button
+                            variant="danger"
                             style={{ alignSelf: "flex-end" }}
                             type="button"
                             onClick={() =>
@@ -668,25 +680,27 @@ export function FormularioNovaViagem() {
                             }
                           >
                             &times;
-                          </RemoveButton>
+                          </Button>
                         )}
                       </RotaHorarioContainer>
                     ))}
-                    <AddButton
+                    <Button
+                      variant="primary"
                       type="button"
                       onClick={() => adicionarHorario(veiculoIndex)}
                     >
                       + Adicionar Horário
-                    </AddButton>
+                    </Button>
                   </RotaVeiculoBloco>
                 ))}
-                <AddButton
+                <Button
+                  variant="primary"
                   type="button"
                   onClick={adicionarVeiculoRota}
                   style={{ marginTop: "1rem" }}
                 >
                   + Adicionar Veículo à Rota
-                </AddButton>
+                </Button>
               </InputGroup>
             )}
 
@@ -698,9 +712,13 @@ export function FormularioNovaViagem() {
                   borderTop: "1px solid #eee",
                 }}
               >
-                <RemoveButton type="button" onClick={handleExcluirClick}>
+                <Button
+                  variant="danger"
+                  type="button"
+                  onClick={handleExcluirClick}
+                >
                   Excluir Viagem
-                </RemoveButton>
+                </Button>
               </div>
             )}
           </FormSection>

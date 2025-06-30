@@ -1,101 +1,46 @@
 import styled from "styled-components";
 import { format } from "date-fns";
 import type { Trip } from "../../../data/tripsData";
-import { Link } from "react-router-dom";
 import { vehiclesData } from "../../../data/vehiclesData";
 import { driversData } from "../../../data/driversData";
 
-import { CardContainer, CardTitle } from "../../../components/ui/Card";
+import {
+  CardContainer,
+  CardHeader,
+  CardTitle,
+  DetailsLink,
+} from "../../../components/ui/Card";
+import { Label } from "../../../components/ui/Form";
 
-const CardTitleContainer = styled.div`
+const InfoRow = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-const CardDetailsTitle = styled(Link)`
-  margin: 0;
-  font-weight: 600;
-  color: var(--cor-titulos-secundaria);
-  font-size: 16px;
-  cursor: pointer;
-  text-decoration: none;
-`;
-
-const CardInfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
   align-items: center;
+  gap: 0.5rem;
 `;
 
-const CardInfoTitle = styled.p`
-  color: var(--cor-titulos-secundaria);
-  font-size: 14px;
-  font-weight: 600;
-  margin-right: 16px;
-`;
-
-const CardInfoDate = styled.span`
+const InfoTag = styled.span`
   background-color: var(--cor-secundaria);
   color: var(--cor-textos-infos);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
-  padding: 0px 6px;
-  border-radius: 20px;
-  margin-right: 8px;
-`;
-
-const CardInfoTime = styled.span`
-  background-color: var(--cor-primaria);
-  color: var(--cor-secundaria);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 0px 6px;
+  padding: 2px 8px;
   border-radius: 20px;
 `;
 
-const CardInfoDesc = styled.p`
-  font-size: 12px;
+const Description = styled.p`
+  font-size: 0.8rem;
   color: var(--cor-textos);
   font-weight: 500;
-  line-height: 1rem;
+  line-height: 1.4;
+  margin: 0.25rem 0 0.75rem 0;
 `;
 
-const CardContainerPrice = styled.div`
+const AssignmentContainer = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const CardInfoPriceTitle = styled.h4`
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--cor-titulos);
-  margin: 0;
-`;
-
-const CardInfoPrice = styled.span`
-  background-color: var(--cor-secundaria);
-  color: var(--cor-textos-infos);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 0px 6px;
-  border-radius: 20px;
-`;
-
-const CardAssignmentContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: 0.25rem;
-`;
-
-const AssignmentTag = styled.span`
-  color: var(--cor-titulos);
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 20px;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--cor-bordas);
 `;
 
 interface CardDeViagemProps {
@@ -108,42 +53,46 @@ export function CardDeViagem({ trip }: CardDeViagemProps) {
 
   return (
     <CardContainer>
-      <CardTitleContainer>
+      <CardHeader>
         <CardTitle>{trip.title}</CardTitle>
-        <CardDetailsTitle to={`/editar/${trip.id}`}>Detalhes</CardDetailsTitle>
-      </CardTitleContainer>
+        <DetailsLink to={`/editar/${trip.id}`}>Detalhes</DetailsLink>
+      </CardHeader>
 
-      <CardInfoContainer>
-        <CardInfoTitle>Início</CardInfoTitle>
-        <CardInfoDate>
-          {format(new Date(trip.startDate + "T00:00"), "dd/MM/yyyy")}
-        </CardInfoDate>
-        <CardInfoTime>{trip.startTime}</CardInfoTime>
-      </CardInfoContainer>
-      <CardInfoDesc>{trip.startLocation}</CardInfoDesc>
+      <div>
+        <InfoRow>
+          <Label>Início</Label>
+          <InfoTag>
+            {format(new Date(trip.startDate + "T00:00"), "dd/MM/yyyy")}
+          </InfoTag>
+          <InfoTag>{trip.startTime}</InfoTag>
+        </InfoRow>
+        <Description>{trip.startLocation}</Description>
+      </div>
 
-      <CardInfoContainer>
-        <CardInfoTitle>Final</CardInfoTitle>
-        <CardInfoDate>
-          {format(new Date(trip.endDate + "T00:00"), "dd/MM/yyyy")}
-        </CardInfoDate>
-        <CardInfoTime>{trip.endTime}</CardInfoTime>
-      </CardInfoContainer>
-      <CardInfoDesc>{trip.endLocation}</CardInfoDesc>
+      <div>
+        <InfoRow>
+          <Label>Final</Label>
+          <InfoTag>
+            {format(new Date(trip.endDate + "T00:00"), "dd/MM/yyyy")}
+          </InfoTag>
+          <InfoTag>{trip.endTime}</InfoTag>
+        </InfoRow>
+        <Description>{trip.endLocation}</Description>
+      </div>
 
-      <CardAssignmentContainer>
-        {veiculo && (
-          <AssignmentTag>
-            {veiculo.model} ({veiculo.plate})
-          </AssignmentTag>
-        )}
-        {motorista && <AssignmentTag>{motorista.name}</AssignmentTag>}
-      </CardAssignmentContainer>
+      <AssignmentContainer>
+        <Label>
+          Veículo: {veiculo ? `${veiculo.model} (${veiculo.plate})` : "N/A"}
+        </Label>
+        <Label>Motorista: {motorista ? motorista.name : "N/A"}</Label>
+      </AssignmentContainer>
 
-      <CardContainerPrice>
-        <CardInfoPriceTitle>Valor do Serviço</CardInfoPriceTitle>
-        <CardInfoPrice>R$ {trip.value.toFixed(2)}</CardInfoPrice>
-      </CardContainerPrice>
+      <CardHeader style={{ marginTop: "0.5rem" }}>
+        <CardTitle as="h4" style={{ fontSize: "1rem" }}>
+          Valor
+        </CardTitle>
+        <InfoTag>R$ {trip.value.toFixed(2)}</InfoTag>
+      </CardHeader>
     </CardContainer>
   );
 }

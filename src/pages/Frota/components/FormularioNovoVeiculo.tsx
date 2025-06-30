@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useOutletContext } from "react-router-dom";
 import type { Vehicle } from "../../../data/vehiclesData";
+import { Button } from "../../../components/ui/Button";
 
 import {
   FormContainer,
@@ -8,8 +9,6 @@ import {
   Input,
   Select,
 } from "../../../components/ui/Form";
-
-import { RemoveButton } from "../../../components/ui/Button";
 
 interface FormContextType {
   onAdicionar: (dados: Omit<Vehicle, "id">) => void;
@@ -85,9 +84,9 @@ export function FormularioNovoVeiculo() {
       </Select>
 
       {isEditing && (
-        <RemoveButton type="button" onClick={handleExcluir}>
+        <Button variant="danger" type="button" onClick={handleExcluir}>
           Excluir Veículo
-        </RemoveButton>
+        </Button>
       )}
     </FormContainer>
   );

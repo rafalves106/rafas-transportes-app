@@ -2,6 +2,8 @@ import styled from "styled-components";
 import React from "react";
 import loupe from "../../src/assets/Loupe.png";
 
+import { Button } from "./ui/Button";
+
 export interface Filtro {
   id: string;
   label: string;
@@ -56,16 +58,6 @@ const SearchInput = styled.input`
   font-size: 1rem;
 `;
 
-const BotaoFiltro = styled.button<{ isActive: boolean }>`
-  font-size: 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-  background-color: transparent;
-  color: ${(props) =>
-    props.isActive ? "var(--cor-titulos)" : "var(--cor-titulos-secundaria)"};
-`;
-
 export function FiltroGlobal({
   termoBusca,
   onTermoBuscaChange,
@@ -92,13 +84,14 @@ export function FiltroGlobal({
       {filtros.length > 0 && (
         <FilterTabsContainer>
           {filtros.map((filtro) => (
-            <BotaoFiltro
+            <Button
               key={filtro.id}
+              variant="filter"
               isActive={filtroAtivo === filtro.id}
               onClick={() => onFiltroChange(filtro.id)}
             >
               {filtro.label}
-            </BotaoFiltro>
+            </Button>
           ))}
         </FilterTabsContainer>
       )}

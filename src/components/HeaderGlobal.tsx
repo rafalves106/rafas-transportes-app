@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
+import { Button } from "./ui/Button";
+
 interface HeaderGlobalProps {
   appIcon: React.ReactNode;
   appTitle: string;
@@ -46,20 +48,6 @@ const AcoesContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-`;
-
-const NovoItemButton = styled.button`
-  background-color: var(--cor-secundaria);
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 `;
 
 const AppSwitcherContainer = styled.div`
@@ -158,9 +146,10 @@ export function HeaderGlobal({
           )}
         </AppSwitcherContainer>
 
-        <NovoItemButton onClick={onNovoItemClick}>
-          <span>+</span> {novoItemLabel}
-        </NovoItemButton>
+        <Button variant="primary" onClick={onNovoItemClick}>
+          <span style={{ fontSize: "1.2rem", marginRight: "0.25rem" }}>+</span>{" "}
+          {novoItemLabel}
+        </Button>
       </AcoesContainer>
     </HeaderContainer>
   );

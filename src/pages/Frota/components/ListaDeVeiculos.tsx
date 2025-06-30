@@ -9,7 +9,7 @@ import {
   PaginacaoContainer,
 } from "../../../components/ui/Layout";
 
-import { BotaoPaginacao } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/Button";
 
 import { ErrorMessage } from "../../../components/ui/Form";
 
@@ -40,7 +40,7 @@ export function ListaDeVeiculos({ veiculos }: ListaDeVeiculosProps) {
 
   if (veiculos.length === 0) {
     return (
-      <ErrorMessage>Nenhuma viagem encontrada para este filtro.</ErrorMessage>
+      <ErrorMessage>Nenhum veículo encontrado para este filtro.</ErrorMessage>
     );
   }
 
@@ -54,16 +54,25 @@ export function ListaDeVeiculos({ veiculos }: ListaDeVeiculosProps) {
 
       {totalPaginas > 1 && (
         <PaginacaoContainer>
-          <BotaoPaginacao onClick={paginaAnterior} disabled={paginaAtual === 1}>
-            <img src={BtnPagLft}></img>
-          </BotaoPaginacao>
+          <Button
+            variant="secondary"
+            onClick={paginaAnterior}
+            disabled={paginaAtual === 1}
+          >
+            <img src={BtnPagLft} alt="Página Anterior" />
+          </Button>
 
-          <BotaoPaginacao
+          <span>
+            Página {paginaAtual} de {totalPaginas}
+          </span>
+
+          <Button
+            variant="secondary"
             onClick={proximaPagina}
             disabled={paginaAtual === totalPaginas}
           >
-            <img src={BtnPagRgt}></img>
-          </BotaoPaginacao>
+            <img src={BtnPagRgt} alt="Próxima Página" />
+          </Button>
         </PaginacaoContainer>
       )}
     </>

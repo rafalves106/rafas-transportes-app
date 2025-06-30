@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import { Button } from "./ui/Button";
+
 interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -49,28 +51,6 @@ const ButtonContainer = styled.div`
   gap: 1rem;
 `;
 
-const ConfirmButton = styled.button`
-  background-color: var(--cor-primaria);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-`;
-
-const CancelButton = styled.button`
-  background-color: white;
-  color: #555;
-  border: 1px solid #ccc;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 1rem;
-`;
-
 export function ConfirmationModal({
   isOpen,
   onClose,
@@ -88,8 +68,12 @@ export function ConfirmationModal({
         <ModalTitle>{title}</ModalTitle>
         <ModalMessage>{message}</ModalMessage>
         <ButtonContainer>
-          <CancelButton onClick={onClose}>Voltar</CancelButton>
-          <ConfirmButton onClick={onConfirm}>Confirmar</ConfirmButton>
+          <Button variant="secondary" onClick={onClose}>
+            Voltar
+          </Button>
+          <Button variant="primary" onClick={onConfirm}>
+            Confirmar
+          </Button>
         </ButtonContainer>
       </ModalBox>
     </Backdrop>
