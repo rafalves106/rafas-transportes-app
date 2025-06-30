@@ -8,7 +8,19 @@ import type { Trip } from "../../../data/tripsData";
 import { tripsData } from "../../../data/tripsData";
 import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
-const FormContainer = styled.form``;
+import {
+  FormContainer,
+  InputGroup,
+  Label,
+  Input,
+  Select,
+  ErrorMessage,
+  Textarea,
+} from "../../../components/ui/Form";
+
+import { AddButton, RemoveButton } from "../../../components/ui/Button";
+
+import { InputRow } from "../../../components/ui/Layout";
 
 const FormGrid = styled.div`
   display: grid;
@@ -39,16 +51,6 @@ const SectionTitle = styled.h3`
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #e9ecef;
 `;
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-const InputRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-`;
 
 const RotaVeiculoBloco = styled.div`
   border-left: 3px solid #dee2e6;
@@ -69,61 +71,6 @@ const LabelContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
-const Label = styled.label`
-  font-weight: 500;
-  font-size: 0.9rem;
-  color: #495057;
-`;
-const Input = styled.input<{ hasError?: boolean }>`
-  width: 100%;
-  font-size: 0.9rem;
-  padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? "#d9534f" : "#ced4da")};
-  background-color: #f8f9fa;
-  border-radius: 6px;
-`;
-const Select = styled.select<{ hasError?: boolean }>`
-  width: 100%;
-  font-size: 0.9rem;
-  padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? "#d9534f" : "#ced4da")};
-  border-radius: 6px;
-  background-color: #f8f9fa;
-`;
-const Textarea = styled.textarea`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  min-height: 4rem;
-  resize: vertical;
-  background-color: #f8f9fa;
-`;
-const AddButton = styled.button`
-  background: transparent;
-  border: 1px dashed var(--cor-primaria);
-  color: var(--cor-primaria);
-  padding: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  text-align: center;
-  margin-top: 0.5rem;
-`;
-const RemoveButton = styled.button`
-  background: transparent;
-  border: none;
-  color: #d9534f;
-  cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: bold;
-  padding: 0;
-`;
-const ErrorMessage = styled.span`
-  color: #d9534f;
-  font-size: 0.8rem;
-  font-weight: 500;
 `;
 
 interface FormContextType {

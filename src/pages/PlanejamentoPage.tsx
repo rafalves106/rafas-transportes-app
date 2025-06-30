@@ -10,10 +10,7 @@ import { ptBR } from "date-fns/locale";
 import { CalendarioMensal } from "./Planejamento/components/CalendarioMensal";
 import { styled } from "styled-components";
 
-const ViewContainer = styled.div`
-  margin-top: 1rem;
-  padding: 0 2rem;
-`;
+const ViewContainer = styled.div``;
 
 const MonthNavigator = styled.div`
   display: flex;

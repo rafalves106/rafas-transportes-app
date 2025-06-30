@@ -3,21 +3,9 @@ import { Link } from "react-router-dom";
 import { vehiclesData } from "../../../data/vehiclesData";
 import type { Maintenance } from "../../../data/maintenanceData";
 
-const ListaContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  column-gap: 2rem;
-  gap: 1.5rem;
-  padding: 0 2rem;
-`;
+import { ListaContainer, GroupContainer } from "../../../components/ui/Layout";
 
-const GroupContainer = styled.div`
-  margin-bottom: 2rem;
-`;
-
-const VehicleTitle = styled.h3`
-  margin-bottom: 1rem;
-`;
+import { CardTitle } from "../../../components/ui/Card";
 
 const MaintenanceCard = styled(Link)`
   display: flex;
@@ -49,11 +37,11 @@ export function ListaDeManutencoes({ manutencoes }: ListaDeManutencoesProps) {
         const veiculo = vehiclesData.find((v) => v.id === parseInt(vehicleId));
         return (
           <GroupContainer key={vehicleId}>
-            <VehicleTitle>
+            <CardTitle>
               {veiculo
                 ? `${veiculo.model} (${veiculo.plate})`
                 : "Veículo desconhecido"}
-            </VehicleTitle>
+            </CardTitle>
             {mnts.map((manutencao) => (
               <MaintenanceCard
                 key={manutencao.id}

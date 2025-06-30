@@ -1,34 +1,12 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import type { Vehicle } from "../../../data/vehiclesData";
 
-const CardContainer = styled.div`
-  background-color: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const CardTitle = styled.h3`
-  margin: 0;
-  font-size: 1.1rem;
-`;
-
-const DetailsLink = styled(Link)`
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  color: var(--cor-primaria);
-`;
+import {
+  CardContainer,
+  CardHeader,
+  CardTitle,
+  DetailsLink,
+} from "../../../components/ui/Card";
 
 const getStatusStyles = (status: string) => {
   switch (status) {

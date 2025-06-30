@@ -1,49 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, useOutletContext } from "react-router-dom";
-import styled from "styled-components";
 import type { Vehicle } from "../../../data/vehiclesData";
 
-const FormContainer = styled.form``;
+import {
+  FormContainer,
+  Label,
+  Input,
+  Select,
+} from "../../../components/ui/Form";
 
-const Label = styled.label`
-  font-weight: 500;
-  font-size: 0.9rem;
-  color: #495057;
-`;
-const Input = styled.input<{ hasError?: boolean }>`
-  width: 100%;
-  font-size: 0.9rem;
-  padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? "#d9534f" : "#ced4da")};
-  background-color: #f8f9fa;
-  border-radius: 6px;
-`;
-const Select = styled.select<{ hasError?: boolean }>`
-  width: 100%;
-  font-size: 0.9rem;
-  padding: 0.75rem;
-  border: 1px solid ${(props) => (props.hasError ? "#d9534f" : "#ced4da")};
-  border-radius: 6px;
-  background-color: #f8f9fa;
-`;
-
-const RemoveButton = styled.button`
-  margin-top: 1rem;
-  padding: 0.75rem;
-  width: 100%;
-  background-color: transparent;
-  color: var(--cor-remover);
-  border: 1px solid var(--cor-remover);
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
-    background-color: var(--cor-remover);
-    color: white;
-  }
-`;
+import { RemoveButton } from "../../../components/ui/Button";
 
 interface FormContextType {
   onAdicionar: (dados: Omit<Vehicle, "id">) => void;

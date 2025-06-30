@@ -38,7 +38,7 @@ export const tripsData: Trip[] = [
     clientName: "Paulo Alves",
     startDate: "2025-06-19",
     startTime: "09:30",
-    endDate: "2025-06-22",
+    endDate: "2025-06-30",
     endTime: "18:30",
     startLocation:
       "Buscar passageiros no bairro Palmares e deixá-los no aeroporto de Confins. ",

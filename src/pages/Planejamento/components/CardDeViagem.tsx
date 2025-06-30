@@ -5,25 +5,12 @@ import { Link } from "react-router-dom";
 import { vehiclesData } from "../../../data/vehiclesData";
 import { driversData } from "../../../data/driversData";
 
-const CardContainer = styled.div`
-  max-width: 20rem;
-  background-color: var(--cor-de-fundo-cards);
-  border-radius: 8px;
-  padding: 11px;
-`;
+import { CardContainer, CardTitle } from "../../../components/ui/Card";
 
 const CardTitleContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-`;
-
-const CardTitle = styled.h3`
-  margin: 0;
-  font-weight: 600;
-  color: var(--cor-titulos);
-  font-size: 16px;
-  margin-bottom: 8px;
 `;
 
 const CardDetailsTitle = styled(Link)`
@@ -43,7 +30,7 @@ const CardInfoContainer = styled.div`
 
 const CardInfoTitle = styled.p`
   color: var(--cor-titulos-secundaria);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   margin-right: 16px;
 `;
@@ -68,10 +55,10 @@ const CardInfoTime = styled.span`
 `;
 
 const CardInfoDesc = styled.p`
-  font-size: 10px;
+  font-size: 12px;
   color: var(--cor-textos);
   font-weight: 500;
-  margin-bottom: 8px;
+  line-height: 1rem;
 `;
 
 const CardContainerPrice = styled.div`

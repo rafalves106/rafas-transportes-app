@@ -1,44 +1,17 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
 import type { Trip } from "../../../data/tripsData";
 import { CardDeViagem } from "./CardDeViagem";
 import BtnPagLft from "../../../assets/Expand Arrow.png";
 import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
 
-const ListaContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  column-gap: 2rem;
-  row-gap: 2rem;
-  padding: 0 2rem;
-`;
+import {
+  ListaContainer,
+  PaginacaoContainer,
+} from "../../../components/ui/Layout";
 
-const PaginacaoContainer = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  right: 0;
-  padding-right: 2rem;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-`;
+import { ErrorMessage } from "../../../components/ui/Form";
 
-const BotaoPaginacao = styled.button`
-  cursor: pointer;
-  background-color: transparent;
-
-  img {
-    width: 22px;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-`;
-
-const MensagemNaoEncontrada = styled.p`
-  margin: 1rem 0 0 2rem;
-`;
+import { BotaoPaginacao } from "../../../components/ui/Button";
 
 interface ListaDeViagensProps {
   viagens: Trip[];
@@ -71,9 +44,7 @@ export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
 
   if (viagens.length === 0) {
     return (
-      <MensagemNaoEncontrada>
-        Nenhuma viagem encontrada para este filtro.
-      </MensagemNaoEncontrada>
+      <ErrorMessage>Nenhuma viagem encontrada para este filtro.</ErrorMessage>
     );
   }
 

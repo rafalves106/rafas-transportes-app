@@ -1,43 +1,17 @@
 import { useState } from "react";
-import styled from "styled-components";
 import type { Vehicle } from "../../../data/vehiclesData";
 import { CardDeVeiculo } from "./CardDeVeiculo";
 import BtnPagLft from "../../../assets/Expand Arrow.png";
 import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
 
-const ListaContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  column-gap: 2rem;
-  gap: 1.5rem;
-  padding: 0 2rem;
-`;
+import {
+  ListaContainer,
+  PaginacaoContainer,
+} from "../../../components/ui/Layout";
 
-const PaginacaoContainer = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  right: 0;
-  padding-right: 2rem;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-`;
-const BotaoPaginacao = styled.button`
-  cursor: pointer;
-  background-color: transparent;
+import { BotaoPaginacao } from "../../../components/ui/Button";
 
-  img {
-    width: 22px;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-`;
-
-const MensagemNaoEncontrada = styled.p`
-  margin: 1rem 0 0 2rem;
-`;
+import { ErrorMessage } from "../../../components/ui/Form";
 
 interface ListaDeVeiculosProps {
   veiculos: Vehicle[];
@@ -66,9 +40,7 @@ export function ListaDeVeiculos({ veiculos }: ListaDeVeiculosProps) {
 
   if (veiculos.length === 0) {
     return (
-      <MensagemNaoEncontrada>
-        Nenhuma viagem encontrada para este filtro.
-      </MensagemNaoEncontrada>
+      <ErrorMessage>Nenhuma viagem encontrada para este filtro.</ErrorMessage>
     );
   }
 
