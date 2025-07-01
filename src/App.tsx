@@ -30,6 +30,7 @@ function App() {
       title: string;
       novoLabel: string;
       novoPath: string;
+      showActionButton: boolean;
     };
   } = {
     "/": {
@@ -37,30 +38,49 @@ function App() {
       title: "Planejamento",
       novoLabel: "Nova Viagem",
       novoPath: "/novo",
+      showActionButton: true,
     },
     "/novo": {
       icon: "📅",
       title: "Planejamento",
       novoLabel: "Nova Viagem",
       novoPath: "/novo",
+      showActionButton: true,
+    },
+    "/editar/:tripId": {
+      icon: "📅",
+      title: "Planejamento",
+      novoLabel: "Nova Viagem",
+      novoPath: "/novo",
+      showActionButton: true,
     },
     "/manutencoes": {
       icon: "🔧",
       title: "Manutenções",
       novoLabel: "Nova Manutenção",
       novoPath: "/manutencoes/novo",
+      showActionButton: true,
     },
     "/frota": {
       icon: "🚚",
-      title: "Frota de Veículos",
+      title: "Frota",
       novoLabel: "Novo Veículo",
       novoPath: "/frota/novo",
+      showActionButton: true,
     },
     "/motoristas": {
       icon: "👨‍✈️",
       title: "Motoristas",
       novoLabel: "Novo Motorista",
       novoPath: "/motoristas/novo",
+      showActionButton: true,
+    },
+    "/calculadora": {
+      icon: "🧮",
+      title: "Calculadora",
+      novoLabel: "",
+      novoPath: "",
+      showActionButton: false,
     },
   };
 
@@ -69,11 +89,11 @@ function App() {
     title: "Dashboard",
     novoLabel: "Novo Item",
     novoPath: "/",
+    showActionButton: false,
   };
 
   const handleNovoItemClick = () => {
     navigate(configAtual.novoPath);
-    console.log(`Navegando para ${configAtual.novoPath}`);
   };
 
   return (
@@ -81,6 +101,7 @@ function App() {
       <GlobalStyle />
       <AppContainer>
         <Sidebar
+          showActionButton={configAtual.showActionButton}
           novoItemLabel={configAtual.novoLabel}
           onNovoItemClick={handleNovoItemClick}
         />
@@ -88,6 +109,7 @@ function App() {
           <HeaderGlobal
             appIcon={configAtual.icon}
             appTitle={configAtual.title}
+            showActionButton={configAtual.showActionButton}
             onNovoItemClick={handleNovoItemClick}
             novoItemLabel={configAtual.novoLabel}
           />

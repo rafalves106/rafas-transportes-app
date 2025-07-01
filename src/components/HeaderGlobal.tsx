@@ -9,6 +9,7 @@ interface HeaderGlobalProps {
   appTitle: string;
   onNovoItemClick: () => void;
   novoItemLabel: string;
+  showActionButton: boolean;
 }
 
 const HeaderContainer = styled.header`
@@ -96,6 +97,7 @@ export function HeaderGlobal({
   appTitle,
   onNovoItemClick,
   novoItemLabel,
+  showActionButton,
 }: HeaderGlobalProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -142,14 +144,19 @@ export function HeaderGlobal({
               <DropdownLink to="/manutencoes">Manutenções</DropdownLink>
               <DropdownLink to="/frota">Frota de Veículos</DropdownLink>
               <DropdownLink to="/motoristas">Motoristas</DropdownLink>
+              <DropdownLink to="/calculadora">Calculadora</DropdownLink>
             </AppSwitcherDropdown>
           )}
         </AppSwitcherContainer>
 
-        <Button variant="primary" onClick={onNovoItemClick}>
-          <span style={{ fontSize: "1.2rem", marginRight: "0.25rem" }}>+</span>{" "}
-          {novoItemLabel}
-        </Button>
+        {showActionButton && (
+          <Button variant="primary" onClick={onNovoItemClick}>
+            <span style={{ fontSize: "1.2rem", marginRight: "0.25rem" }}>
+              +
+            </span>{" "}
+            {novoItemLabel}
+          </Button>
+        )}
       </AcoesContainer>
     </HeaderContainer>
   );

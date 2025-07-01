@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams, useLocation } from "react-router-dom";
 
 import { driversData } from "../../../data/driversData";
 import { vehiclesData } from "../../../data/vehiclesData";
@@ -85,6 +85,8 @@ export function FormularioNovaViagem() {
     useOutletContext<FormContextType>();
   const isEditing = !!tripId;
 
+  const location = useLocation();
+
   const [dadosFormulario, setDadosFormulario] = useState({
     title: "",
     clientName: "",
@@ -104,6 +106,32 @@ export function FormularioNovaViagem() {
 
   const [erros, setErros] = useState<{ [key: string]: string }>({});
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  useEffect(() => {
+    const dadosDoOrcamento = location.state?.dadosDoOrcamento;
+
+    if (dadosDoOrcamento && !isEditing) {
+      console.log(
+        "Recebendo dados do orçamento para preencher o formulário!",
+        dadosDoOrcamento
+      );
+
+      setDadosFormulario((prev) => ({
+        ...prev,
+        title: `Viagem para ${dadosDoOrcamento.destino}`,
+        clientName: dadosDoOrcamento.clientName || "",
+        value: "",
+        startDate: dadosDoOrcamento.startDate,
+        startTime: dadosDoOrcamento.startTime,
+        startLocation: dadosDoOrcamento.startLocation,
+        endDate: dadosDoOrcamento.endDate,
+        endTime: dadosDoOrcamento.endTime,
+        endLocation: dadosDoOrcamento.endLocation,
+        veiculos: dadosDoOrcamento.veiculos || [{ id: "" }],
+        motoristas: dadosDoOrcamento.motoristas || [{ id: "" }],
+      }));
+    }
+  }, [location.state, isEditing]);
 
   useEffect(() => {
     if (isEditing && tripId) {

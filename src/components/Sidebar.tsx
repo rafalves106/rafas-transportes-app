@@ -6,12 +6,14 @@ import manuLogo from "../assets/manulogo.png";
 import frotaLogo from "../assets/frotalogo.png";
 import motoLogo from "../assets/motologo.png";
 import adicionar from "../assets/Plus.png";
+import calcLogo from "../assets/calcLogo.png";
 
 import { Button } from "./ui/Button";
 
 interface SidebarProps {
   novoItemLabel: string;
   onNovoItemClick: () => void;
+  showActionButton: boolean;
 }
 
 const SidebarContainer = styled.aside`
@@ -85,7 +87,11 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
-export function Sidebar({ novoItemLabel, onNovoItemClick }: SidebarProps) {
+export function Sidebar({
+  novoItemLabel,
+  onNovoItemClick,
+  showActionButton,
+}: SidebarProps) {
   return (
     <SidebarContainer>
       <EmpresaInfo>
@@ -97,14 +103,16 @@ export function Sidebar({ novoItemLabel, onNovoItemClick }: SidebarProps) {
           <Data>11.434.565/0001-01</Data>
         </DataContainer>
       </EmpresaInfo>
-      <Button variant="primary" onClick={onNovoItemClick}>
-        <img
-          src={adicionar}
-          alt="Adicionar"
-          style={{ width: "1.4rem", height: "1.4rem" }}
-        />
-        {novoItemLabel}
-      </Button>
+      {showActionButton && (
+        <Button variant="primary" onClick={onNovoItemClick}>
+          <img
+            src={adicionar}
+            alt="Adicionar"
+            style={{ width: "1.4rem", height: "1.4rem" }}
+          />
+          {novoItemLabel}
+        </Button>
+      )}
 
       <NavList>
         <StyledNavLink to="/" end>
@@ -124,6 +132,10 @@ export function Sidebar({ novoItemLabel, onNovoItemClick }: SidebarProps) {
           {" "}
           <img src={motoLogo} alt="Planejamento" />
           Motoristas
+        </StyledNavLink>
+        <StyledNavLink to="/calculadora">
+          <img src={calcLogo} alt="Calculadora" />
+          Calculadora
         </StyledNavLink>
       </NavList>
     </SidebarContainer>
