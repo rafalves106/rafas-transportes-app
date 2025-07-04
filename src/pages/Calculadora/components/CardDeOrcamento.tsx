@@ -30,6 +30,7 @@ export function CardDeOrcamento({ orcamento }: CardDeOrcamentoProps) {
   const handleConverter = () => {
     navigate("/novo", { state: { dadosDoOrcamento: orcamento.formData } });
   };
+
   return (
     <CardContainer>
       <CardHeader>
@@ -38,7 +39,6 @@ export function CardDeOrcamento({ orcamento }: CardDeOrcamentoProps) {
           {orcamento.status}
         </span>
       </CardHeader>
-      <InfoText>Cliente: {orcamento.clientName}</InfoText>
       <InfoText>De: {orcamento.formData.origem}</InfoText>
       <InfoText>Para: {orcamento.formData.destino}</InfoText>
       <TotalText>Valor Total: R$ {orcamento.valorTotal.toFixed(2)}</TotalText>

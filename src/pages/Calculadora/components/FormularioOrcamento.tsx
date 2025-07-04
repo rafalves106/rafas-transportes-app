@@ -11,12 +11,8 @@ import {
 import { Button } from "../../../components/ui/Button";
 import { vehiclesData } from "../../../data/vehiclesData";
 import { driversData } from "../../../data/driversData";
+import { AutocompleteInput } from "./AutocompleteInput";
 
-const ParadaContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
 const BotaoRemover = styled.button`
   background-color: transparent;
   color: var(--cor-remover);
@@ -37,6 +33,17 @@ const LabelContainer = styled.div`
   align-items: center;
   margin-bottom: 0.25rem;
 `;
+const SectionHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+const AddButtonInline = styled(Button)`
+  padding: 0.5rem !important;
+  font-weight: 500 !important;
+  align-self: center;
+  height: fit-content;
+`;
 
 interface FormularioOrcamentoProps {
   onCalcular: (dados: OrcamentoForm) => void;
@@ -47,19 +54,22 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
     origem: "",
     destino: "",
     paradas: [],
+    passageiros: 1,
     veiculos: [{ id: "", passageiros: 1 }],
-    motoristas: [{ id: "" }],
+    motoristas: [{ id: "", diarias: 1 }],
   });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setDados((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleParadaChange = (index: number, value: string) => {
     const novasParadas = [...dados.paradas];
     novasParadas[index] = value;
     setDados((prev) => ({ ...prev, paradas: novasParadas }));
+  };
+
+  const handleAutocompleteChange = (
+    fieldName: "origem" | "destino",
+    value: string
+  ) => {
+    setDados((prev) => ({ ...prev, [fieldName]: value }));
   };
 
   const adicionarParada = () => {
@@ -96,20 +106,18 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
 
   const handleMotoristaChange = (
     index: number,
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
+    const { name, value } = event.target;
     const novosMotoristas = [...dados.motoristas];
-    novosMotoristas[index] = {
-      ...novosMotoristas[index],
-      id: event.target.value,
-    };
+    novosMotoristas[index] = { ...novosMotoristas[index], [name]: value };
     setDados((prev) => ({ ...prev, motoristas: novosMotoristas }));
   };
 
   const adicionarMotorista = () => {
     setDados((prev) => ({
       ...prev,
-      motoristas: [...prev.motoristas, { id: "" }],
+      motoristas: [...prev.motoristas, { id: "", diarias: 1 }],
     }));
   };
 
@@ -127,58 +135,71 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
   return (
     <FormContainer onSubmit={handleSubmit}>
       <InputGroup>
-        <Label htmlFor="origem">Origem</Label>
-        <Input
-          name="origem"
-          id="origem"
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Label htmlFor="origem">Origem</Label>
+          <AddButtonInline
+            variant="secondary"
+            type="button"
+            onClick={adicionarParada}
+          >
+            + Parada
+          </AddButtonInline>
+        </div>
+        <AutocompleteInput
+          label="Origem"
           value={dados.origem}
-          onChange={handleInputChange}
-          placeholder="Ex: Belo Horizonte, MG"
+          onChange={(value) => setDados((prev) => ({ ...prev, origem: value }))}
+          placeholder="Digite o endereço de partida..."
         />
       </InputGroup>
 
       {dados.paradas.map((parada, index) => (
-        <InputGroup key={index}>
-          <Label htmlFor={`parada-${index}`}>Parada {index + 1}</Label>
-          <ParadaContainer>
-            <Input
-              name={`parada-${index}`}
-              id={`parada-${index}`}
-              value={parada}
-              onChange={(e) => handleParadaChange(index, e.target.value)}
-              placeholder="Adicionar parada"
-            />
+        <InputGroup key={index} style={{ marginTop: "1rem" }}>
+          <LabelContainer>
+            <Label htmlFor={`parada-${index}`}>Parada {index + 1}</Label>
             <BotaoRemover type="button" onClick={() => removerParada(index)}>
               &times;
             </BotaoRemover>
-          </ParadaContainer>
+          </LabelContainer>
+          <AutocompleteInput
+            label=""
+            value={parada}
+            onChange={(value) => handleParadaChange(index, value)}
+            placeholder="Adicionar parada"
+          />
         </InputGroup>
       ))}
-      <Button
-        variant="secondary"
-        type="button"
-        onClick={adicionarParada}
-        style={{ padding: "0.5rem", fontWeight: 500 }}
-      >
-        + Adicionar Parada
-      </Button>
 
       <InputGroup style={{ marginTop: "1rem" }}>
-        <Label htmlFor="destino">Destino</Label>
-        <Input
-          name="destino"
-          id="destino"
+        <AutocompleteInput
+          label="Destino"
           value={dados.destino}
-          onChange={handleInputChange}
-          placeholder="Ex: Rio de Janeiro, RJ"
+          onChange={(value) => handleAutocompleteChange("destino", value)}
+          placeholder="Digite o endereço de destino..."
         />
       </InputGroup>
 
       <BlocoDinamico>
+        <SectionHeader>
+          <Label>Veículos</Label>
+          <AddButtonInline
+            variant="secondary"
+            type="button"
+            onClick={adicionarVeiculo}
+          >
+            + Add Veículo
+          </AddButtonInline>
+        </SectionHeader>
         {dados.veiculos.map((veiculo, index) => (
-          <InputGroup key={index}>
+          <InputGroup key={index} style={{ marginTop: "0.5rem" }}>
             <LabelContainer>
-              <Label>Veículo {index + 1}</Label>
+              <Label style={{ fontSize: "0.8rem" }}>Veículo {index + 1}</Label>
               {index > 0 && (
                 <BotaoRemover
                   type="button"
@@ -205,6 +226,7 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
               <Input
                 name="passageiros"
                 type="number"
+                placeholder="Passageiros"
                 min="1"
                 value={veiculo.passageiros}
                 onChange={(e) => handleVeiculoChange(index, e)}
@@ -213,16 +235,25 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
             </div>
           </InputGroup>
         ))}
-        <Button variant="secondary" type="button" onClick={adicionarVeiculo}>
-          + Add Veículo
-        </Button>
       </BlocoDinamico>
 
       <BlocoDinamico>
+        <SectionHeader>
+          <Label>Motoristas</Label>
+          <AddButtonInline
+            variant="secondary"
+            type="button"
+            onClick={adicionarMotorista}
+          >
+            + Add Motorista
+          </AddButtonInline>
+        </SectionHeader>
         {dados.motoristas.map((motorista, index) => (
-          <InputGroup key={index}>
+          <InputGroup key={index} style={{ marginTop: "0.5rem" }}>
             <LabelContainer>
-              <Label>Motorista {index + 1}</Label>
+              <Label style={{ fontSize: "0.8rem" }}>
+                Motorista {index + 1}
+              </Label>
               {index > 0 && (
                 <BotaoRemover
                   type="button"
@@ -232,23 +263,32 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
                 </BotaoRemover>
               )}
             </LabelContainer>
-            <Select
-              name="id"
-              value={motorista.id}
-              onChange={(e) => handleMotoristaChange(index, e)}
-            >
-              <option value="">Selecione um motorista</option>
-              {driversData.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </Select>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <Select
+                name="id"
+                value={motorista.id}
+                onChange={(e) => handleMotoristaChange(index, e)}
+                style={{ flex: 3 }}
+              >
+                <option value="">Selecione um motorista</option>
+                {driversData.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </Select>
+              <Input
+                name="diarias"
+                type="number"
+                placeholder="Diárias"
+                min="1"
+                value={motorista.diarias}
+                onChange={(e) => handleMotoristaChange(index, e)}
+                style={{ flex: 1 }}
+              />
+            </div>
           </InputGroup>
         ))}
-        <Button variant="secondary" type="button" onClick={adicionarMotorista}>
-          + Add Motorista
-        </Button>
       </BlocoDinamico>
 
       <Button

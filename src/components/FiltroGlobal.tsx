@@ -23,7 +23,7 @@ const TopBarContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.25rem 2rem;
-  margin-bottom: 1.5rem;
+  margin: 0.75rem 0;
   border-top: 1px solid var(--cor-bordas);
   border-bottom: 1px solid var(--cor-bordas);
 `;
@@ -40,7 +40,7 @@ const FilterTabsContainer = styled.div`
   flex-wrap: wrap;
   gap: 3rem;
   padding-left: 2rem;
-  margin-bottom: 1.5rem;
+  margin: 0.75rem 0;
 `;
 
 const ImgInput = styled.img`

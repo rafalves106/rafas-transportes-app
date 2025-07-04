@@ -84,7 +84,6 @@ export function FormularioNovaViagem() {
   const { onAdicionarViagem, onEditarViagem, onExcluirViagem } =
     useOutletContext<FormContextType>();
   const isEditing = !!tripId;
-
   const location = useLocation();
 
   const [dadosFormulario, setDadosFormulario] = useState({
@@ -103,64 +102,58 @@ export function FormularioNovaViagem() {
     motoristas: [{ id: "" }],
     rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
   });
-
   const [erros, setErros] = useState<{ [key: string]: string }>({});
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   useEffect(() => {
     const dadosDoOrcamento = location.state?.dadosDoOrcamento;
+    const viagemParaEditar = isEditing
+      ? tripsData.find((trip) => trip.id === parseInt(tripId!))
+      : null;
 
-    if (dadosDoOrcamento && !isEditing) {
-      console.log(
-        "Recebendo dados do orçamento para preencher o formulário!",
-        dadosDoOrcamento
-      );
-
-      setDadosFormulario((prev) => ({
-        ...prev,
-        title: `Viagem para ${dadosDoOrcamento.destino}`,
-        clientName: dadosDoOrcamento.clientName || "",
+    if (isEditing && viagemParaEditar) {
+      setDadosFormulario({
+        title: viagemParaEditar.title,
+        clientName: viagemParaEditar.clientName,
+        telefone: "",
+        value: String(viagemParaEditar.value),
+        tipoViagem: "ida_e_volta_mg",
+        startDate: viagemParaEditar.startDate,
+        startTime: viagemParaEditar.startTime,
+        startLocation: viagemParaEditar.startLocation,
+        endDate: viagemParaEditar.endDate,
+        endTime: viagemParaEditar.endTime,
+        endLocation: viagemParaEditar.endLocation,
+        veiculos: [{ id: String(viagemParaEditar.vehicleId) }],
+        motoristas: [{ id: String(viagemParaEditar.driverId) }],
+        rota: [],
+      });
+    } else if (dadosDoOrcamento && !isEditing) {
+      setDadosFormulario({
+        title: `Viagem: ${dadosDoOrcamento.origem} para ${dadosDoOrcamento.destino}`,
+        clientName: "",
+        telefone: "",
         value: "",
-        startDate: dadosDoOrcamento.startDate,
-        startTime: dadosDoOrcamento.startTime,
-        startLocation: dadosDoOrcamento.startLocation,
-        endDate: dadosDoOrcamento.endDate,
-        endTime: dadosDoOrcamento.endTime,
-        endLocation: dadosDoOrcamento.endLocation,
-        veiculos: dadosDoOrcamento.veiculos || [{ id: "" }],
-        motoristas: dadosDoOrcamento.motoristas || [{ id: "" }],
-      }));
+        tipoViagem: "ida_e_volta_mg",
+        startDate: "",
+        startTime: "",
+        startLocation: dadosDoOrcamento.origem,
+        endDate: "",
+        endTime: "",
+        endLocation: dadosDoOrcamento.destino,
+        veiculos: dadosDoOrcamento.veiculos.map(
+          (v: { id: string; passageiros: number }) => ({ id: v.id })
+        ),
+        motoristas: dadosDoOrcamento.motoristas.map(
+          (m: { id: string; diarias: number }) => ({ id: m.id })
+        ),
+        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
+      });
     }
-  }, [location.state, isEditing]);
+  }, [tripId, isEditing, location.state]);
 
   useEffect(() => {
-    if (isEditing && tripId) {
-      const viagemParaEditar = tripsData.find(
-        (trip) => trip.id === parseInt(tripId)
-      );
-      if (viagemParaEditar) {
-        setDadosFormulario({
-          title: viagemParaEditar.title,
-          clientName: viagemParaEditar.clientName,
-          telefone: "",
-          value: String(viagemParaEditar.value),
-          tipoViagem: "ida_e_volta_mg",
-          startDate: viagemParaEditar.startDate,
-          startTime: viagemParaEditar.startTime,
-          startLocation: viagemParaEditar.startLocation,
-          endDate: viagemParaEditar.endDate,
-          endTime: viagemParaEditar.endTime,
-          endLocation: viagemParaEditar.endLocation,
-          veiculos: [{ id: String(viagemParaEditar.vehicleId) }],
-          motoristas: [{ id: String(viagemParaEditar.driverId) }],
-          rota: [],
-        });
-      }
-    }
-  }, [tripId, isEditing]);
-
-  useEffect(() => {
-    if (isEditing) return;
+    if (isEditing || location.state?.dadosDoOrcamento) return;
 
     let textoIda = "";
     let textoVolta = "";
@@ -202,7 +195,7 @@ export function FormularioNovaViagem() {
       startLocation: textoIda,
       endLocation: textoVolta,
     }));
-  }, [dadosFormulario.tipoViagem, isEditing]);
+  }, [dadosFormulario.tipoViagem, isEditing, location.state]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -349,10 +342,8 @@ export function FormularioNovaViagem() {
   const handleExcluirClick = () => {
     setIsConfirmModalOpen(true);
   };
-
   const handleConfirmarExclusao = () => {
     if (!tripId) return;
-
     onExcluirViagem(parseInt(tripId));
     setIsConfirmModalOpen(false);
   };
@@ -392,7 +383,6 @@ export function FormularioNovaViagem() {
               />
               {erros.title && <ErrorMessage>{erros.title}</ErrorMessage>}
             </InputGroup>
-
             <InputGroup>
               <SectionTitle>Dados Cliente</SectionTitle>
               <Label htmlFor="clientName">Nome Cliente</Label>
@@ -416,7 +406,6 @@ export function FormularioNovaViagem() {
                 onChange={handleInputChange}
               />
             </InputGroup>
-
             {!isRota && (
               <InputGroup>
                 <SectionTitle>Veículos</SectionTitle>
@@ -461,7 +450,6 @@ export function FormularioNovaViagem() {
                 </Button>
               </InputGroup>
             )}
-
             <InputGroup>
               <SectionTitle>Motoristas</SectionTitle>
               {dadosFormulario.motoristas.map((motorista, index) => (
@@ -492,7 +480,7 @@ export function FormularioNovaViagem() {
                       <option key={d.id} value={d.id}>
                         {d.name}
                       </option>
-                    ))}
+                    ))}{" "}
                   </Select>
                 </div>
               ))}
@@ -504,7 +492,6 @@ export function FormularioNovaViagem() {
                 + Adicionar Motorista
               </Button>
             </InputGroup>
-
             <InputGroup>
               <SectionTitle>Valores</SectionTitle>
               <Label htmlFor="value">Valor do Serviço</Label>
@@ -520,7 +507,6 @@ export function FormularioNovaViagem() {
               {erros.value && <ErrorMessage>{erros.value}</ErrorMessage>}
             </InputGroup>
           </FormSectionSide>
-
           <FormSection>
             <InputGroup>
               <Label htmlFor="tipoViagem">Tipo de Viagem</Label>
@@ -546,7 +532,6 @@ export function FormularioNovaViagem() {
                 </option>
               </Select>
             </InputGroup>
-
             {mostraPercursoIda && (
               <>
                 <SectionTitle>Percurso de Ida</SectionTitle>
@@ -591,7 +576,6 @@ export function FormularioNovaViagem() {
                 </InputGroup>
               </>
             )}
-
             {mostraPercursoVolta && (
               <>
                 <SectionTitle>Percurso de Volta</SectionTitle>
@@ -636,7 +620,6 @@ export function FormularioNovaViagem() {
                 </InputGroup>
               </>
             )}
-
             {isRota && (
               <InputGroup>
                 <SectionTitle>Veículos e Horários da Rota</SectionTitle>
@@ -731,7 +714,6 @@ export function FormularioNovaViagem() {
                 </Button>
               </InputGroup>
             )}
-
             {isEditing && (
               <div
                 style={{

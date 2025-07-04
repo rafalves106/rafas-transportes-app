@@ -2,6 +2,7 @@ export interface Orcamento {
   id: number;
   title: string;
   clientName: string;
+  custoDistancia: number;
   distanciaTotal: number;
   custoPedagios: number;
   custoCombustivel: number;

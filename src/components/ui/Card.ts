@@ -8,7 +8,7 @@ export const CardContainer = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 `;
 
 export const CardHeader = styled.div`
@@ -19,7 +19,7 @@ export const CardHeader = styled.div`
 
 export const CardTitle = styled.h3`
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--cor-titulos);
 `;
 
@@ -27,5 +27,5 @@ export const DetailsLink = styled(Link)`
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
-  color: var(--cor-primaria);
+  color: var(--cor-secundaria);
 `;

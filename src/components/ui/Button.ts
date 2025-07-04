@@ -3,8 +3,11 @@ import styled, { css } from "styled-components";
 const baseButtonStyles = css`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 0rem;
+  min-width: 12rem;
+  height: 2.5rem;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
@@ -54,6 +57,7 @@ const dangerStyles = css`
 const filterStyles = css<{ isActive?: boolean }>`
   background: transparent;
   border: none;
+  border-radius: 0;
   padding: 0.5rem 0;
   font-size: 16px;
   font-weight: 600;

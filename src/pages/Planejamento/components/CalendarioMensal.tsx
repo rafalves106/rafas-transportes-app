@@ -22,6 +22,7 @@ const CalendarGrid = styled.div`
   grid-template-columns: repeat(7, 1fr);
   gap: 0.75rem;
   background-color: transparent;
+  padding: 0 2rem;
 `;
 
 const DayHeader = styled.div`

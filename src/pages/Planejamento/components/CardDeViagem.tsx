@@ -21,26 +21,18 @@ const InfoRow = styled.div`
 const InfoTag = styled.span`
   background-color: var(--cor-secundaria);
   color: var(--cor-textos-infos);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 500;
   padding: 2px 8px;
   border-radius: 20px;
 `;
 
 const Description = styled.p`
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--cor-textos);
   font-weight: 500;
   line-height: 1.4;
   margin: 0.25rem 0 0.75rem 0;
-`;
-
-const AssignmentContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  padding-top: 0.75rem;
-  margin-top: 0.75rem;
-  border-top: 1px solid var(--cor-bordas);
 `;
 
 interface CardDeViagemProps {
@@ -54,7 +46,10 @@ export function CardDeViagem({ trip }: CardDeViagemProps) {
   return (
     <CardContainer>
       <CardHeader>
-        <CardTitle>{trip.title}</CardTitle>
+        <CardTitle>
+          {trip.title} | R$
+          {trip.value.toFixed(2)}
+        </CardTitle>
         <DetailsLink to={`/editar/${trip.id}`}>Detalhes</DetailsLink>
       </CardHeader>
 
@@ -80,19 +75,10 @@ export function CardDeViagem({ trip }: CardDeViagemProps) {
         <Description>{trip.endLocation}</Description>
       </div>
 
-      <AssignmentContainer>
-        <Label>
-          Veículo: {veiculo ? `${veiculo.model} (${veiculo.plate})` : "N/A"}
-        </Label>
-        <Label>Motorista: {motorista ? motorista.name : "N/A"}</Label>
-      </AssignmentContainer>
-
-      <CardHeader style={{ marginTop: "0.5rem" }}>
-        <CardTitle as="h4" style={{ fontSize: "1rem" }}>
-          Valor
-        </CardTitle>
-        <InfoTag>R$ {trip.value.toFixed(2)}</InfoTag>
-      </CardHeader>
+      <InfoRow style={{ justifyContent: "space-between" }}>
+        <InfoTag>{veiculo ? `${veiculo.plate}` : "N/A"}</InfoTag>
+        <InfoTag>{motorista ? motorista.name : "N/A"}</InfoTag>
+      </InfoRow>
     </CardContainer>
   );
 }

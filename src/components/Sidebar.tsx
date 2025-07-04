@@ -23,13 +23,13 @@ const SidebarContainer = styled.aside`
   border-right: 1px solid #dee2e6;
   display: flex;
   flex-direction: column;
+  gap: 2rem;
 `;
 
 const EmpresaInfo = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 2.25rem;
 `;
 
 const LogoContainer = styled.div`
