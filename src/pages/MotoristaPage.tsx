@@ -88,11 +88,6 @@ export function MotoristaPage() {
         <ModalGlobal
           title={driverId ? "Editar Motorista" : "Novo Motorista"}
           onClose={() => navigate("/motoristas")}
-          formId={
-            driverId
-              ? `form-editar-motorista-${driverId}`
-              : "form-novo-motorista"
-          }
         >
           <Outlet
             context={{

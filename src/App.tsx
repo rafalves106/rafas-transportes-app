@@ -1,8 +1,27 @@
+import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import { Sidebar } from "./components/Sidebar";
 import { HeaderGlobal } from "./components/HeaderGlobal";
+
+import { tripsData as initialTripsData, type Trip } from "./data/tripsData";
+import {
+  vehiclesData as initialVehiclesData,
+  type Vehicle,
+} from "./data/vehiclesData";
+import {
+  driversData as initialDriversData,
+  type Driver,
+} from "./data/driversData";
+import {
+  maintenancesData as initialMaintenancesData,
+  type Maintenance,
+} from "./data/maintenanceData";
+import {
+  orcamentosData as initialOrcamentos,
+  type Orcamento,
+} from "./data/orcamentosData";
 
 const AppContainer = styled.div`
   display: flex;
@@ -18,11 +37,21 @@ const ConteudoPrincipal = styled.div`
 
 const AreaDaPagina = styled.main`
   flex: 1;
+  overflow-y: auto;
+  padding: 0 2rem 2rem 2rem;
 `;
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [viagens, setViagens] = useState<Trip[]>(initialTripsData);
+  const [veiculos, setVeiculos] = useState<Vehicle[]>(initialVehiclesData);
+  const [motoristas, setMotoristas] = useState<Driver[]>(initialDriversData);
+  const [manutencoes, setManutencoes] = useState<Maintenance[]>(
+    initialMaintenancesData
+  );
+  const [orcamentos, setOrcamentos] = useState<Orcamento[]>(initialOrcamentos);
 
   const pageConfig: {
     [key: string]: {
@@ -82,6 +111,13 @@ function App() {
       novoPath: "",
       showActionButton: false,
     },
+    "/orcamentos": {
+      icon: "📄",
+      title: "Orçamentos Salvos",
+      novoLabel: "",
+      novoPath: "",
+      showActionButton: false,
+    },
   };
 
   const configAtual = pageConfig[location.pathname] || {
@@ -94,6 +130,10 @@ function App() {
 
   const handleNovoItemClick = () => {
     navigate(configAtual.novoPath);
+  };
+
+  const handleAdicionarOrcamento = (orcamento: Orcamento) => {
+    setOrcamentos((prev) => [orcamento, ...prev]);
   };
 
   return (
@@ -114,7 +154,20 @@ function App() {
             novoItemLabel={configAtual.novoLabel}
           />
           <AreaDaPagina>
-            <Outlet />
+            <Outlet
+              context={{
+                viagens,
+                setViagens,
+                veiculos,
+                setVeiculos,
+                motoristas,
+                setMotoristas,
+                manutencoes,
+                setManutencoes,
+                orcamentos,
+                onAdicionarOrcamento: handleAdicionarOrcamento,
+              }}
+            />
           </AreaDaPagina>
         </ConteudoPrincipal>
       </AppContainer>

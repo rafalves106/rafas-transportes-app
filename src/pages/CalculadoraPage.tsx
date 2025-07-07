@@ -3,14 +3,13 @@ import styled from "styled-components";
 import { format } from "date-fns";
 
 import type { Orcamento } from "../data/orcamentosData";
-import { orcamentosData as initialOrcamentos } from "../data/orcamentosData";
 
 import { FormularioOrcamento } from "./Calculadora/components/FormularioOrcamento";
-import { ListaDeOrcamentos } from "./Calculadora/components/ListaDeOrcamentos";
 import { GeradorDeTextoModal } from "./Calculadora/components/GeradorDeTextoModal";
 
 import { Button } from "../components/ui/Button";
 import { InputGroup, Label, Input } from "../components/ui/Form";
+import { useOutletContext } from "react-router-dom";
 
 interface GooglePrice {
   currencyCode?: string;
@@ -26,6 +25,11 @@ interface GoogleRoute {
       estimatedPrice: GooglePrice[];
     };
   };
+}
+
+interface AppContextType {
+  orcamentos: Orcamento[];
+  onAdicionarOrcamento: (orcamento: Orcamento) => void;
 }
 
 export interface OrcamentoForm {
@@ -48,22 +52,23 @@ interface OrcamentoResultado {
 }
 
 // Styled Components
-const PageContainer = styled.div`
+const MainGrid = styled.div`
   display: grid;
-  grid-template-columns: 0.9fr 1.3fr 1.4fr;
-  padding: 0 2rem;
-  column-gap: 2rem;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
   align-items: start;
 `;
 
-const CalculadoraContainer = styled.div`
+const PageContainer = styled.div`
   display: flex;
-  align-items: start;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem;
 `;
 
 const ParametrosSection = styled.div`
   background-color: white;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--cor-bordas);
@@ -71,14 +76,13 @@ const ParametrosSection = styled.div`
 
 const FormSection = styled.div`
   background-color: white;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--cor-bordas);
   overflow-y: auto;
-  max-height: calc(100vh - 120px);
+  grid-column: 1 / span 2;
 `;
-
 const ResultadoTitulo = styled.h3`
   margin-top: 0;
   margin-bottom: 1rem;
@@ -94,15 +98,28 @@ const ResultadoSection = styled.div`
 `;
 
 export function CalculadoraPage() {
+  const { onAdicionarOrcamento } = useOutletContext<AppContextType>();
+
   const [resultado, setResultado] = useState<OrcamentoResultado[] | null>(null);
   const [ultimoForm, setUltimoForm] = useState<OrcamentoForm | null>(null);
-  const [orcamentos, setOrcamentos] = useState<Orcamento[]>(initialOrcamentos);
   const [parametros, setParametros] = useState({
     precoDiesel: 5.5,
     diariaMotorista: 200.0,
     custoKmRodado: 3.9,
     extras: 0,
   });
+
+  const handleSalvarOrcamento = () => {
+    if (!orcamentoParaGerarTexto) return;
+
+    onAdicionarOrcamento(orcamentoParaGerarTexto);
+
+    alert("Orçamento salvo com sucesso!");
+
+    setOrcamentoParaGerarTexto(null);
+    setResultado(null);
+  };
+
   const [orcamentoParaGerarTexto, setOrcamentoParaGerarTexto] =
     useState<Orcamento | null>(null);
 
@@ -230,20 +247,12 @@ export function CalculadoraPage() {
     setOrcamentoParaGerarTexto(orcamentoTemporario);
   };
 
-  const handleSalvarOrcamentoDeVerdade = () => {
-    if (!orcamentoParaGerarTexto) return;
-
-    setOrcamentos((prev) => [orcamentoParaGerarTexto, ...prev]);
-    alert("Orçamento salvo com sucesso!");
-
-    setOrcamentoParaGerarTexto(null);
-    setResultado(null);
-  };
-
   return (
     <PageContainer>
       <ParametrosSection>
-        <h3 style={{ marginTop: 0, marginBottom: "1rem" }}>Parâmetros</h3>
+        <h3 style={{ marginTop: 0, marginBottom: "1rem" }}>
+          Parâmetros do Cálculo
+        </h3>
         <div
           style={{
             display: "grid",
@@ -270,7 +279,7 @@ export function CalculadoraPage() {
             />
           </InputGroup>
           <InputGroup>
-            <Label>Custo por KM Rodado (R$)</Label>
+            <Label>Custo por KM (R$)</Label>
             <Input
               type="number"
               name="custoKmRodado"
@@ -289,58 +298,48 @@ export function CalculadoraPage() {
           </InputGroup>
         </div>
       </ParametrosSection>
-      <CalculadoraContainer>
+
+      <MainGrid>
         <FormSection>
-          <h3 style={{ marginBottom: "1rem" }}>Dados da Viagem</h3>
+          <h3 style={{ marginTop: 0 }}>Dados da Viagem</h3>
           <FormularioOrcamento onCalcular={handleCalcular} />
         </FormSection>
-      </CalculadoraContainer>
-      <ResultadoSection>
-        <ResultadoTitulo>Resumo do Orçamento</ResultadoTitulo>
-        {resultado && resultado.length > 0 ? (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-            }}
-          >
-            {resultado.map((res, index) => (
-              <div key={index}>
-                <p>
-                  <strong>Distância Total:</strong> {res.distanciaTotal} km
-                </p>
-                <p>
-                  <strong>Custo com Pedágios:</strong> R${" "}
-                  {res.custoPedagios.toFixed(2)}
-                </p>
-                <p>
-                  <strong>
-                    Valor Total Sugerido: R$ {res.valorTotal.toFixed(2)}
-                  </strong>
-                </p>
-                <Button
-                  variant="primary"
-                  onClick={() => handleAbrirModalTexto(res)}
-                  style={{ marginTop: "1rem", width: "100%" }}
-                >
-                  Gerar Textos / Salvar
-                </Button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>
-            Preencha os dados ao lado e clique em "Calcular" para ver o
-            resultado.
-          </p>
-        )}
-      </ResultadoSection>
-      <ListaDeOrcamentos orcamentos={orcamentos} />
+
+        <ResultadoSection>
+          <ResultadoTitulo>Resumo do Orçamento</ResultadoTitulo>
+          {resultado ? (
+            <div>
+              {resultado.map((res, index) => (
+                <div key={index} style={{ marginBottom: "1.5rem" }}>
+                  <h4>Opção {index + 1}</h4>
+                  <p>
+                    <strong>Distância:</strong> {res.distanciaTotal} km
+                  </p>
+                  <p>
+                    <strong>Pedágios:</strong> R$ {res.custoPedagios.toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Valor Total: R$ {res.valorTotal.toFixed(2)}</strong>
+                  </p>
+                  <Button
+                    variant="primary"
+                    onClick={() => handleAbrirModalTexto(res)}
+                  >
+                    Gerar Textos / Salvar
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>Preencha o formulário para calcular.</p>
+          )}
+        </ResultadoSection>
+      </MainGrid>
+
       <GeradorDeTextoModal
         orcamento={orcamentoParaGerarTexto}
         onClose={() => setOrcamentoParaGerarTexto(null)}
-        onSalvar={handleSalvarOrcamentoDeVerdade}
+        onSalvar={handleSalvarOrcamento}
       />
     </PageContainer>
   );

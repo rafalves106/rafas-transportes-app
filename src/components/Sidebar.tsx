@@ -7,6 +7,7 @@ import frotaLogo from "../assets/frotalogo.png";
 import motoLogo from "../assets/motologo.png";
 import adicionar from "../assets/Plus.png";
 import calcLogo from "../assets/calcLogo.png";
+import orcamentoLogo from "../assets/orcamentoLogo.png";
 
 import { Button } from "./ui/Button";
 
@@ -136,6 +137,10 @@ export function Sidebar({
         <StyledNavLink to="/calculadora">
           <img src={calcLogo} alt="Calculadora" />
           Calculadora
+        </StyledNavLink>
+        <StyledNavLink to="/orcamentos">
+          <img src={orcamentoLogo} alt="Orçamentos" />
+          Orçamentos Salvos
         </StyledNavLink>
       </NavList>
     </SidebarContainer>

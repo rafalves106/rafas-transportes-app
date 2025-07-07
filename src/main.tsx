@@ -10,6 +10,7 @@ import { ManutencaoPage } from "./pages/ManutencaoPage.tsx";
 import { MotoristaPage } from "./pages/MotoristaPage.tsx";
 import { FrotaPage } from "./pages/FrotaPage.tsx";
 import { CalculadoraPage } from "./pages/CalculadoraPage.tsx";
+import { OrcamentosPage } from "./pages/OrcamentoPage.tsx";
 
 import { FormularioNovaViagem } from "./pages/Planejamento/components/FormNovaViagem.tsx";
 import { FormularioNovoVeiculo } from "./pages/Frota/components/FormularioNovoVeiculo.tsx";
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
       {
         path: "calculadora",
         element: <CalculadoraPage />,
+      },
+      {
+        path: "orcamentos",
+        element: <OrcamentosPage />,
       },
     ],
   },
