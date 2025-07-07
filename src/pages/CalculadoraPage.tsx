@@ -1,13 +1,15 @@
 import { useState } from "react";
 import styled from "styled-components";
-import { FormularioOrcamento } from "./Calculadora/components/FormularioOrcamento";
-import { ListaDeOrcamentos } from "./Calculadora/components/ListaDeOrcamentos";
-import { Button } from "../components/ui/Button";
+import { format } from "date-fns";
+
 import type { Orcamento } from "../data/orcamentosData";
 import { orcamentosData as initialOrcamentos } from "../data/orcamentosData";
-import { format } from "date-fns";
+
+import { FormularioOrcamento } from "./Calculadora/components/FormularioOrcamento";
+import { ListaDeOrcamentos } from "./Calculadora/components/ListaDeOrcamentos";
 import { GeradorDeTextoModal } from "./Calculadora/components/GeradorDeTextoModal";
 
+import { Button } from "../components/ui/Button";
 import { InputGroup, Label, Input } from "../components/ui/Form";
 
 interface GooglePrice {
@@ -30,9 +32,9 @@ export interface OrcamentoForm {
   origem: string;
   destino: string;
   paradas: string[];
-  passageiros: number;
-  veiculos: { id: string; passageiros: number }[];
-  motoristas: { id: string; diarias: number }[];
+  numeroVeiculos: number;
+  numeroMotoristas: number;
+  quantidadeDiarias: number;
 }
 
 interface OrcamentoResultado {
@@ -45,50 +47,50 @@ interface OrcamentoResultado {
   valorTotal: number;
 }
 
+// Styled Components
 const PageContainer = styled.div`
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr 1.4fr;
+  padding: 0 2rem;
+  column-gap: 2rem;
+  align-items: start;
+`;
+
+const CalculadoraContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 0 2rem 2rem 2rem;
+  align-items: start;
 `;
 
 const ParametrosSection = styled.div`
   background-color: white;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--cor-bordas);
-`;
-
-const CalculadoraContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
 `;
 
 const FormSection = styled.div`
   background-color: white;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--cor-bordas);
   overflow-y: auto;
-`;
-
-const ResultadoSection = styled.div`
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--cor-bordas);
+  max-height: calc(100vh - 120px);
 `;
 
 const ResultadoTitulo = styled.h3`
   margin-top: 0;
-  border-bottom: 1px solid var(--cor-bordas);
-  padding-bottom: 1rem;
   margin-bottom: 1rem;
   color: var(--cor-titulos);
+`;
+
+const ResultadoSection = styled.div`
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--cor-bordas);
 `;
 
 export function CalculadoraPage() {
@@ -110,7 +112,6 @@ export function CalculadoraPage() {
   };
 
   const handleCalcular = async (dados: OrcamentoForm) => {
-    console.log("Iniciando cálculo com os dados:", dados);
     setUltimoForm(dados);
 
     const requestBody = {
@@ -166,13 +167,14 @@ export function CalculadoraPage() {
             0
           ) || 0;
 
-        const custoDistancia = distanciaEmKm * parametros.custoKmRodado;
-        const custoCombustivel = (distanciaEmKm / 10) * parametros.precoDiesel;
-        const custoMotorista = dados.motoristas.reduce((total, motorista) => {
-          return (
-            total + Number(motorista.diarias || 1) * parametros.diariaMotorista
-          );
-        }, 0);
+        const custoDistancia =
+          distanciaEmKm * parametros.custoKmRodado * dados.numeroVeiculos;
+        const custoCombustivel =
+          (distanciaEmKm / 10) * parametros.precoDiesel * dados.numeroVeiculos;
+        const custoMotorista =
+          dados.numeroMotoristas *
+          dados.quantidadeDiarias *
+          parametros.diariaMotorista;
         const valorTotal =
           custoPedagios +
           custoCombustivel +
@@ -215,10 +217,9 @@ export function CalculadoraPage() {
     }
   };
 
-  const handleSalvarOrcamento = (resultadoEscolhido: OrcamentoResultado) => {
+  const handleAbrirModalTexto = (resultadoEscolhido: OrcamentoResultado) => {
     if (!ultimoForm) return;
-
-    const novoOrcamento: Orcamento = {
+    const orcamentoTemporario: Orcamento = {
       id: Date.now(),
       title: `Orçamento: ${ultimoForm.origem} para ${ultimoForm.destino}`,
       clientName: "Cliente a definir",
@@ -226,19 +227,23 @@ export function CalculadoraPage() {
       formData: ultimoForm,
       status: "Pendente",
     };
+    setOrcamentoParaGerarTexto(orcamentoTemporario);
+  };
 
-    setOrcamentos((prev) => [novoOrcamento, ...prev]);
-    setOrcamentoParaGerarTexto(novoOrcamento);
+  const handleSalvarOrcamentoDeVerdade = () => {
+    if (!orcamentoParaGerarTexto) return;
 
+    setOrcamentos((prev) => [orcamentoParaGerarTexto, ...prev]);
+    alert("Orçamento salvo com sucesso!");
+
+    setOrcamentoParaGerarTexto(null);
     setResultado(null);
   };
 
   return (
     <PageContainer>
       <ParametrosSection>
-        <h3 style={{ marginTop: 0, marginBottom: "1rem" }}>
-          Parâmetros do Cálculo
-        </h3>
+        <h3 style={{ marginTop: 0, marginBottom: "1rem" }}>Parâmetros</h3>
         <div
           style={{
             display: "grid",
@@ -284,67 +289,58 @@ export function CalculadoraPage() {
           </InputGroup>
         </div>
       </ParametrosSection>
-
       <CalculadoraContainer>
         <FormSection>
-          <h3 style={{ marginTop: 0 }}>Dados da Viagem</h3>
+          <h3 style={{ marginBottom: "1rem" }}>Dados da Viagem</h3>
           <FormularioOrcamento onCalcular={handleCalcular} />
         </FormSection>
-        <ResultadoSection>
-          <ResultadoTitulo>Resumo do Orçamento</ResultadoTitulo>
-          {resultado && resultado.length > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.5rem",
-              }}
-            >
-              {resultado.map((res, index) => (
-                <div
-                  key={index}
-                  style={{
-                    borderBottom: "1px solid var(--cor-bordas)",
-                    paddingBottom: "1rem",
-                  }}
-                >
-                  <h4>Opção {index + 1}</h4>
-                  <p>
-                    <strong>Distância Total:</strong> {res.distanciaTotal} km
-                  </p>
-                  <p>
-                    <strong>Custo com Pedágios:</strong> R${" "}
-                    {res.custoPedagios.toFixed(2)}
-                  </p>
-                  <p>
-                    <strong>
-                      Valor Total Sugerido: R$ {res.valorTotal.toFixed(2)}
-                    </strong>
-                  </p>
-                  <Button
-                    variant="secondary"
-                    onClick={() => handleSalvarOrcamento(res)}
-                    style={{ marginTop: "1rem", width: "100%" }}
-                  >
-                    Salvar este Orçamento
-                  </Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>
-              Preencha os dados ao lado e clique em "Calcular" para ver o
-              resultado.
-            </p>
-          )}
-        </ResultadoSection>
       </CalculadoraContainer>
-
+      <ResultadoSection>
+        <ResultadoTitulo>Resumo do Orçamento</ResultadoTitulo>
+        {resultado && resultado.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+            }}
+          >
+            {resultado.map((res, index) => (
+              <div key={index}>
+                <p>
+                  <strong>Distância Total:</strong> {res.distanciaTotal} km
+                </p>
+                <p>
+                  <strong>Custo com Pedágios:</strong> R${" "}
+                  {res.custoPedagios.toFixed(2)}
+                </p>
+                <p>
+                  <strong>
+                    Valor Total Sugerido: R$ {res.valorTotal.toFixed(2)}
+                  </strong>
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={() => handleAbrirModalTexto(res)}
+                  style={{ marginTop: "1rem", width: "100%" }}
+                >
+                  Gerar Textos / Salvar
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>
+            Preencha os dados ao lado e clique em "Calcular" para ver o
+            resultado.
+          </p>
+        )}
+      </ResultadoSection>
       <ListaDeOrcamentos orcamentos={orcamentos} />
-
       <GeradorDeTextoModal
         orcamento={orcamentoParaGerarTexto}
         onClose={() => setOrcamentoParaGerarTexto(null)}
+        onSalvar={handleSalvarOrcamentoDeVerdade}
       />
     </PageContainer>
   );

@@ -5,13 +5,24 @@ import { ModalGlobal } from "../../../components/ModalGlobal";
 import { Button } from "../../../components/ui/Button";
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1.5fr 5fr;
+  justify-content: space-between;
   gap: 1.5rem;
+`;
+
+const ModalFooter = styled.footer`
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--cor-bordas);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  background-color: #f8f9fa;
 `;
 
 const TemplateSection = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 0.5rem;
 `;
@@ -23,11 +34,11 @@ const TemplateTitle = styled.h4`
 
 const TextArea = styled.textarea`
   width: 100%;
-  min-height: 150px;
+  min-height: 30rem;
   padding: 0.75rem;
   border: 1px solid #ced4da;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   resize: vertical;
   background-color: #f8f9fa;
 `;
@@ -35,11 +46,13 @@ const TextArea = styled.textarea`
 interface GeradorDeTextoModalProps {
   orcamento: Orcamento | null;
   onClose: () => void;
+  onSalvar: () => void;
 }
 
 export function GeradorDeTextoModal({
   orcamento,
   onClose,
+  onSalvar,
 }: GeradorDeTextoModalProps) {
   const [textoCopiado, setTextoCopiado] = useState<"whatsapp" | "email" | null>(
     null
@@ -49,29 +62,31 @@ export function GeradorDeTextoModal({
     return null;
   }
 
+  let descricaoDaRota = "";
+  const { origem, destino, paradas } = orcamento.formData;
+
+  if (paradas && paradas.length > 0 && paradas[0] !== "") {
+    const paradasTexto = paradas.join(", ");
+    descricaoDaRota = `de *${origem}* passando por *${paradasTexto}* com destino a *${destino}*`;
+  } else {
+    descricaoDaRota = `de *${origem}* para *${destino}*`;
+  }
+
   const templateWhatsApp = `*Orçamento Rafas Transportes* 🚐
 
-Olá! Segue o orçamento para a viagem de *${orcamento.formData.origem}* para *${
-    orcamento.formData.destino
-  }*.
-
-Valor Total: *R$ ${orcamento.valorTotal.toFixed(2)}*
-
-Este valor inclui todos os custos de pedágio, combustível e despesas do motorista.
-
-Qualquer dúvida, estou à disposição!`;
+  Olá! Segue o orçamento para a viagem ${descricaoDaRota}.
+  
+  Valor Total: *R$ ${orcamento.valorTotal.toFixed(2)}*
+  
+  Este valor inclui todos os custos de pedágio, combustível e despesas do motorista.
+  
+  Qualquer dúvida, estou à disposição!`;
 
   const templateEmail = `Prezado(a) Cliente,
-
-Conforme solicitado, segue abaixo o orçamento detalhado para o serviço de transporte.
-
-Origem: ${orcamento.formData.origem}
-Destino: ${orcamento.formData.destino}
-${
-  orcamento.formData.paradas.length > 0
-    ? `Paradas: ${orcamento.formData.paradas.join(", ")}`
-    : ""
-}
+  
+  Conforme solicitado, segue abaixo o orçamento detalhado para o serviço de transporte.
+  
+  Rota: ${descricaoDaRota.replace(/\*/g, "")}
 
 --- DETALHES DO CUSTO ---
 - Custo com Distância e Veículo: R$ ${orcamento.custoDistancia.toFixed(2)}
@@ -94,12 +109,13 @@ Equipe Rafas Transportes`;
     });
   };
 
+  const handleSalvarEFechar = () => {
+    onSalvar();
+    onClose();
+  };
+
   return (
-    <ModalGlobal
-      title="Gerar Textos para Orçamento"
-      onClose={onClose}
-      formId=""
-    >
+    <ModalGlobal title="Gerar Textos para Orçamento" onClose={onClose}>
       <Container>
         <TemplateSection>
           <TemplateTitle>Texto para WhatsApp</TemplateTitle>
@@ -123,6 +139,15 @@ Equipe Rafas Transportes`;
           </Button>
         </TemplateSection>
       </Container>
+
+      <ModalFooter>
+        <Button variant="secondary" onClick={onClose}>
+          Fechar
+        </Button>
+        <Button variant="primary" onClick={handleSalvarEFechar}>
+          Salvar Orçamento
+        </Button>
+      </ModalFooter>
     </ModalGlobal>
   );
 }

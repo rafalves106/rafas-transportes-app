@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useOutletContext, useParams, useLocation } from "react-router-dom";
 
+import { useNavigate } from "react-router-dom";
+
 import { driversData } from "../../../data/driversData";
 import { vehiclesData } from "../../../data/vehiclesData";
 import type { Trip } from "../../../data/tripsData";
@@ -35,6 +37,15 @@ const FormSectionSide = styled.div`
   max-height: calc(90vh - 180px);
   overflow-y: auto;
 `;
+
+const ModalFooter = styled.footer`
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+`;
+
 const FormSection = styled.div`
   padding: 1rem 0 1rem 1.5rem;
   display: flex;
@@ -85,6 +96,8 @@ export function FormularioNovaViagem() {
     useOutletContext<FormContextType>();
   const isEditing = !!tripId;
   const location = useLocation();
+
+  const navigate = useNavigate();
 
   const [dadosFormulario, setDadosFormulario] = useState({
     title: "",
@@ -733,6 +746,19 @@ export function FormularioNovaViagem() {
             )}
           </FormSection>
         </FormGrid>
+
+        <ModalFooter>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => navigate("/")}
+          >
+            Cancelar
+          </Button>
+          <Button variant="primary" type="submit">
+            Salvar
+          </Button>
+        </ModalFooter>
       </FormContainer>
       <ConfirmationModal
         isOpen={isConfirmModalOpen}

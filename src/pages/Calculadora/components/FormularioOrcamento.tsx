@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import type { OrcamentoForm } from "../../CalculadoraPage";
+
 import {
   FormContainer,
   InputGroup,
   Label,
   Input,
-  Select,
 } from "../../../components/ui/Form";
 import { Button } from "../../../components/ui/Button";
-import { vehiclesData } from "../../../data/vehiclesData";
-import { driversData } from "../../../data/driversData";
+
+import type { OrcamentoForm } from "../../CalculadoraPage";
 import { AutocompleteInput } from "./AutocompleteInput";
 
 const BotaoRemover = styled.button`
@@ -22,27 +21,18 @@ const BotaoRemover = styled.button`
   padding: 0;
   line-height: 1;
 `;
-const BlocoDinamico = styled.div`
-  border-top: 1px solid var(--cor-bordas);
-  padding-top: 1rem;
-  margin-top: 1rem;
-`;
+
 const LabelContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.25rem;
 `;
-const SectionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+
 const AddButtonInline = styled(Button)`
   padding: 0.5rem !important;
   font-weight: 500 !important;
-  align-self: center;
-  height: fit-content;
+  min-width: 6rem;
 `;
 
 interface FormularioOrcamentoProps {
@@ -54,10 +44,15 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
     origem: "",
     destino: "",
     paradas: [],
-    passageiros: 1,
-    veiculos: [{ id: "", passageiros: 1 }],
-    motoristas: [{ id: "", diarias: 1 }],
+    numeroVeiculos: 1,
+    numeroMotoristas: 1,
+    quantidadeDiarias: 1,
   });
+
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setDados((prev) => ({ ...prev, [name]: Number(value) }));
+  };
 
   const handleParadaChange = (index: number, value: string) => {
     const novasParadas = [...dados.paradas];
@@ -81,52 +76,6 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
     setDados((prev) => ({ ...prev, paradas: novasParadas }));
   };
 
-  const handleVeiculoChange = (
-    index: number,
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = event.target;
-    const novosVeiculos = [...dados.veiculos];
-    novosVeiculos[index] = { ...novosVeiculos[index], [name]: value };
-    setDados((prev) => ({ ...prev, veiculos: novosVeiculos }));
-  };
-
-  const adicionarVeiculo = () => {
-    setDados((prev) => ({
-      ...prev,
-      veiculos: [...prev.veiculos, { id: "", passageiros: 1 }],
-    }));
-  };
-
-  const removerVeiculo = (index: number) => {
-    if (dados.veiculos.length <= 1) return;
-    const novosVeiculos = dados.veiculos.filter((_, i) => i !== index);
-    setDados((prev) => ({ ...prev, veiculos: novosVeiculos }));
-  };
-
-  const handleMotoristaChange = (
-    index: number,
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = event.target;
-    const novosMotoristas = [...dados.motoristas];
-    novosMotoristas[index] = { ...novosMotoristas[index], [name]: value };
-    setDados((prev) => ({ ...prev, motoristas: novosMotoristas }));
-  };
-
-  const adicionarMotorista = () => {
-    setDados((prev) => ({
-      ...prev,
-      motoristas: [...prev.motoristas, { id: "", diarias: 1 }],
-    }));
-  };
-
-  const removerMotorista = (index: number) => {
-    if (dados.motoristas.length <= 1) return;
-    const novosMotoristas = dados.motoristas.filter((_, i) => i !== index);
-    setDados((prev) => ({ ...prev, motoristas: novosMotoristas }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onCalcular(dados);
@@ -139,10 +88,21 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "end",
+            gap: "1rem",
           }}
         >
-          <Label htmlFor="origem">Origem</Label>
+          <div style={{ flexGrow: 1, width: "100%" }}>
+            <AutocompleteInput
+              label="Origem"
+              value={dados.origem}
+              onChange={(value) =>
+                setDados((prev) => ({ ...prev, origem: value }))
+              }
+              placeholder="Digite o endereço de partida..."
+            />
+          </div>
+
           <AddButtonInline
             variant="secondary"
             type="button"
@@ -151,12 +111,6 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
             + Parada
           </AddButtonInline>
         </div>
-        <AutocompleteInput
-          label="Origem"
-          value={dados.origem}
-          onChange={(value) => setDados((prev) => ({ ...prev, origem: value }))}
-          placeholder="Digite o endereço de partida..."
-        />
       </InputGroup>
 
       {dados.paradas.map((parada, index) => (
@@ -185,111 +139,46 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
         />
       </InputGroup>
 
-      <BlocoDinamico>
-        <SectionHeader>
+      <div
+        style={{
+          display: "grid",
+          marginTop: "1rem",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: "1rem",
+        }}
+      >
+        <InputGroup>
           <Label>Veículos</Label>
-          <AddButtonInline
-            variant="secondary"
-            type="button"
-            onClick={adicionarVeiculo}
-          >
-            + Add Veículo
-          </AddButtonInline>
-        </SectionHeader>
-        {dados.veiculos.map((veiculo, index) => (
-          <InputGroup key={index} style={{ marginTop: "0.5rem" }}>
-            <LabelContainer>
-              <Label style={{ fontSize: "0.8rem" }}>Veículo {index + 1}</Label>
-              {index > 0 && (
-                <BotaoRemover
-                  type="button"
-                  onClick={() => removerVeiculo(index)}
-                >
-                  &times;
-                </BotaoRemover>
-              )}
-            </LabelContainer>
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <Select
-                name="id"
-                value={veiculo.id}
-                onChange={(e) => handleVeiculoChange(index, e)}
-                style={{ flex: 3 }}
-              >
-                <option value="">Selecione um veículo</option>
-                {vehiclesData.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.model} ({v.plate})
-                  </option>
-                ))}
-              </Select>
-              <Input
-                name="passageiros"
-                type="number"
-                placeholder="Passageiros"
-                min="1"
-                value={veiculo.passageiros}
-                onChange={(e) => handleVeiculoChange(index, e)}
-                style={{ flex: 1 }}
-              />
-            </div>
-          </InputGroup>
-        ))}
-      </BlocoDinamico>
-
-      <BlocoDinamico>
-        <SectionHeader>
+          <Input
+            type="number"
+            name="numeroVeiculos"
+            value={dados.numeroVeiculos}
+            onChange={handleNumberChange}
+            min="1"
+          />
+        </InputGroup>
+        <InputGroup>
           <Label>Motoristas</Label>
-          <AddButtonInline
-            variant="secondary"
-            type="button"
-            onClick={adicionarMotorista}
-          >
-            + Add Motorista
-          </AddButtonInline>
-        </SectionHeader>
-        {dados.motoristas.map((motorista, index) => (
-          <InputGroup key={index} style={{ marginTop: "0.5rem" }}>
-            <LabelContainer>
-              <Label style={{ fontSize: "0.8rem" }}>
-                Motorista {index + 1}
-              </Label>
-              {index > 0 && (
-                <BotaoRemover
-                  type="button"
-                  onClick={() => removerMotorista(index)}
-                >
-                  &times;
-                </BotaoRemover>
-              )}
-            </LabelContainer>
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <Select
-                name="id"
-                value={motorista.id}
-                onChange={(e) => handleMotoristaChange(index, e)}
-                style={{ flex: 3 }}
-              >
-                <option value="">Selecione um motorista</option>
-                {driversData.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
-              </Select>
-              <Input
-                name="diarias"
-                type="number"
-                placeholder="Diárias"
-                min="1"
-                value={motorista.diarias}
-                onChange={(e) => handleMotoristaChange(index, e)}
-                style={{ flex: 1 }}
-              />
-            </div>
-          </InputGroup>
-        ))}
-      </BlocoDinamico>
+          <Input
+            type="number"
+            name="numeroMotoristas"
+            value={dados.numeroMotoristas}
+            onChange={handleNumberChange}
+            min="1"
+          />
+        </InputGroup>
+
+        <InputGroup>
+          <Label>Diárias</Label>
+          <Input
+            type="number"
+            name="quantidadeDiarias"
+            value={dados.quantidadeDiarias}
+            onChange={handleNumberChange}
+            min="1"
+          />
+        </InputGroup>
+      </div>
 
       <Button
         variant="primary"

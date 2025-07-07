@@ -2,13 +2,10 @@ import { useEffect } from "react";
 import styled from "styled-components";
 import React from "react";
 
-import { Button } from "./ui/Button";
-
 interface ModalGlobalProps {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
-  formId: string;
 }
 
 const Backdrop = styled.div`
@@ -54,14 +51,6 @@ const ModalBody = styled.div`
   overflow-y: auto;
 `;
 
-const ModalFooter = styled.footer`
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-`;
-
 const CloseButton = styled.button`
   position: absolute;
   right: 0.5rem;
@@ -80,12 +69,7 @@ const CloseButton = styled.button`
   font-weight: 400;
 `;
 
-export function ModalGlobal({
-  title,
-  children,
-  onClose,
-  formId,
-}: ModalGlobalProps) {
+export function ModalGlobal({ title, children, onClose }: ModalGlobalProps) {
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -103,15 +87,6 @@ export function ModalGlobal({
         </ModalHeader>
 
         <ModalBody>{children}</ModalBody>
-
-        <ModalFooter>
-          <Button variant="secondary" type="button" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button variant="primary" type="submit" form={formId}>
-            Salvar
-          </Button>
-        </ModalFooter>
       </ModalContainer>
     </Backdrop>
   );

@@ -1,3 +1,5 @@
+import type { OrcamentoForm } from "../pages/CalculadoraPage";
+
 export interface Orcamento {
   id: number;
   title: string;
@@ -9,13 +11,7 @@ export interface Orcamento {
   custoMotorista: number;
   valorTotal: number;
 
-  formData: {
-    origem: string;
-    destino: string;
-    paradas: string[];
-    veiculos: { id: string; passageiros: number }[];
-    motoristas: { id: string }[];
-  };
+  formData: OrcamentoForm;
 
   status: "Pendente" | "Aprovado" | "Recusado";
 }
