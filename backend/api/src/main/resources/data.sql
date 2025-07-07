@@ -1,0 +1,3 @@
+INSERT INTO veiculos(model, plate, ano, color, renavam, status) VALUES('Sprinter 416', 'GHF5G42', '2023', 'Branca', '123456789', 'ATIVO');
+INSERT INTO veiculos(model, plate, ano, color, renavam, status) VALUES('Van Ducato', 'ABC1D23', '2022', 'Prata', '987654321', 'EM_MANUTENCAO');
+INSERT INTO veiculos(model, plate, ano, color, renavam, status) VALUES('Ônibus Executivo', 'XYZ8T90', '2021', 'Preto', '555444333', 'INATIVO');
