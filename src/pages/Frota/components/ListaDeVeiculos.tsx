@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Vehicle } from "../../../data/vehiclesData";
+import type { Vehicle } from "../../../services/veiculoService";
 import { CardDeVeiculo } from "./CardDeVeiculo";
 import BtnPagLft from "../../../assets/Expand Arrow.png";
 import BtnPagRgt from "../../../assets/Expand Arrow-right.png";

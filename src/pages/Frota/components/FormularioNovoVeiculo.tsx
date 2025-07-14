@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useOutletContext } from "react-router-dom";
-import type { Vehicle } from "../../../data/vehiclesData";
+import type { Vehicle } from "../../../services/veiculoService";
 import { Button } from "../../../components/ui/Button";
 
 import {

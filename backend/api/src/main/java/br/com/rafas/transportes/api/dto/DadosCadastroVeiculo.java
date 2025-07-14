@@ -1,4 +1,4 @@
-package br.com.rafas.transportes.api.model;
+package br.com.rafas.transportes.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

@@ -1,11 +1,11 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { vehiclesData } from "../../../data/vehiclesData";
-import type { Maintenance } from "../../../data/maintenanceData";
+import type { Maintenance } from "../../../services/manutencaoService";
 
 import { ListaContainer, GroupContainer } from "../../../components/ui/Layout";
 
 import { CardTitle } from "../../../components/ui/Card";
+import type { Vehicle } from "../../../services/veiculoService";
 
 const MaintenanceCard = styled(Link)`
   display: flex;
@@ -21,11 +21,15 @@ const MaintenanceCard = styled(Link)`
 
 interface ListaDeManutencoesProps {
   manutencoes: Maintenance[];
+  veiculos: Vehicle[];
 }
 
-export function ListaDeManutencoes({ manutencoes }: ListaDeManutencoesProps) {
+export function ListaDeManutencoes({
+  manutencoes,
+  veiculos,
+}: ListaDeManutencoesProps) {
   const manutencoesAgrupadas = manutencoes.reduce((acc, manutencao) => {
-    (acc[manutencao.vehicleId] = acc[manutencao.vehicleId] || []).push(
+    (acc[manutencao.veiculoId] = acc[manutencao.veiculoId] || []).push(
       manutencao
     );
     return acc;
@@ -34,7 +38,7 @@ export function ListaDeManutencoes({ manutencoes }: ListaDeManutencoesProps) {
   return (
     <ListaContainer>
       {Object.entries(manutencoesAgrupadas).map(([vehicleId, mnts]) => {
-        const veiculo = vehiclesData.find((v) => v.id === parseInt(vehicleId));
+        const veiculo = veiculos.find((v) => v.id === parseInt(vehicleId));
         return (
           <GroupContainer key={vehicleId}>
             <CardTitle>

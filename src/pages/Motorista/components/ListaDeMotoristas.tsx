@@ -1,6 +1,7 @@
 import { useState } from "react";
-import type { Driver } from "../../../data/driversData";
+import type { Driver } from "../../../services/motoristaService";
 import { CardDoMotorista } from "./CardDoMotorista";
+import type { Viagem } from "../../../services/viagemService";
 
 import { Button } from "../../../components/ui/Button";
 
@@ -11,9 +12,13 @@ import {
 
 interface ListaDeMotoristasProps {
   motoristas: Driver[];
+  viagens: Viagem[];
 }
 
-export function ListaDeMotoristas({ motoristas }: ListaDeMotoristasProps) {
+export function ListaDeMotoristas({
+  motoristas,
+  viagens,
+}: ListaDeMotoristasProps) {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const ITENS_POR_PAGINA = 9;
 
@@ -34,7 +39,11 @@ export function ListaDeMotoristas({ motoristas }: ListaDeMotoristasProps) {
     <>
       <ListaContainer>
         {motoristasDaPagina.map((motorista) => (
-          <CardDoMotorista key={motorista.id} motorista={motorista} />
+          <CardDoMotorista
+            key={motorista.id}
+            motorista={motorista}
+            viagens={viagens}
+          />
         ))}
       </ListaContainer>
       {totalPaginas > 1 && (

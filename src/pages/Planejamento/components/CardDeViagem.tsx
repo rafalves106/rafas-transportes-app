@@ -1,83 +1,80 @@
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import type { Trip } from "../../../data/tripsData";
-import { vehiclesData } from "../../../data/vehiclesData";
-import { driversData } from "../../../data/driversData";
+import type { Viagem } from "../../../services/viagemService";
 
-import {
-  CardContainer,
-  CardHeader,
-  CardTitle,
-  DetailsLink,
-} from "../../../components/ui/Card";
-import { Label } from "../../../components/ui/Form";
+import { CardHeader, CardTitle } from "../../../components/ui/Card";
+
+const CardContainer = styled(Link)`
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+`;
 
 const InfoRow = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+`;
+
+const InfoText = styled.p`
+  margin: 0;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 500;
 `;
 
 const InfoTag = styled.span`
-  background-color: var(--cor-secundaria);
-  color: var(--cor-textos-infos);
+  background-color: #e9ecef;
+  color: #495057;
   font-size: 0.8rem;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 20px;
-`;
-
-const Description = styled.p`
-  font-size: 0.7rem;
-  color: var(--cor-textos);
-  font-weight: 500;
-  line-height: 1.4;
-  margin: 0.25rem 0 0.75rem 0;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
 `;
 
 interface CardDeViagemProps {
-  trip: Trip;
+  viagem: Viagem;
 }
 
-export function CardDeViagem({ trip }: CardDeViagemProps) {
-  const veiculo = vehiclesData.find((v) => v.id === trip.vehicleId);
-  const motorista = driversData.find((d) => d.id === trip.driverId);
+export function CardDeViagem({ viagem }: CardDeViagemProps) {
+  const formatarData = (dataString: string) => {
+    try {
+      return format(new Date(dataString + "T00:00:00"), "dd/MM/yyyy");
+    } catch {
+      return "Data inválida";
+    }
+  };
 
   return (
-    <CardContainer>
+    <CardContainer to={`/editar/${viagem.id}`}>
       <CardHeader>
-        <CardTitle>
-          {trip.title} | R$
-          {trip.value.toFixed(2)}
-        </CardTitle>
-        <DetailsLink to={`/editar/${trip.id}`}>Detalhes</DetailsLink>
+        <CardTitle>{viagem.title}</CardTitle>
+        <InfoTag>{viagem.status}</InfoTag>
       </CardHeader>
 
-      <div>
-        <InfoRow>
-          <Label>Início</Label>
-          <InfoTag>
-            {format(new Date(trip.startDate + "T00:00"), "dd/MM/yyyy")}
-          </InfoTag>
-          <InfoTag>{trip.startTime}</InfoTag>
-        </InfoRow>
-        <Description>{trip.startLocation}</Description>
-      </div>
+      <InfoText>Veículo: {viagem.veiculoInfo}</InfoText>
+      <InfoText>Motorista: {viagem.motoristaNome}</InfoText>
 
-      <div>
-        <InfoRow>
-          <Label>Final</Label>
-          <InfoTag>
-            {format(new Date(trip.endDate + "T00:00"), "dd/MM/yyyy")}
-          </InfoTag>
-          <InfoTag>{trip.endTime}</InfoTag>
-        </InfoRow>
-        <Description>{trip.endLocation}</Description>
-      </div>
-
-      <InfoRow style={{ justifyContent: "space-between" }}>
-        <InfoTag>{veiculo ? `${veiculo.plate}` : "N/A"}</InfoTag>
-        <InfoTag>{motorista ? motorista.name : "N/A"}</InfoTag>
+      <InfoRow>
+        <InfoText>
+          Início: {formatarData(viagem.startDate)} às {viagem.startTime}
+        </InfoText>
+        <InfoText>
+          Fim: {formatarData(viagem.endDate)} às {viagem.endTime}
+        </InfoText>
       </InfoRow>
     </CardContainer>
   );

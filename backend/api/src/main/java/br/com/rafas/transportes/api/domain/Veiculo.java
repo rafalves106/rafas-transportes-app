@@ -1,14 +1,14 @@
-package br.com.rafas.transportes.api.model;
+package br.com.rafas.transportes.api.domain;
 
+import br.com.rafas.transportes.api.dto.DadosAtualizacaoVeiculo;
+import br.com.rafas.transportes.api.dto.DadosCadastroVeiculo;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Table(name = "veiculos")
 @Entity(name = "Veiculo")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")

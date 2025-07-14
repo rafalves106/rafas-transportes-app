@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useOutletContext, useParams, useLocation } from "react-router-dom";
-
-import { useNavigate } from "react-router-dom";
-
-import { driversData } from "../../../data/driversData";
-import { vehiclesData } from "../../../data/vehiclesData";
-import type { Trip } from "../../../data/tripsData";
-import { tripsData } from "../../../data/tripsData";
 import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
 import { Button } from "../../../components/ui/Button";
@@ -23,6 +16,12 @@ import {
 } from "../../../components/ui/Form";
 
 import { InputRow } from "../../../components/ui/Layout";
+import { viagemService, type Viagem } from "../../../services/viagemService";
+import { veiculoService, type Vehicle } from "../../../services/veiculoService";
+import {
+  motoristaService,
+  type Driver,
+} from "../../../services/motoristaService";
 
 const FormGrid = styled.div`
   display: grid;
@@ -36,14 +35,6 @@ const FormSectionSide = styled.div`
   border-right: 1px solid #e9ecef;
   max-height: calc(90vh - 180px);
   overflow-y: auto;
-`;
-
-const ModalFooter = styled.footer`
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
 `;
 
 const FormSection = styled.div`
@@ -85,19 +76,20 @@ const LabelContainer = styled.div`
 `;
 
 interface FormContextType {
-  onAdicionarViagem: (dados: Omit<Trip, "id" | "status">) => void;
-  onEditarViagem: (id: number, dados: Omit<Trip, "id" | "status">) => void;
+  onSuccess: () => void;
   onExcluirViagem: (id: number) => void;
+  viagem?: Viagem;
 }
 
 export function FormularioNovaViagem() {
   const { tripId } = useParams();
-  const { onAdicionarViagem, onEditarViagem, onExcluirViagem } =
+  const { onSuccess, onExcluirViagem, viagem } =
     useOutletContext<FormContextType>();
   const isEditing = !!tripId;
   const location = useLocation();
 
-  const navigate = useNavigate();
+  const [listaVeiculos, setListaVeiculos] = useState<Vehicle[]>([]);
+  const [listaMotoristas, setListaMotoristas] = useState<Driver[]>([]);
 
   const [dadosFormulario, setDadosFormulario] = useState({
     title: "",
@@ -115,55 +107,45 @@ export function FormularioNovaViagem() {
     motoristas: [{ id: "" }],
     rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
   });
+
+  useEffect(() => {
+    const carregarListas = async () => {
+      try {
+        const [veiculosData, motoristasData] = await Promise.all([
+          veiculoService.listar(),
+          motoristaService.listar(),
+        ]);
+        setListaVeiculos(veiculosData.filter((v) => v.status === "ATIVO"));
+        setListaMotoristas(motoristasData.filter((m) => m.status === "ATIVO"));
+      } catch (err) {
+        console.error("Erro ao carregar listas para o formulário", err);
+      }
+    };
+    carregarListas();
+  }, []);
+
   const [erros, setErros] = useState<{ [key: string]: string }>({});
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   useEffect(() => {
-    const dadosDoOrcamento = location.state?.dadosDoOrcamento;
-    const viagemParaEditar = isEditing
-      ? tripsData.find((trip) => trip.id === parseInt(tripId!))
-      : null;
-
-    if (isEditing && viagemParaEditar) {
-      setDadosFormulario({
-        title: viagemParaEditar.title,
-        clientName: viagemParaEditar.clientName,
-        telefone: "",
-        value: String(viagemParaEditar.value),
-        tipoViagem: "ida_e_volta_mg",
-        startDate: viagemParaEditar.startDate,
-        startTime: viagemParaEditar.startTime,
-        startLocation: viagemParaEditar.startLocation,
-        endDate: viagemParaEditar.endDate,
-        endTime: viagemParaEditar.endTime,
-        endLocation: viagemParaEditar.endLocation,
-        veiculos: [{ id: String(viagemParaEditar.vehicleId) }],
-        motoristas: [{ id: String(viagemParaEditar.driverId) }],
-        rota: [],
-      });
-    } else if (dadosDoOrcamento && !isEditing) {
-      setDadosFormulario({
-        title: `Viagem: ${dadosDoOrcamento.origem} para ${dadosDoOrcamento.destino}`,
-        clientName: "",
-        telefone: "",
-        value: "",
-        tipoViagem: "ida_e_volta_mg",
-        startDate: "",
-        startTime: "",
-        startLocation: dadosDoOrcamento.origem,
-        endDate: "",
-        endTime: "",
-        endLocation: dadosDoOrcamento.destino,
-        veiculos: dadosDoOrcamento.veiculos.map(
-          (v: { id: string; passageiros: number }) => ({ id: v.id })
-        ),
-        motoristas: dadosDoOrcamento.motoristas.map(
-          (m: { id: string; diarias: number }) => ({ id: m.id })
-        ),
-        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
-      });
+    if (isEditing && viagem) {
+      setDadosFormulario((prev) => ({
+        ...prev,
+        title: viagem.title,
+        startDate: viagem.startDate,
+        startTime: viagem.startTime,
+        endDate: viagem.endDate,
+        endTime: viagem.endTime,
+        clientName: viagem.clientName || "",
+        telefone: viagem.telefone || "",
+        value: String(viagem.valor || ""),
+        startLocation: viagem.startLocation || "",
+        endLocation: viagem.endLocation || "",
+        veiculos: [{ id: String(viagem.veiculoId || "") }],
+        motoristas: [{ id: String(viagem.motoristaId || "") }],
+      }));
     }
-  }, [tripId, isEditing, location.state]);
+  }, [isEditing, viagem]);
 
   useEffect(() => {
     if (isEditing || location.state?.dadosDoOrcamento) return;
@@ -324,7 +306,7 @@ export function FormularioNovaViagem() {
     return novosErros;
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const errosDeValidacao = validate();
     if (Object.keys(errosDeValidacao).length > 0) {
@@ -332,23 +314,37 @@ export function FormularioNovaViagem() {
       return;
     }
     setErros({});
-    const dadosParaSalvar = {
+
+    const dadosParaApi = {
       title: dadosFormulario.title,
       clientName: dadosFormulario.clientName,
-      value: parseFloat(dadosFormulario.value) || 0,
+      telefone: dadosFormulario.telefone,
+      valor: parseFloat(dadosFormulario.value || "0"),
+      startLocation: dadosFormulario.startLocation,
+      endLocation: dadosFormulario.endLocation,
+      veiculoId: parseInt(dadosFormulario.veiculos[0]?.id || "0"),
+      motoristaId: parseInt(dadosFormulario.motoristas[0]?.id || "0"),
       startDate: dadosFormulario.startDate,
       startTime: dadosFormulario.startTime,
       endDate: dadosFormulario.endDate,
       endTime: dadosFormulario.endTime,
-      startLocation: dadosFormulario.startLocation,
-      endLocation: dadosFormulario.endLocation,
-      vehicleId: parseInt(dadosFormulario.veiculos[0]?.id) || 0,
-      driverId: parseInt(dadosFormulario.motoristas[0]?.id) || 0,
     };
-    if (isEditing && tripId) {
-      onEditarViagem(parseInt(tripId), dadosParaSalvar);
-    } else {
-      onAdicionarViagem(dadosParaSalvar);
+
+    if (!dadosParaApi.veiculoId || !dadosParaApi.motoristaId) {
+      alert("Por favor, selecione ao menos um veículo e um motorista.");
+      return;
+    }
+
+    try {
+      if (isEditing && tripId) {
+        await viagemService.editar(parseInt(tripId), dadosParaApi);
+      } else {
+        await viagemService.adicionar(dadosParaApi);
+      }
+      alert("Viagem salva com sucesso!");
+      onSuccess();
+    } catch (error) {
+      alert((error as Error).message);
     }
   };
 
@@ -446,7 +442,7 @@ export function FormularioNovaViagem() {
                       }
                     >
                       <option value="">Selecione</option>
-                      {vehiclesData.map((v) => (
+                      {listaVeiculos.map((v) => (
                         <option key={v.id} value={v.id}>
                           {v.model} ({v.plate})
                         </option>
@@ -489,11 +485,11 @@ export function FormularioNovaViagem() {
                     }
                   >
                     <option value="">Selecione</option>
-                    {driversData.map((d) => (
+                    {listaMotoristas.map((d) => (
                       <option key={d.id} value={d.id}>
-                        {d.name}
+                        {d.nome}
                       </option>
-                    ))}{" "}
+                    ))}
                   </Select>
                 </div>
               ))}
@@ -655,7 +651,7 @@ export function FormularioNovaViagem() {
                       onChange={(e) => handleRotaVeiculoChange(veiculoIndex, e)}
                     >
                       <option value="">Selecione</option>
-                      {vehiclesData.map((v) => (
+                      {listaVeiculos.map((v) => (
                         <option key={v.id} value={v.id}>
                           {v.model}
                         </option>
@@ -746,19 +742,6 @@ export function FormularioNovaViagem() {
             )}
           </FormSection>
         </FormGrid>
-
-        <ModalFooter>
-          <Button
-            variant="secondary"
-            type="button"
-            onClick={() => navigate("/")}
-          >
-            Cancelar
-          </Button>
-          <Button variant="primary" type="submit">
-            Salvar
-          </Button>
-        </ModalFooter>
       </FormContainer>
       <ConfirmationModal
         isOpen={isConfirmModalOpen}

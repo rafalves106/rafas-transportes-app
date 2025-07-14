@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import type { Vehicle } from "../../../data/vehiclesData";
+import type { Vehicle } from "../../../services/veiculoService";
 
 import {
   CardContainer,
@@ -35,11 +35,19 @@ interface CardDeVeiculoProps {
 }
 
 export function CardDeVeiculo({ veiculo }: CardDeVeiculoProps) {
+  const formatarStatus = (status: string) => {
+    if (!status) return "Inativo";
+    if (status === "EM_MANUTENCAO") return "Em Manutenção";
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
+
+  const statusFormatado = formatarStatus(veiculo.status);
+
   return (
     <CardContainer>
       <CardHeader>
         <CardTitle>{veiculo.model}</CardTitle>
-        <InfoTag status={veiculo.status}>{veiculo.status}</InfoTag>
+        <InfoTag status={statusFormatado}>{statusFormatado}</InfoTag>
       </CardHeader>
       <p style={{ margin: 0, color: "#6c757d" }}>Placa: {veiculo.plate}</p>
       <DetailsLink to={`/frota/editar/${veiculo.id}`}>Detalhes</DetailsLink>

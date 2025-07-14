@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-import type { Driver } from "../../../data/driversData";
+import {
+  motoristaService,
+  type CadastroDriverData,
+  type Driver,
+} from "../../../services/motoristaService";
 
 import { Button } from "../../../components/ui/Button";
-
 import {
   FormContainer,
   InputGroup,
@@ -14,29 +17,38 @@ import {
 } from "../../../components/ui/Form";
 
 interface FormContextType {
-  onAdicionar: (dados: Omit<Driver, "id">) => void;
-  onEditar: (id: number, dados: Omit<Driver, "id">) => void;
+  onSuccess: () => void;
   onExcluir: (id: number) => void;
   motorista?: Driver;
 }
+type FormState = CadastroDriverData & { status: string };
 
 export function FormularioNovoMotorista() {
   const { driverId } = useParams();
-  const { onAdicionar, onEditar, onExcluir, motorista } =
+  const { onSuccess, onExcluir, motorista } =
     useOutletContext<FormContextType>();
   const isEditing = !!driverId;
 
-  const [dados, setDados] = useState<Omit<Driver, "id">>({
-    name: "",
-    phone: "",
-    licenseNumber: "",
-    status: "Ativo",
+  const [dados, setDados] = useState<FormState>({
+    nome: "",
+    cpf: "",
+    cnh: "",
+    validadeCnh: "",
+    telefone: "",
+    status: "ATIVO",
   });
   const [erros, setErros] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (isEditing && motorista) {
-      setDados(motorista);
+      setDados({
+        nome: motorista.nome,
+        cpf: motorista.cpf,
+        cnh: motorista.cnh,
+        validadeCnh: motorista.validadeCnh,
+        telefone: motorista.telefone,
+        status: motorista.status,
+      });
     }
   }, [driverId, isEditing, motorista]);
 
@@ -44,21 +56,21 @@ export function FormularioNovoMotorista() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setDados((prev) => ({ ...prev, [name]: value as Driver["status"] }));
-    if (erros[name]) {
+    setDados((prev) => ({ ...prev, [name]: value }));
+    if (erros[name as keyof typeof erros]) {
       setErros((prevErros) => ({ ...prevErros, [name]: "" }));
     }
   };
 
   const validate = () => {
     const novosErros: { [key: string]: string } = {};
-    if (!dados.name.trim()) novosErros.name = "Nome é obrigatório.";
-    if (!dados.licenseNumber.trim())
-      novosErros.licenseNumber = "CNH é obrigatória.";
+    if (!dados.nome.trim()) novosErros.nome = "Nome é obrigatório.";
+    if (!dados.cnh.trim()) novosErros.cnh = "CNH é obrigatória.";
+    if (!dados.cpf.trim()) novosErros.cpf = "CPF é obrigatório.";
     return novosErros;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errosDeValidacao = validate();
     if (Object.keys(errosDeValidacao).length > 0) {
@@ -66,10 +78,34 @@ export function FormularioNovoMotorista() {
       return;
     }
     setErros({});
-    if (isEditing && driverId) {
-      onEditar(parseInt(driverId), dados);
-    } else {
-      onAdicionar(dados);
+
+    try {
+      if (isEditing && driverId) {
+        await motoristaService.editar(parseInt(driverId), dados);
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { status, ...dadosParaCadastro } = dados;
+        await motoristaService.adicionar(dadosParaCadastro);
+      }
+
+      alert("Operação realizada com sucesso!");
+      onSuccess();
+    } catch (error) {
+      const errorMsg = (error as Error).message;
+      console.error("Erro da API:", error);
+
+      if (errorMsg.toLowerCase().includes("cnh")) {
+        setErros({ cnh: errorMsg });
+      } else if (errorMsg.toLowerCase().includes("cpf")) {
+        setErros({ cpf: errorMsg });
+      } else if (
+        errorMsg.toLowerCase().includes("data") ||
+        errorMsg.toLowerCase().includes("validade")
+      ) {
+        setErros({ validadeCnh: errorMsg });
+      } else {
+        alert(errorMsg);
+      }
     }
   };
 
@@ -77,7 +113,7 @@ export function FormularioNovoMotorista() {
     if (!driverId) return;
     if (
       window.confirm(
-        `Tem certeza que deseja excluir o motorista ${dados.name}?`
+        `Tem certeza que deseja excluir o motorista ${dados.nome}?`
       )
     ) {
       onExcluir(parseInt(driverId));
@@ -92,53 +128,77 @@ export function FormularioNovoMotorista() {
       onSubmit={handleSubmit}
     >
       <InputGroup>
-        <Label htmlFor="name">Nome Completo</Label>
+        <Label htmlFor="nome">Nome Completo</Label>
         <Input
-          id="name"
-          name="name"
-          value={dados.name}
+          name="nome"
+          value={dados.nome}
           onChange={handleInputChange}
-          hasError={!!erros.name}
+          hasError={!!erros.nome}
         />
-        {erros.name && <ErrorMessage>{erros.name}</ErrorMessage>}
+        {erros.nome && <ErrorMessage>{erros.nome}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
-        <Label htmlFor="phone">Telefone</Label>
+        <Label htmlFor="cpf">CPF</Label>
         <Input
-          id="phone"
-          name="phone"
-          value={dados.phone}
+          name="cpf"
+          value={dados.cpf}
+          onChange={handleInputChange}
+          hasError={!!erros.cpf}
+        />
+        {erros.cpf && <ErrorMessage>{erros.cpf}</ErrorMessage>}
+      </InputGroup>
+      <InputGroup>
+        <Label htmlFor="cnh">Nº da CNH</Label>
+        <Input
+          name="cnh"
+          value={dados.cnh}
+          onChange={handleInputChange}
+          hasError={!!erros.cnh}
+        />
+        {erros.cnh && <ErrorMessage>{erros.cnh}</ErrorMessage>}
+      </InputGroup>
+      <InputGroup>
+        <Label htmlFor="validadeCnh">Validade da CNH</Label>
+        <Input
+          name="validadeCnh"
+          type="date"
+          value={dados.validadeCnh}
+          onChange={handleInputChange}
+          hasError={!!erros.validadeCnh}
+        />
+        {erros.validadeCnh && <ErrorMessage>{erros.validadeCnh}</ErrorMessage>}
+      </InputGroup>
+      <InputGroup>
+        <Label htmlFor="telefone">Telefone</Label>
+        <Input
+          name="telefone"
+          value={dados.telefone}
           onChange={handleInputChange}
         />
       </InputGroup>
-      <InputGroup>
-        <Label htmlFor="licenseNumber">Nº da CNH</Label>
-        <Input
-          id="licenseNumber"
-          name="licenseNumber"
-          value={dados.licenseNumber}
-          onChange={handleInputChange}
-          hasError={!!erros.licenseNumber}
-        />
-        {erros.licenseNumber && (
-          <ErrorMessage>{erros.licenseNumber}</ErrorMessage>
-        )}
-      </InputGroup>
-      <InputGroup>
-        <Label htmlFor="status">Status</Label>
-        <Select
-          id="status"
-          name="status"
-          value={dados.status}
-          onChange={handleInputChange}
-        >
-          <option value="Ativo">Ativo</option>
-          <option value="Inativo">Inativo</option>
-          <option value="Férias">Férias</option>
-        </Select>
-      </InputGroup>
+
       {isEditing && (
-        <Button variant="danger" type="button" onClick={handleExcluir}>
+        <InputGroup>
+          <Label htmlFor="status">Status</Label>
+          <Select
+            name="status"
+            value={dados.status}
+            onChange={handleInputChange}
+          >
+            <option value="ATIVO">Ativo</option>
+            <option value="INATIVO">Inativo</option>
+            <option value="DE_FERIAS">Férias</option>
+          </Select>
+        </InputGroup>
+      )}
+
+      {isEditing && (
+        <Button
+          variant="danger"
+          type="button"
+          onClick={handleExcluir}
+          style={{ marginTop: "1rem" }}
+        >
           Excluir Motorista
         </Button>
       )}

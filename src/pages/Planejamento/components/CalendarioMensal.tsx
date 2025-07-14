@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import type { Trip } from "../../../data/tripsData";
+import type { Viagem } from "../../../services/viagemService";
 import {
   format,
   startOfMonth,
@@ -14,7 +14,7 @@ import {
 
 interface CalendarioMensalProps {
   mesExibido: Date;
-  viagens: Trip[];
+  viagens: Viagem[];
 }
 
 const CalendarGrid = styled.div`

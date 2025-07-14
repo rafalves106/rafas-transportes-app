@@ -1,15 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
-import { tripsData as initialTripsData } from "../data/tripsData";
 import { ListaDeViagens } from "./Planejamento/components/ListaDeViagens";
 import { ModalGlobal } from "../components/ModalGlobal";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import type { Trip } from "../data/tripsData";
+import { viagemService, type Viagem } from "../services/viagemService";
 import { format, addMonths, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarioMensal } from "./Planejamento/components/CalendarioMensal";
 import { styled } from "styled-components";
-
+import { CalendarioMensal } from "./Planejamento/components/CalendarioMensal";
+import { Button } from "../components/ui/Button";
 const ViewContainer = styled.div``;
 
 const MonthNavigator = styled.div`
@@ -45,30 +44,52 @@ const NavButton = styled.button`
   }
 `;
 
+const ModalFooter = styled.footer`
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
 export function PlanejamentoPage() {
   const { tripId } = useParams();
+  const outlet = useOutlet();
+  const navigate = useNavigate();
+  const isEditing = !!tripId;
 
-  const [viagens, setViagens] = useState<Trip[]>(initialTripsData);
-  const [filtroAtivo, setFiltroAtivo] = useState("em_andamento");
+  const [viagens, setViagens] = useState<Viagem[]>([]);
+  const [filtroAtivo, setFiltroAtivo] = useState("proximas");
   const [termoBusca, setTermoBusca] = useState("");
-
   const [viewMode, setViewMode] = useState("lista");
   const [displayedMonth, setDisplayedMonth] = useState(new Date());
 
-  const outlet = useOutlet();
-  const navigate = useNavigate();
+  const carregarViagens = async () => {
+    try {
+      const data = await viagemService.listar();
+      setViagens(data);
+    } catch (err) {
+      console.error("Erro ao buscar viagens", err);
+      alert("Não foi possível carregar as viagens.");
+    }
+  };
+
+  useEffect(() => {
+    carregarViagens();
+  }, []);
 
   const filtrosPlanejamento: Filtro[] = [
-    { id: "em_andamento", label: "Em Andamento" },
     { id: "proximas", label: "Próximas" },
+    { id: "em_andamento", label: "Em Andamento" },
     { id: "realizadas", label: "Realizadas" },
   ];
 
-  const viagensFiltradas = viagens.filter((viagem: Trip) => {
+  const viagensFiltradas = viagens.filter((viagem: Viagem) => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-    const dataInicio = new Date(viagem.startDate + "T00:00");
-    const dataFim = new Date(viagem.endDate + "T00:00");
+    // As datas da API vêm como string YYYY-MM-DD, então a conversão é necessária para o filtro
+    const dataInicio = new Date(viagem.startDate + "T00:00:00");
+    const dataFim = new Date(viagem.endDate + "T00:00:00");
 
     let correspondeAoFiltro = false;
     if (filtroAtivo === "em_andamento")
@@ -83,94 +104,27 @@ export function PlanejamentoPage() {
     return correspondeAoFiltro && correspondeABusca;
   });
 
-  const handleAdicionarViagem = (
-    dadosDoFormulario: Omit<Trip, "id" | "status">
-  ) => {
-    const viagemConflitante = verificarConflitos(dadosDoFormulario, null);
-
-    if (viagemConflitante) {
-      alert(
-        `CONFLITO DE AGENDAMENTO!\n\nO veículo selecionado já está em uso no período para a reserva: "${viagemConflitante.title}".`
-      );
-      return;
-    }
-
-    const novaViagem = {
-      id: Date.now(),
-      status: "Agendada" as const,
-      ...dadosDoFormulario,
-    };
-    setViagens((viagensAnteriores) => [novaViagem, ...viagensAnteriores]);
-    navigate("/");
+  const handleSuccess = () => {
+    carregarViagens();
+    navigate("/"); // Navega para a raiz da seção para fechar o modal
   };
 
-  const handleEditarViagem = (
-    id: number,
-    dadosAtualizados: Omit<Trip, "id" | "status">
-  ) => {
-    const viagemConflitante = verificarConflitos(dadosAtualizados, id);
-
-    if (viagemConflitante) {
-      alert(
-        `CONFLITO DE AGENDAMENTO!\n\nO veículo selecionado já está em uso no período para a reserva: "${viagemConflitante.title}".`
-      );
-      return;
-    }
-
-    setViagens((viagensAnteriores) =>
-      viagensAnteriores.map((viagem) => {
-        if (viagem.id === id) {
-          return { ...viagem, ...dadosAtualizados };
-        }
-        return viagem;
-      })
-    );
-    navigate("/");
-  };
-
-  const handleExcluirViagem = (id: number) => {
-    setViagens((viagensAnteriores) =>
-      viagensAnteriores.filter((viagem) => viagem.id !== id)
-    );
-    navigate("/");
-  };
-
-  const verificarConflitos = (
-    dadosViagem: Omit<Trip, "id" | "status">,
-    idSendoEditado: number | null
-  ): Trip | null => {
-    // Converte as datas e horas da nova viagem para objetos Date para comparação
-    const inicioNovaViagem = new Date(
-      `${dadosViagem.startDate}T${dadosViagem.startTime}`
-    );
-    const fimNovaViagem = new Date(
-      `${dadosViagem.endDate}T${dadosViagem.endTime}`
-    );
-
-    for (const viagemExistente of viagens) {
-      if (idSendoEditado && viagemExistente.id === idSendoEditado) {
-        continue;
-      }
-
-      if (viagemExistente.vehicleId === dadosViagem.vehicleId) {
-        const inicioExistente = new Date(
-          `${viagemExistente.startDate}T${viagemExistente.startTime}`
-        );
-        const fimExistente = new Date(
-          `${viagemExistente.endDate}T${viagemExistente.endTime}`
-        );
-
-        const haConflito =
-          inicioNovaViagem < fimExistente && fimNovaViagem > inicioExistente;
-
-        if (haConflito) {
-          return viagemExistente;
-        }
+  const handleExcluir = async (id: number) => {
+    if (window.confirm("Tem certeza que deseja excluir esta viagem?")) {
+      try {
+        await viagemService.excluir(id);
+        setViagens((viagensAtuais) => viagensAtuais.filter((v) => v.id !== id));
+        alert("Viagem excluída com sucesso.");
+        navigate("/");
+      } catch (err) {
+        alert((err as Error).message);
       }
     }
-
-    return null;
   };
+
+  const viagemParaEditar = tripId
+    ? viagens.find((v) => v.id === parseInt(tripId))
+    : undefined;
 
   return (
     <div>
@@ -197,7 +151,6 @@ export function PlanejamentoPage() {
             <option value="lista">Visualizar Viagens</option>
             <option value="mes">Visualizar por Mês</option>
           </select>
-
           {viewMode === "mes" && (
             <MonthNavigator>
               <NavButton
@@ -228,17 +181,34 @@ export function PlanejamentoPage() {
 
       {outlet && (
         <ModalGlobal
-          title={tripId ? "Editar Reserva" : "Adicionar Nova Viagem"}
+          title={isEditing ? "Editar Viagem" : "Nova Viagem"}
           onClose={() => navigate("/")}
-          formId={tripId ? `form-editar-viagem-${tripId}` : "form-nova-viagem"}
         >
           <Outlet
             context={{
-              onAdicionarViagem: handleAdicionarViagem,
-              onEditarViagem: handleEditarViagem,
-              onExcluirViagem: handleExcluirViagem,
+              onSuccess: handleSuccess,
+              onExcluir: handleExcluir,
+              viagem: viagemParaEditar,
             }}
           />
+          <ModalFooter>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => navigate("/")}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form={
+                isEditing ? `form-editar-viagem-${tripId}` : "form-nova-viagem"
+              }
+            >
+              {isEditing ? "Salvar Alterações" : "Salvar Viagem"}
+            </Button>
+          </ModalFooter>
         </ModalGlobal>
       )}
     </div>

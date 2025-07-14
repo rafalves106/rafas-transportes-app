@@ -1,4 +1,6 @@
-package br.com.rafas.transportes.api.model;
+package br.com.rafas.transportes.api.dto;
+
+import br.com.rafas.transportes.api.domain.StatusVeiculo;
 
 public record DadosAtualizacaoVeiculo(
         String model,

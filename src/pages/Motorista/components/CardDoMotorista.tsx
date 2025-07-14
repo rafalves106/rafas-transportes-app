@@ -1,11 +1,10 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import type { Driver } from "../../../data/driversData";
-
-import { tripsData } from "../../../data/tripsData";
-import { vehiclesData } from "../../../data/vehiclesData";
 
 import { CardTitle, CardHeader } from "../../../components/ui/Card";
+
+import type { Driver } from "../../../services/motoristaService";
+import type { Viagem } from "../../../services/viagemService";
 
 const OnDutyContainer = styled.div`
   margin-top: 0.75rem;
@@ -72,43 +71,40 @@ const InfoText = styled.p`
 
 interface CardDoMotoristaProps {
   motorista: Driver;
+  viagens: Viagem[];
 }
-
-export function CardDoMotorista({ motorista }: CardDoMotoristaProps) {
+export function CardDoMotorista({ motorista, viagens }: CardDoMotoristaProps) {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  const viagemAtual = tripsData.find((trip) => {
-    const dataInicio = new Date(trip.startDate + "T00:00");
-    const dataFim = new Date(trip.endDate + "T00:00");
-    const motoristaNaViagem = trip.driverId === motorista.id;
+  const viagemAtual = viagens.find((viagem) => {
+    const dataInicio = new Date(viagem.startDate + "T00:00:00");
+    const dataFim = new Date(viagem.endDate + "T00:00:00");
+    const motoristaNaViagem = viagem.motoristaNome === motorista.nome;
     const viagemEmAndamento = hoje >= dataInicio && hoje <= dataFim;
 
     return motoristaNaViagem && viagemEmAndamento;
   });
+  const formatarStatus = (status: string) => {
+    if (!status) return "Inativo";
+    if (status === "DE_FERIAS") return "Férias";
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
 
-  const veiculoAtual = viagemAtual
-    ? vehiclesData.find((v) => v.id === viagemAtual.vehicleId)
-    : null;
+  const statusFormatado = formatarStatus(motorista.status);
 
   return (
     <CardContainer to={`/motoristas/editar/${motorista.id}`}>
       <CardHeader>
-        <CardTitle>{motorista.name}</CardTitle>
-        <InfoTag status={motorista.status}>{motorista.status}</InfoTag>
+        <CardTitle>{motorista.nome}</CardTitle>
+        <InfoTag status={statusFormatado}>{statusFormatado}</InfoTag>{" "}
       </CardHeader>
-      <InfoText>CNH: {motorista.licenseNumber}</InfoText>
-      <InfoText>Telefone: {motorista.phone}</InfoText>
-
+      <InfoText>CNH: {motorista.cnh}</InfoText>
+      <InfoText>Telefone: {motorista.telefone}</InfoText>
       {viagemAtual && (
         <OnDutyContainer>
           <OnDutyTitle>Em Serviço</OnDutyTitle>
           <OnDutyText>Viagem: {viagemAtual.title}</OnDutyText>
-          {veiculoAtual && (
-            <OnDutyText>
-              Veículo: {veiculoAtual.model} ({veiculoAtual.plate})
-            </OnDutyText>
-          )}
         </OnDutyContainer>
       )}
     </CardContainer>

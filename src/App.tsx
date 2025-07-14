@@ -5,19 +5,6 @@ import { GlobalStyle } from "./styles/GlobalStyle";
 import { Sidebar } from "./components/Sidebar";
 import { HeaderGlobal } from "./components/HeaderGlobal";
 
-import { tripsData as initialTripsData, type Trip } from "./data/tripsData";
-import {
-  vehiclesData as initialVehiclesData,
-  type Vehicle,
-} from "./data/vehiclesData";
-import {
-  driversData as initialDriversData,
-  type Driver,
-} from "./data/driversData";
-import {
-  maintenancesData as initialMaintenancesData,
-  type Maintenance,
-} from "./data/maintenanceData";
 import {
   orcamentosData as initialOrcamentos,
   type Orcamento,
@@ -44,13 +31,6 @@ const AreaDaPagina = styled.main`
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const [viagens, setViagens] = useState<Trip[]>(initialTripsData);
-  const [veiculos, setVeiculos] = useState<Vehicle[]>(initialVehiclesData);
-  const [motoristas, setMotoristas] = useState<Driver[]>(initialDriversData);
-  const [manutencoes, setManutencoes] = useState<Maintenance[]>(
-    initialMaintenancesData
-  );
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>(initialOrcamentos);
 
   const pageConfig: {
@@ -156,14 +136,6 @@ function App() {
           <AreaDaPagina>
             <Outlet
               context={{
-                viagens,
-                setViagens,
-                veiculos,
-                setVeiculos,
-                motoristas,
-                setMotoristas,
-                manutencoes,
-                setManutencoes,
                 orcamentos,
                 onAdicionarOrcamento: handleAdicionarOrcamento,
               }}

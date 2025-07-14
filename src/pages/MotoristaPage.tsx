@@ -1,20 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
-import { driversData as initialData } from "../data/driversData";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeMotoristas } from "./Motorista/components/ListaDeMotoristas";
-import type { Driver } from "../data/driversData";
-import { tripsData } from "../data/tripsData";
+import type { Driver } from "../services/motoristaService";
+import type { Viagem } from "../services/viagemService";
+import { motoristaService } from "../services/motoristaService";
+import { viagemService } from "../services/viagemService";
+import { Button } from "../components/ui/Button";
+import { styled } from "styled-components";
+
+const ModalFooter = styled.footer`
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+`;
 
 export function MotoristaPage() {
-  const [motoristas, setMotoristas] = useState<Driver[]>(initialData);
+  const [motoristas, setMotoristas] = useState<Driver[]>([]);
+  const [viagens, setViagens] = useState<Viagem[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("Em Serviço");
   const [termoBusca, setTermoBusca] = useState("");
 
   const { driverId } = useParams();
   const outlet = useOutlet();
   const navigate = useNavigate();
+
+  const isEditing = !!driverId;
 
   const filtros: Filtro[] = [
     { id: "Em Serviço", label: "Em Serviço" },
@@ -23,17 +37,34 @@ export function MotoristaPage() {
     { id: "Férias", label: "Férias" },
   ];
 
+  const carregarDados = async () => {
+    try {
+      const [motoristasData, viagensData] = await Promise.all([
+        motoristaService.listar(),
+        viagemService.listar(),
+      ]);
+      setMotoristas(motoristasData);
+      setViagens(viagensData);
+    } catch (err) {
+      console.error("Erro ao carregar dados", err);
+    }
+  };
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
   const motoristasFiltrados = motoristas
     .filter((motorista) => {
       if (filtroAtivo === "Em Serviço") {
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
 
-        const estaEmServico = tripsData.some((trip) => {
+        const estaEmServico = viagens.some((trip) => {
           const dataInicio = new Date(trip.startDate + "T00:00");
           const dataFim = new Date(trip.endDate + "T00:00");
           return (
-            trip.driverId === motorista.id &&
+            trip.motoristaNome === motorista.nome &&
             hoje >= dataInicio &&
             hoje <= dataFim
           );
@@ -42,32 +73,42 @@ export function MotoristaPage() {
         return estaEmServico;
       }
 
-      return motorista.status === filtroAtivo;
+      switch (filtroAtivo) {
+        case "Ativo":
+          return motorista.status === "ATIVO";
+        case "Inativo":
+          return motorista.status === "INATIVO";
+        case "Férias":
+          return motorista.status === "DE_FERIAS";
+        default:
+          return false;
+      }
     })
     .filter(
       (d) =>
-        d.name.toLowerCase().includes(termoBusca.toLowerCase()) ||
-        d.licenseNumber.toLowerCase().includes(termoBusca.toLowerCase())
+        d.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+        d.cnh.toLowerCase().includes(termoBusca.toLowerCase())
     );
 
-  const handleAdicionar = (dados: Omit<Driver, "id">) => {
-    const novoMotorista = { id: Date.now(), ...dados };
-    setMotoristas((prev) => [novoMotorista, ...prev]);
+  const handleSuccess = () => {
+    carregarDados();
     navigate("/motoristas");
   };
 
-  const handleEditar = (id: number, dadosAtualizados: Omit<Driver, "id">) => {
-    setMotoristas((prev) =>
-      prev.map((motorista) =>
-        motorista.id === id ? { ...motorista, ...dadosAtualizados } : motorista
-      )
-    );
-    navigate("/motoristas");
-  };
+  const handleExcluir = async (id: number) => {
+    try {
+      await motoristaService.excluir(id);
 
-  const handleExcluir = (id: number) => {
-    setMotoristas((prev) => prev.filter((motorista) => motorista.id !== id));
-    navigate("/motoristas");
+      setMotoristas((motoristasAtuais) =>
+        motoristasAtuais.filter((m) => m.id !== id)
+      );
+
+      navigate("/motoristas");
+      alert("Motorista excluído com sucesso.");
+    } catch (err) {
+      alert((err as Error).message);
+      console.error("Erro ao excluir motorista", err);
+    }
   };
 
   const motoristaParaEditar = driverId
@@ -83,7 +124,7 @@ export function MotoristaPage() {
         filtroAtivo={filtroAtivo}
         onFiltroChange={setFiltroAtivo}
       />
-      <ListaDeMotoristas motoristas={motoristasFiltrados} />
+      <ListaDeMotoristas motoristas={motoristasFiltrados} viagens={viagens} />
       {outlet && (
         <ModalGlobal
           title={driverId ? "Editar Motorista" : "Novo Motorista"}
@@ -91,12 +132,31 @@ export function MotoristaPage() {
         >
           <Outlet
             context={{
-              onAdicionar: handleAdicionar,
-              onEditar: handleEditar,
+              onSuccess: handleSuccess,
               onExcluir: handleExcluir,
               motorista: motoristaParaEditar,
             }}
           />
+          <ModalFooter>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => navigate("/motoristas")}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form={
+                isEditing
+                  ? `form-editar-motorista-${driverId}`
+                  : "form-novo-motorista"
+              }
+            >
+              {isEditing ? "Salvar Alterações" : "Salvar Motorista"}
+            </Button>
+          </ModalFooter>
         </ModalGlobal>
       )}
     </div>

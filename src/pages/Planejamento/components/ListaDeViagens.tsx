@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Trip } from "../../../data/tripsData";
+import type { Viagem } from "../../../services/viagemService";
 import { CardDeViagem } from "./CardDeViagem";
 import BtnPagLft from "../../../assets/Expand Arrow.png";
 import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
@@ -14,7 +14,7 @@ import { ErrorMessage } from "../../../components/ui/Form";
 import { Button } from "../../../components/ui/Button";
 
 interface ListaDeViagensProps {
-  viagens: Trip[];
+  viagens: Viagem[];
 }
 
 export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
@@ -52,7 +52,7 @@ export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
     <>
       <ListaContainer>
         {viagensDaPagina.map((viagem) => (
-          <CardDeViagem key={viagem.id} trip={viagem} />
+          <CardDeViagem key={viagem.id} viagem={viagem} />
         ))}
       </ListaContainer>
 

@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.7",
+    "@types/react-input-mask": "^3.0.6",
     "date-fns": "^4.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-google-places-autocomplete": "^4.1.0",
+    "react-input-mask": "^2.0.4",
     "react-router-dom": "^7.6.2",
     "styled-components": "^6.1.19"
   },

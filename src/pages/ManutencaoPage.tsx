@@ -1,19 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
-import { maintenancesData as initialData } from "../data/maintenanceData";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeManutencoes } from "./Manutencoes/components/ListaDeManutencoes";
-import type { Maintenance } from "../data/maintenanceData";
+import { Button } from "../components/ui/Button";
+import { styled } from "styled-components";
+
+import {
+  manutencaoService,
+  type Maintenance,
+} from "../services/manutencaoService";
+import { veiculoService, type Vehicle } from "../services/veiculoService";
+
+const ModalFooter = styled.footer`
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+`;
 
 export function ManutencaoPage() {
   const { maintenanceId } = useParams();
   const outlet = useOutlet();
   const navigate = useNavigate();
 
-  const [manutencoes, setManutencoes] = useState<Maintenance[]>(initialData);
+  const isEditing = !!maintenanceId;
+
+  const [manutencoes, setManutencoes] = useState<Maintenance[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("Agendada");
   const [termoBusca, setTermoBusca] = useState("");
+
+  const [todosOsVeiculos, setTodosOsVeiculos] = useState<Vehicle[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const [manutencoesData, veiculosData] = await Promise.all([
+        manutencaoService.listar(),
+        veiculoService.listar(),
+      ]);
+      setManutencoes(manutencoesData);
+      setTodosOsVeiculos(veiculosData);
+    } catch (error) {
+      console.error("Erro ao buscar dados da página:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filtros: Filtro[] = [
     { id: "Agendada", label: "Agendadas" },
@@ -28,53 +63,25 @@ export function ManutencaoPage() {
     ? manutencoes.find((m) => m.id === parseInt(maintenanceId))
     : undefined;
 
-  type ManutencaoFormData = Omit<Maintenance, "id"> & { proximaKm?: string };
-
-  const handleAdicionar = (dados: ManutencaoFormData) => {
-    const manutencaoPrincipal: Maintenance = {
-      id: Date.now(),
-      title: dados.title,
-      vehicleId: dados.vehicleId,
-      type: dados.type,
-      date: dados.date,
-      cost: dados.cost,
-      status: dados.status,
-    };
-
-    const novasManutencoesAdicionadas = [manutencaoPrincipal];
-
-    const kmProxima = dados.proximaKm ? parseFloat(dados.proximaKm) : 0;
-
-    if (kmProxima > 0) {
-      const manutencaoAgendada: Maintenance = {
-        id: Date.now() + 1,
-        vehicleId: dados.vehicleId,
-        title: `${dados.title} (Próxima em ${kmProxima}km)`,
-        type: dados.type,
-        date: "",
-        cost: 0,
-        status: "Agendada",
-      };
-      novasManutencoesAdicionadas.push(manutencaoAgendada);
-    }
-
-    setManutencoes((prev) => [...novasManutencoesAdicionadas, ...prev]);
+  const handleSuccess = () => {
+    fetchData();
     navigate("/manutencoes");
   };
 
-  const handleEditar = (id: number, dadosAtualizados: ManutencaoFormData) => {
-    setManutencoes((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, ...dadosAtualizados } : item
-      )
-    );
-    navigate("/manutencoes");
-  };
-
-  const handleExcluir = (id: number) => {
+  const handleExcluir = async (id: number) => {
     if (window.confirm("Tem certeza que deseja excluir esta manutenção?")) {
-      setManutencoes((prev) => prev.filter((item) => item.id !== id));
-      navigate("/manutencoes");
+      try {
+        await manutencaoService.excluir(id);
+
+        setManutencoes((manutencoesAtuais) =>
+          manutencoesAtuais.filter((m) => m.id !== id)
+        );
+        navigate("/manutencoes");
+        alert("Manutenção excluída com sucesso.");
+      } catch (error) {
+        console.error("Falha ao excluir manutenção:", error);
+        alert(`Erro ao excluir: ${(error as Error).message}`);
+      }
     }
   };
 
@@ -88,24 +95,42 @@ export function ManutencaoPage() {
         onFiltroChange={setFiltroAtivo}
       />
 
-      <ListaDeManutencoes manutencoes={manutencoesFiltradas} />
+      <ListaDeManutencoes
+        manutencoes={manutencoesFiltradas}
+        veiculos={todosOsVeiculos}
+      />
 
       {outlet && (
         <ModalGlobal
           title={maintenanceId ? "Editar Manutenção" : "Nova Manutenção"}
           onClose={() => navigate("/manutencoes")}
-          formId={
-            maintenanceId ? `form-editar-mnt-${maintenanceId}` : "form-nova-mnt"
-          }
         >
           <Outlet
             context={{
-              onAdicionar: handleAdicionar,
-              onEditar: handleEditar,
+              onSuccess: handleSuccess,
               onExcluir: handleExcluir,
               manutencao: manutencaoParaEditar,
             }}
           />
+
+          <ModalFooter>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => navigate("/manutencoes")}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form={
+                isEditing ? `form-editar-mnt-${maintenanceId}` : "form-nova-mnt"
+              }
+            >
+              {isEditing ? "Salvar Alterações" : "Salvar Manutenção"}
+            </Button>
+          </ModalFooter>
         </ModalGlobal>
       )}
     </div>

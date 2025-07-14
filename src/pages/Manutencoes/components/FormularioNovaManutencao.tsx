@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useOutletContext } from "react-router-dom";
-import { vehiclesData } from "../../../data/vehiclesData";
-import type { Maintenance } from "../../../data/maintenanceData";
+import {
+  manutencaoService,
+  type Maintenance,
+} from "../../../services/manutencaoService";
+import { veiculoService, type Vehicle } from "../../../services/veiculoService";
 
 import { Button } from "../../../components/ui/Button";
 
@@ -16,24 +19,26 @@ import {
 
 import { InputRow } from "../../../components/ui/Layout";
 
+type FormState = Omit<Maintenance, "id" | "veiculoDescricao"> & {
+  proximaKm?: string;
+};
+
 interface FormContextType {
-  onAdicionar: (dados: Omit<Maintenance, "id">) => void;
-  onEditar: (id: number, dados: Omit<Maintenance, "id">) => void;
+  onSuccess: () => void;
   onExcluir: (id: number) => void;
   manutencao?: Maintenance;
 }
 
 export function FormularioNovaManutencao() {
   const { maintenanceId } = useParams();
-  const { onAdicionar, onEditar, onExcluir, manutencao } =
+  const { onSuccess, onExcluir, manutencao } =
     useOutletContext<FormContextType>();
+  const [listaDeVeiculos, setListaDeVeiculos] = useState<Vehicle[]>([]);
   const isEditing = !!maintenanceId;
 
-  const [dados, setDados] = useState<
-    Omit<Maintenance, "id"> & { proximaKm: string }
-  >({
+  const [dados, setDados] = useState<FormState>({
     title: "",
-    vehicleId: 0,
+    veiculoId: 0,
     type: "Preventiva",
     date: "",
     cost: 0,
@@ -44,16 +49,42 @@ export function FormularioNovaManutencao() {
   const [erros, setErros] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        console.log("Passo 1: Buscando veículos da API...");
+
+        const todosOsVeiculos = await veiculoService.listar();
+        console.log("Passo 2: Veículos recebidos da API:", todosOsVeiculos);
+
+        const veiculosAtivos = todosOsVeiculos.filter(
+          (v) => v.status.toUpperCase() === "ATIVO"
+        );
+        console.log(
+          "Passo 3: Veículos após o filtro de 'Ativo':",
+          veiculosAtivos
+        );
+
+        setListaDeVeiculos(veiculosAtivos);
+      } catch (error) {
+        console.error("ERRO CRÍTICO AO BUSCAR VEÍCULOS:", error);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
+
+  useEffect(() => {
     if (isEditing && manutencao) {
-      setDados({
+      const dadosDoFormulario: FormState = {
         title: manutencao.title,
-        vehicleId: manutencao.vehicleId,
+        veiculoId: manutencao.veiculoId,
         type: manutencao.type,
         date: manutencao.date,
         cost: manutencao.cost,
         status: manutencao.status,
         proximaKm: "",
-      });
+      };
+      setDados(dadosDoFormulario);
     }
   }, [maintenanceId, isEditing, manutencao]);
 
@@ -70,14 +101,14 @@ export function FormularioNovaManutencao() {
   const validate = () => {
     const novosErros: { [key: string]: string } = {};
     if (!dados.title.trim()) novosErros.title = "O título é obrigatório.";
-    if (!dados.vehicleId || dados.vehicleId === 0)
-      novosErros.vehicleId = "É obrigatório selecionar um veículo.";
+    if (!dados.veiculoId || dados.veiculoId === 0)
+      novosErros.veiculoId = "É obrigatório selecionar um veículo.";
     if (!dados.date) novosErros.date = "A data é obrigatória.";
     if (dados.cost <= 0) novosErros.cost = "O custo deve ser maior que zero.";
     return novosErros;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errosDeValidacao = validate();
     if (Object.keys(errosDeValidacao).length > 0) {
@@ -86,16 +117,37 @@ export function FormularioNovaManutencao() {
     }
     setErros({});
 
-    const dadosParaSalvar = {
-      ...dados,
-      cost: parseFloat(String(dados.cost)) || 0,
-      vehicleId: parseInt(String(dados.vehicleId)) || 0,
+    const dadosParaApi = {
+      title: dados.title,
+      veiculoId: parseInt(String(dados.veiculoId), 10),
+      type: dados.type,
+      date: dados.date,
+      cost: parseFloat(String(dados.cost)),
+      status: dados.status,
     };
 
-    if (isEditing && maintenanceId) {
-      onEditar(parseInt(maintenanceId), dadosParaSalvar);
-    } else {
-      onAdicionar(dadosParaSalvar);
+    try {
+      if (isEditing && maintenanceId) {
+        await manutencaoService.editar(parseInt(maintenanceId), dadosParaApi);
+      } else {
+        await manutencaoService.adicionar(dadosParaApi);
+      }
+
+      alert("Operação realizada com sucesso!");
+      onSuccess();
+    } catch (error) {
+      const errorMsg = (error as Error).message;
+
+      console.log("MENSAGEM DE ERRO RECEBIDA DO BACKEND:", errorMsg);
+
+      if (
+        errorMsg.toLowerCase().includes("data") ||
+        errorMsg.toLowerCase().includes("date")
+      ) {
+        setErros({ date: errorMsg });
+      } else {
+        alert(errorMsg);
+      }
     }
   };
 
@@ -125,20 +177,20 @@ export function FormularioNovaManutencao() {
         <InputGroup>
           <Label htmlFor="vehicleId">Veículo</Label>
           <Select
-            id="vehicleId"
-            name="vehicleId"
-            value={dados.vehicleId}
+            id="veiculoId"
+            name="veiculoId"
+            value={dados.veiculoId}
             onChange={handleInputChange}
-            hasError={!!erros.vehicleId}
+            hasError={!!erros.veiculoId}
           >
             <option value={0}>Selecione um veículo</option>
-            {vehiclesData.map((v) => (
+            {listaDeVeiculos.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.model} ({v.plate})
               </option>
             ))}
           </Select>
-          {erros.vehicleId && <ErrorMessage>{erros.vehicleId}</ErrorMessage>}
+          {erros.veiculoId && <ErrorMessage>{erros.veiculoId}</ErrorMessage>}
         </InputGroup>
 
         <InputGroup>
