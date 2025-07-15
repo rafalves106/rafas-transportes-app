@@ -27,6 +27,9 @@ export function FormularioNovoVeiculo() {
     model: "",
     plate: "",
     status: "Ativo",
+    ano: "",
+    color: "",
+    renavam: "",
   });
 
   const handleInputChange = (
@@ -42,6 +45,9 @@ export function FormularioNovoVeiculo() {
         model: veiculo.model,
         plate: veiculo.plate,
         status: veiculo.status,
+        ano: veiculo.ano,
+        color: veiculo.color,
+        renavam: veiculo.renavam,
       });
     }
   }, [vehicleId, isEditing, veiculo]);
