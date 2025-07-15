@@ -1,14 +1,7 @@
-import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { GlobalStyle } from "./styles/GlobalStyle";
 import { Sidebar } from "./components/Sidebar";
 import { HeaderGlobal } from "./components/HeaderGlobal";
-
-import {
-  orcamentosData as initialOrcamentos,
-  type Orcamento,
-} from "./data/orcamentosData";
 
 const AppContainer = styled.div`
   display: flex;
@@ -31,7 +24,6 @@ const AreaDaPagina = styled.main`
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [orcamentos, setOrcamentos] = useState<Orcamento[]>(initialOrcamentos);
 
   const pageConfig: {
     [key: string]: {
@@ -112,13 +104,8 @@ function App() {
     navigate(configAtual.novoPath);
   };
 
-  const handleAdicionarOrcamento = (orcamento: Orcamento) => {
-    setOrcamentos((prev) => [orcamento, ...prev]);
-  };
-
   return (
     <>
-      <GlobalStyle />
       <AppContainer>
         <Sidebar
           showActionButton={configAtual.showActionButton}
@@ -134,12 +121,7 @@ function App() {
             novoItemLabel={configAtual.novoLabel}
           />
           <AreaDaPagina>
-            <Outlet
-              context={{
-                orcamentos,
-                onAdicionarOrcamento: handleAdicionarOrcamento,
-              }}
-            />
+            <Outlet context={{}} />
           </AreaDaPagina>
         </ConteudoPrincipal>
       </AppContainer>

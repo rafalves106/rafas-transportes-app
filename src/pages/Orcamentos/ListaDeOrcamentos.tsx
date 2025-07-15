@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import type { Orcamento } from "../../../data/orcamentosData";
+import type { Orcamento } from "../../services/orcamentoService";
 import { CardDeOrcamento } from "./CardDeOrcamento";
-import { ListaContainer } from "../../../components/ui/Layout";
+import { ListaContainer } from "../../components/ui/Layout";
 
 const SectionTitle = styled.h2`
   margin-top: 3rem;
@@ -18,11 +18,13 @@ export function ListaDeOrcamentos({ orcamentos }: ListaDeOrcamentosProps) {
     return null;
   }
 
+  const orcamentosOrdenados = [...orcamentos].reverse();
+
   return (
     <div>
       <SectionTitle>Últimos Orçamentos Salvos</SectionTitle>
       <ListaContainer>
-        {orcamentos.map((orcamento) => (
+        {orcamentosOrdenados.map((orcamento) => (
           <CardDeOrcamento key={orcamento.id} orcamento={orcamento} />
         ))}
       </ListaContainer>

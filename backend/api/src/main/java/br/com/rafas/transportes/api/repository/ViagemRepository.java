@@ -15,8 +15,7 @@ public interface ViagemRepository extends JpaRepository<Viagem, Long> {
     Optional<Viagem> findFirstByMotoristaIdAndEndDateGreaterThanOrderByEndDateAsc(Long motoristaId, LocalDate endDate);
 
     @Query("select v from Viagem v where v.veiculo.id = :veiculoId")
-    List<Viagem> findByVeiculo_Id(Long veiculoId);
-
+    List<Viagem> findByVeiculoId(Long veiculoId);
 
     @Query("""
             select v from Viagem v

@@ -108,6 +108,9 @@ export function FormularioNovaViagem() {
     rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
   });
 
+  const [isPrePopulatedFromBudget, setIsPrePopulatedFromBudget] =
+    useState(false);
+
   useEffect(() => {
     const carregarListas = async () => {
       try {
@@ -144,11 +147,66 @@ export function FormularioNovaViagem() {
         veiculos: [{ id: String(viagem.veiculoId || "") }],
         motoristas: [{ id: String(viagem.motoristaId || "") }],
       }));
+      setIsPrePopulatedFromBudget(false);
+      return;
     }
-  }, [isEditing, viagem]);
+
+    if (location.state?.dadosDoOrcamento) {
+      const { dadosDoOrcamento } = location.state;
+
+      setDadosFormulario((prev) => ({
+        ...prev,
+        title: `Viagem de ${dadosDoOrcamento.nomeCliente} - ${dadosDoOrcamento.origem} para ${dadosDoOrcamento.destino}`,
+        clientName: dadosDoOrcamento.nomeCliente || "",
+        telefone: dadosDoOrcamento.telefone || "",
+        value: dadosDoOrcamento.valorTotal
+          ? String(dadosDoOrcamento.valorTotal.toFixed(2))
+          : "",
+        tipoViagem: dadosDoOrcamento.tipoViagemOrcamento || "ida_e_volta_mg",
+        startLocation:
+          dadosDoOrcamento.descricaoIdaOrcamento ||
+          dadosDoOrcamento.origem ||
+          "",
+        endLocation:
+          dadosDoOrcamento.descricaoVoltaOrcamento ||
+          dadosDoOrcamento.destino ||
+          "",
+        paradas: dadosDoOrcamento.paradas || "",
+        startDate: "",
+        startTime: "",
+        endDate: "",
+        endTime: "",
+        veiculos: [{ id: "" }],
+        motoristas: [{ id: "" }],
+      }));
+      setIsPrePopulatedFromBudget(true);
+      return;
+    }
+
+    if (!isEditing && !location.state?.dadosDoOrcamento) {
+      setDadosFormulario((prev) => ({
+        ...prev,
+        title: "",
+        clientName: "",
+        telefone: "",
+        value: "",
+        tipoViagem: "ida_e_volta_mg",
+        startDate: "",
+        startTime: "",
+        startLocation: "",
+        endDate: "",
+        endTime: "",
+        endLocation: "",
+        veiculos: [{ id: "" }],
+        motoristas: [{ id: "" }],
+        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
+      }));
+      setIsPrePopulatedFromBudget(false);
+    }
+  }, [isEditing, viagem, location.state]);
 
   useEffect(() => {
-    if (isEditing || location.state?.dadosDoOrcamento) return;
+    if (isEditing || isPrePopulatedFromBudget) return;
 
     let textoIda = "";
     let textoVolta = "";
@@ -190,7 +248,7 @@ export function FormularioNovaViagem() {
       startLocation: textoIda,
       endLocation: textoVolta,
     }));
-  }, [dadosFormulario.tipoViagem, isEditing, location.state]);
+  }, [dadosFormulario.tipoViagem, isEditing, isPrePopulatedFromBudget]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -436,7 +494,7 @@ export function FormularioNovaViagem() {
                     </LabelContainer>
                     <Select
                       id={`veiculo-${index}`}
-                      value={veiculo.id}
+                      value={dadosFormulario.veiculos[0]?.id || ""}
                       onChange={(e) =>
                         handleDynamicListChange(index, e, "veiculos")
                       }
@@ -450,15 +508,18 @@ export function FormularioNovaViagem() {
                     </Select>
                   </div>
                 ))}
-                <Button
-                  variant="primary"
-                  type="button"
-                  onClick={() => addToList("veiculos")}
-                >
-                  + Adicionar Veículo
-                </Button>
+                {dadosFormulario.veiculos.length === 0 && (
+                  <Button
+                    variant="primary"
+                    type="button"
+                    onClick={() => addToList("veiculos")}
+                  >
+                    + Adicionar Veículo
+                  </Button>
+                )}
               </InputGroup>
             )}
+
             <InputGroup>
               <SectionTitle>Motoristas</SectionTitle>
               {dadosFormulario.motoristas.map((motorista, index) => (
@@ -479,7 +540,7 @@ export function FormularioNovaViagem() {
                   </LabelContainer>
                   <Select
                     id={`motorista-${index}`}
-                    value={motorista.id}
+                    value={dadosFormulario.motoristas[0]?.id || ""}
                     onChange={(e) =>
                       handleDynamicListChange(index, e, "motoristas")
                     }
@@ -493,13 +554,15 @@ export function FormularioNovaViagem() {
                   </Select>
                 </div>
               ))}
-              <Button
-                variant="primary"
-                type="button"
-                onClick={() => addToList("motoristas")}
-              >
-                + Adicionar Motorista
-              </Button>
+              {dadosFormulario.motoristas.length === 0 && (
+                <Button
+                  variant="primary"
+                  type="button"
+                  onClick={() => addToList("motoristas")}
+                >
+                  + Adicionar Motorista
+                </Button>
+              )}
             </InputGroup>
             <InputGroup>
               <SectionTitle>Valores</SectionTitle>
@@ -723,6 +786,7 @@ export function FormularioNovaViagem() {
                 </Button>
               </InputGroup>
             )}
+
             {isEditing && (
               <div
                 style={{
@@ -743,6 +807,7 @@ export function FormularioNovaViagem() {
           </FormSection>
         </FormGrid>
       </FormContainer>
+
       <ConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

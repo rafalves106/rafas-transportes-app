@@ -2,14 +2,18 @@ import { useState } from "react";
 import styled from "styled-components";
 import { format } from "date-fns";
 
-import type { Orcamento } from "../data/orcamentosData";
+import type {
+  Orcamento,
+  CadastroOrcamentoData,
+} from "../services/orcamentoService";
+import { orcamentoService } from "../services/orcamentoService";
 
 import { FormularioOrcamento } from "./Calculadora/components/FormularioOrcamento";
 import { GeradorDeTextoModal } from "./Calculadora/components/GeradorDeTextoModal";
 
 import { Button } from "../components/ui/Button";
 import { InputGroup, Label, Input } from "../components/ui/Form";
-import { useOutletContext } from "react-router-dom";
+import axios, { AxiosError } from "axios";
 
 interface GooglePrice {
   currencyCode?: string;
@@ -25,11 +29,6 @@ interface GoogleRoute {
       estimatedPrice: GooglePrice[];
     };
   };
-}
-
-interface AppContextType {
-  orcamentos: Orcamento[];
-  onAdicionarOrcamento: (orcamento: Orcamento) => void;
 }
 
 export interface OrcamentoForm {
@@ -51,7 +50,6 @@ interface OrcamentoResultado {
   valorTotal: number;
 }
 
-// Styled Components
 const MainGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -98,8 +96,6 @@ const ResultadoSection = styled.div`
 `;
 
 export function CalculadoraPage() {
-  const { onAdicionarOrcamento } = useOutletContext<AppContextType>();
-
   const [resultado, setResultado] = useState<OrcamentoResultado[] | null>(null);
   const [ultimoForm, setUltimoForm] = useState<OrcamentoForm | null>(null);
   const [parametros, setParametros] = useState({
@@ -109,15 +105,49 @@ export function CalculadoraPage() {
     extras: 0,
   });
 
-  const handleSalvarOrcamento = () => {
-    if (!orcamentoParaGerarTexto) return;
+  const handleSalvarOrcamento = async (dadosCompletosOrcamento: Orcamento) => {
+    if (!dadosCompletosOrcamento) return;
 
-    onAdicionarOrcamento(orcamentoParaGerarTexto);
+    const dadosParaApi: CadastroOrcamentoData = {
+      nomeCliente: dadosCompletosOrcamento.nomeCliente || "Cliente a definir",
+      telefone: dadosCompletosOrcamento.telefone || "",
+      origem: dadosCompletosOrcamento.origem,
+      destino: dadosCompletosOrcamento.destino,
+      distancia: dadosCompletosOrcamento.distancia,
+      paradas: dadosCompletosOrcamento.paradas,
+      valorTotal: dadosCompletosOrcamento.valorTotal,
+      tipoViagemOrcamento: dadosCompletosOrcamento.tipoViagemOrcamento,
+      descricaoIdaOrcamento: dadosCompletosOrcamento.descricaoIdaOrcamento,
+      descricaoVoltaOrcamento: dadosCompletosOrcamento.descricaoVoltaOrcamento,
+      textoGerado: dadosCompletosOrcamento.textoGerado,
+    };
 
-    alert("Orçamento salvo com sucesso!");
-
-    setOrcamentoParaGerarTexto(null);
-    setResultado(null);
+    try {
+      await orcamentoService.salvar(dadosParaApi);
+      alert("Orçamento salvo com sucesso!");
+    } catch (err) {
+      console.error("Erro ao salvar orçamento:", err);
+      if (axios.isAxiosError(err)) {
+        const axiosError: AxiosError = err;
+        if (axiosError.response) {
+          if (axiosError.response.status === 403) {
+            alert("Acesso negado. Por favor, faça login novamente.");
+          } else {
+            alert(
+              `Erro ao salvar orçamento: ${axiosError.response.status} - ${axiosError.response.statusText}`
+            );
+          }
+        } else {
+          alert(`Erro de rede ou requisição: ${axiosError.message}`);
+        }
+      } else if (err instanceof Error) {
+        alert(`Erro ao salvar orçamento: ${err.message}`);
+      } else {
+        alert("Erro desconhecido ao salvar orçamento.");
+      }
+    } finally {
+      setOrcamentoParaGerarTexto(null);
+    }
   };
 
   const [orcamentoParaGerarTexto, setOrcamentoParaGerarTexto] =
@@ -163,7 +193,11 @@ export function CalculadoraPage() {
       );
 
       if (!response.ok) {
-        throw new Error(`Erro na API: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error?.message ||
+            `Erro na API do Google: ${response.statusText}`
+        );
       }
 
       const data = await response.json();
@@ -223,26 +257,40 @@ export function CalculadoraPage() {
       });
 
       setResultado(resultadosCalculados);
-    } catch (error) {
-      console.error("Falha ao calcular a rota:", error);
-      alert(
-        `Não foi possível calcular a rota. Detalhe: ${
-          error instanceof Error ? error.message : ""
-        }`
-      );
+    } catch (err) {
+      console.error("Falha ao calcular a rota:", err);
+      if (err instanceof Error) {
+        alert(`Não foi possível calcular a rota. Detalhe: ${err.message}`);
+      } else {
+        alert("Não foi possível calcular a rota. Erro desconhecido.");
+      }
       setResultado(null);
     }
   };
 
   const handleAbrirModalTexto = (resultadoEscolhido: OrcamentoResultado) => {
     if (!ultimoForm) return;
+
     const orcamentoTemporario: Orcamento = {
       id: Date.now(),
-      title: `Orçamento: ${ultimoForm.origem} para ${ultimoForm.destino}`,
-      clientName: "Cliente a definir",
-      ...resultadoEscolhido,
-      formData: ultimoForm,
-      status: "Pendente",
+      nomeCliente: "Cliente a definir",
+      telefone: "",
+      dataDoOrcamento: new Date().toISOString().split("T")[0],
+      origem: ultimoForm.origem,
+      destino: ultimoForm.destino,
+      distancia: `${resultadoEscolhido.distanciaTotal} km`,
+      paradas: ultimoForm.paradas.filter((p) => p.trim() !== "").join(", "),
+      valorTotal: resultadoEscolhido.valorTotal,
+
+      custoDistancia: resultadoEscolhido.custoDistancia,
+      custoPedagios: resultadoEscolhido.custoPedagios,
+      custoCombustivel: resultadoEscolhido.custoCombustivel,
+      custoMotorista: resultadoEscolhido.custoMotorista,
+
+      tipoViagemOrcamento: "ida_e_volta_mg",
+      descricaoIdaOrcamento: "",
+      descricaoVoltaOrcamento: "",
+      textoGerado: "",
     };
     setOrcamentoParaGerarTexto(orcamentoTemporario);
   };

@@ -1,3 +1,5 @@
+import api from "./api";
+
 export interface Viagem {
   id: number;
   title: string;
@@ -34,48 +36,29 @@ export interface CadastroViagemData {
 
 export type UpdateViagemData = Partial<CadastroViagemData>;
 
-const API_URL = "http://localhost:8080/viagens";
+const ROTA = "/viagens";
 
 export const viagemService = {
   async listar(): Promise<Viagem[]> {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error("Erro ao listar viagens");
-    return res.json();
+    const res = await api.get<Viagem[]>(ROTA);
+    return res.data;
   },
 
   async adicionar(dados: CadastroViagemData): Promise<Viagem> {
-    const res = await fetch(API_URL, {
-      method: "POST",
+    const res = await api.post<Viagem>(ROTA, dados, {
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dados),
     });
-    if (!res.ok) {
-      const errorMsg = await res.text();
-      throw new Error(errorMsg || "Erro ao adicionar viagem");
-    }
-    return res.json();
+    return res.data;
   },
 
   async editar(id: number, dados: UpdateViagemData): Promise<Viagem> {
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: "PUT",
+    const res = await api.put<Viagem>(`${ROTA}/${id}`, dados, {
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dados),
     });
-    if (!res.ok) {
-      const errorMsg = await res.text();
-      throw new Error(errorMsg || "Erro ao editar viagem");
-    }
-    return res.json();
+    return res.data;
   },
 
   async excluir(id: number): Promise<void> {
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) {
-      const errorMsg = await res.text();
-      throw new Error(errorMsg || "Erro ao excluir viagem");
-    }
+    await api.delete(`${ROTA}/${id}`);
   },
 };

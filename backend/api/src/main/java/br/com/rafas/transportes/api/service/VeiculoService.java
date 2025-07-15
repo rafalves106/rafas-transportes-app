@@ -49,8 +49,8 @@ public class VeiculoService {
             throw new EntityNotFoundException("Veículo não encontrado");
         }
 
-        List<Manutencao> manutenções = manutencaoRepository.findByVeiculo_Id(id);
-        List<Viagem> viagens = viagemRepository.findByVeiculo_Id(id);
+        List<Manutencao> manutenções = manutencaoRepository.findByVeiculoId(id);
+        List<Viagem> viagens = viagemRepository.findByVeiculoId(id);
 
         if (!manutenções.isEmpty() || !viagens.isEmpty()) {
             StringBuilder erro = new StringBuilder("Este veículo não pode ser excluído, pois possui pendências:");

@@ -5,8 +5,10 @@ import br.com.rafas.transportes.api.domain.StatusMotorista;
 import br.com.rafas.transportes.api.domain.StatusVeiculo;
 import br.com.rafas.transportes.api.domain.Veiculo;
 import br.com.rafas.transportes.api.dto.DadosCadastroManutencao;
+import br.com.rafas.transportes.api.dto.DadosCadastroOrcamento;
 import br.com.rafas.transportes.api.dto.DadosCadastroViagem;
 import br.com.rafas.transportes.api.repository.MotoristaRepository;
+import br.com.rafas.transportes.api.repository.OrcamentoRepository;
 import br.com.rafas.transportes.api.repository.VeiculoRepository;
 import br.com.rafas.transportes.api.repository.ViagemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,12 @@ public class DataLoader implements CommandLineRunner {
 
   @Autowired
   private ManutencaoService manutencaoService;
+
+  @Autowired
+  private OrcamentoRepository orcamentoRepository;
+
+  @Autowired
+  private OrcamentoService orcamentoService;
 
   @Override
   public void run(String... args) throws Exception {
@@ -101,6 +109,78 @@ public class DataLoader implements CommandLineRunner {
               "Agendada"
       );
       manutencaoService.cadastrar(dadosManutencao);
+
+      String origem1 = "Belo Horizonte";
+      String destino1 = "São Paulo";
+      String paradas1 = "Parada em Pouso Alegre";
+      String tipoViagem1 = "ida_e_volta_fora_mg";
+
+      String descricaoIda1 = String.format("Saída de %s, destino %s. %s",
+              origem1, destino1, paradas1.isEmpty() ? "" : "Com paradas em: " + paradas1);
+      String descricaoVolta1 = String.format("Retorno de %s para %s. %s",
+              destino1, origem1, paradas1.isEmpty() ? "" : "Com paradas em: " + paradas1);
+
+      DadosCadastroOrcamento orcamento1 = new DadosCadastroOrcamento(
+              "João da Silva",
+              "(31) 98765-4321",
+              origem1,
+              destino1,
+              "400 km",
+              paradas1,
+              new BigDecimal("2500.00"),
+              tipoViagem1,
+              descricaoIda1,
+              descricaoVolta1
+      );
+      orcamentoService.salvar(orcamento1);
+
+      String origem2 = "Rio de Janeiro";
+      String destino2 = "Aeroporto de Confins";
+      String paradas2 = "";
+      String tipoViagem2 = "fretamento_aeroporto";
+
+      String descricaoIda2 = String.format("Percurso: de %s para %s.", origem2, destino2);
+      String descricaoVolta2 = tipoViagem2.equals("fretamento_aeroporto") ?
+              String.format("Busca em %s e retorno para %s.", destino2, origem2) : "";
+
+
+      DadosCadastroOrcamento orcamento2 = new DadosCadastroOrcamento(
+              "Maria Oliveira",
+              "(21) 91234-5678",
+              origem2,
+              destino2,
+              "440 km",
+              paradas2,
+              new BigDecimal("2800.00"),
+              tipoViagem2,
+              descricaoIda2,
+              descricaoVolta2
+      );
+      orcamentoService.salvar(orcamento2);
+
+
+      String origem3 = "Belo Horizonte";
+      String destino3 = "Ouro Preto";
+      String paradas3 = "Parada em Mariana";
+      String tipoViagem3 = "somente_ida_mg";
+
+      String descricaoIda3 = String.format("Percurso somente de ida: de %s para %s. %s",
+              origem3, destino3, paradas3.isEmpty() ? "" : "Com parada em: " + paradas3);
+      String descricaoVolta3 = "";
+
+      DadosCadastroOrcamento orcamento3 = new DadosCadastroOrcamento(
+              "Pedro Costa",
+              "(31) 97777-6666",
+              origem3,
+              destino3,
+              "100 km",
+              paradas3,
+              new BigDecimal("750.00"),
+              tipoViagem3,
+              descricaoIda3,
+              descricaoVolta3
+      );
+      orcamentoService.salvar(orcamento3);
 
       System.out.println(">>> Dados de teste cadastrados com sucesso!");
     }

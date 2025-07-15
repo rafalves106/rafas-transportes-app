@@ -7,6 +7,8 @@ import type { Vehicle } from "../services/veiculoService";
 import { veiculoService } from "../services/veiculoService";
 import { Button } from "../components/ui/Button";
 import { styled } from "styled-components";
+import { useAuth } from "../contexts/AuthContext";
+import axios, { AxiosError } from "axios";
 
 const ModalFooter = styled.footer`
   padding: 1.5rem;
@@ -26,8 +28,19 @@ export function FrotaPage() {
   const outlet = useOutlet();
 
   const isEditing = !!vehicleId;
+  const { isLoggedIn } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchVeiculos = async () => {
+    if (!isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
     try {
       const data = await veiculoService.listar();
 
@@ -46,14 +59,34 @@ export function FrotaPage() {
       }));
 
       setVeiculos(dadosFormatados);
-    } catch (error) {
-      console.error("Erro ao buscar veículos:", error);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const axiosError: AxiosError = err;
+        if (axiosError.response) {
+          if (axiosError.response.status === 403) {
+            setError("Acesso negado. Por favor, faça login novamente.");
+          } else {
+            setError(
+              `Erro ao buscar veículos: ${axiosError.response.status} - ${axiosError.response.statusText}`
+            );
+          }
+        } else {
+          setError(`Erro de rede ou requisição: ${axiosError.message}`);
+        }
+      } else if (err instanceof Error) {
+        setError(`Erro ao buscar veículos: ${err.message}`);
+      } else {
+        setError("Erro desconhecido ao buscar veículos.");
+      }
+      console.error("Erro completo ao buscar veículos:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchVeiculos();
-  }, []);
+  }, [isLoggedIn]);
 
   const handleAdicionar = async (dados: Omit<Vehicle, "id">) => {
     try {
@@ -61,9 +94,17 @@ export function FrotaPage() {
       await fetchVeiculos();
       navigate("/frota");
       alert("Veículo cadastrado com sucesso!");
-    } catch (error) {
-      alert((error as Error).message);
-      console.error(error);
+    } catch (err) {
+      console.error("Falha ao adicionar veículo:", err);
+      if (axios.isAxiosError(err) && err.response) {
+        alert(
+          `Erro ao adicionar: ${err.response.status} - ${err.response.statusText}`
+        );
+      } else if (err instanceof Error) {
+        alert(`Erro ao adicionar: ${err.message}`);
+      } else {
+        alert("Erro desconhecido ao adicionar.");
+      }
     }
   };
 
@@ -82,8 +123,17 @@ export function FrotaPage() {
 
       await fetchVeiculos();
       navigate("/frota");
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error("Falha ao editar veículo:", err);
+      if (axios.isAxiosError(err) && err.response) {
+        alert(
+          `Erro ao editar: ${err.response.status} - ${err.response.statusText}`
+        );
+      } else if (err instanceof Error) {
+        alert(`Erro ao editar: ${err.message}`);
+      } else {
+        alert("Erro desconhecido ao editar.");
+      }
     }
   };
 
@@ -95,8 +145,17 @@ export function FrotaPage() {
       );
       alert("Veículo excluído com sucesso.");
       navigate("/frota");
-    } catch (error) {
-      alert((error as Error).message);
+    } catch (err) {
+      console.error("Falha ao excluir veículo:", err);
+      if (axios.isAxiosError(err) && err.response) {
+        alert(
+          `Erro ao excluir: ${err.response.status} - ${err.response.statusText}`
+        );
+      } else if (err instanceof Error) {
+        alert(`Erro ao excluir: ${err.message}`);
+      } else {
+        alert("Erro desconhecido ao excluir.");
+      }
     }
   };
 
@@ -127,7 +186,16 @@ export function FrotaPage() {
         filtroAtivo={filtroAtivo}
         onFiltroChange={setFiltroAtivo}
       />
-      <ListaDeVeiculos veiculos={veiculosFiltrados} />
+      {loading ? (
+        <div>Carregando veículos...</div>
+      ) : error ? (
+        <div style={{ color: "red" }}>{error}</div>
+      ) : veiculosFiltrados.length === 0 ? (
+        <p>Nenhum veículo encontrado para este filtro ou busca.</p>
+      ) : (
+        <ListaDeVeiculos veiculos={veiculosFiltrados} />
+      )}
+
       {outlet && (
         <ModalGlobal
           title={vehicleId ? "Editar Veículo" : "Novo Veículo"}

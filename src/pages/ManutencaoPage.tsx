@@ -11,6 +11,8 @@ import {
   type Maintenance,
 } from "../services/manutencaoService";
 import { veiculoService, type Vehicle } from "../services/veiculoService";
+import { useAuth } from "../contexts/AuthContext";
+import axios, { AxiosError } from "axios";
 
 const ModalFooter = styled.footer`
   padding: 1.5rem;
@@ -26,14 +28,23 @@ export function ManutencaoPage() {
   const navigate = useNavigate();
 
   const isEditing = !!maintenanceId;
-
+  const { isLoggedIn } = useAuth();
   const [manutencoes, setManutencoes] = useState<Maintenance[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("Agendada");
   const [termoBusca, setTermoBusca] = useState("");
 
   const [todosOsVeiculos, setTodosOsVeiculos] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
+    if (!isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
     try {
       const [manutencoesData, veiculosData] = await Promise.all([
         manutencaoService.listar(),
@@ -41,14 +52,34 @@ export function ManutencaoPage() {
       ]);
       setManutencoes(manutencoesData);
       setTodosOsVeiculos(veiculosData);
-    } catch (error) {
-      console.error("Erro ao buscar dados da página:", error);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const axiosError: AxiosError = err;
+        if (axiosError.response) {
+          if (axiosError.response.status === 403) {
+            setError("Acesso negado. Por favor, faça login novamente.");
+          } else {
+            setError(
+              `Erro ao buscar manutenções: ${axiosError.response.status} - ${axiosError.response.statusText}`
+            );
+          }
+        } else {
+          setError(`Erro de rede ou requisição: ${axiosError.message}`);
+        }
+      } else if (err instanceof Error) {
+        setError(`Erro ao buscar manutenções: ${err.message}`);
+      } else {
+        setError("Erro desconhecido ao buscar manutenções.");
+      }
+      console.error("Erro completo ao buscar manutenções:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [isLoggedIn]);
 
   const filtros: Filtro[] = [
     { id: "Agendada", label: "Agendadas" },
@@ -78,9 +109,17 @@ export function ManutencaoPage() {
         );
         navigate("/manutencoes");
         alert("Manutenção excluída com sucesso.");
-      } catch (error) {
-        console.error("Falha ao excluir manutenção:", error);
-        alert(`Erro ao excluir: ${(error as Error).message}`);
+      } catch (err) {
+        console.error("Falha ao excluir manutenção:", err);
+        if (axios.isAxiosError(err) && err.response) {
+          alert(
+            `Erro ao excluir: ${err.response.status} - ${err.response.statusText}`
+          );
+        } else if (err instanceof Error) {
+          alert(`Erro ao excluir: ${err.message}`);
+        } else {
+          alert("Erro desconhecido ao excluir.");
+        }
       }
     }
   };
@@ -95,10 +134,18 @@ export function ManutencaoPage() {
         onFiltroChange={setFiltroAtivo}
       />
 
-      <ListaDeManutencoes
-        manutencoes={manutencoesFiltradas}
-        veiculos={todosOsVeiculos}
-      />
+      {loading ? (
+        <div>Carregando manutenções...</div>
+      ) : error ? (
+        <div style={{ color: "red" }}>{error}</div>
+      ) : manutencoesFiltradas.length === 0 ? (
+        <p>Nenhuma manutenção encontrada para este filtro ou busca.</p>
+      ) : (
+        <ListaDeManutencoes
+          manutencoes={manutencoesFiltradas}
+          veiculos={todosOsVeiculos}
+        />
+      )}
 
       {outlet && (
         <ModalGlobal
@@ -110,6 +157,7 @@ export function ManutencaoPage() {
               onSuccess: handleSuccess,
               onExcluir: handleExcluir,
               manutencao: manutencaoParaEditar,
+              todosOsVeiculos: todosOsVeiculos,
             }}
           />
 

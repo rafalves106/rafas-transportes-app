@@ -9,6 +9,9 @@ import { ptBR } from "date-fns/locale";
 import { styled } from "styled-components";
 import { CalendarioMensal } from "./Planejamento/components/CalendarioMensal";
 import { Button } from "../components/ui/Button";
+import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
+
 const ViewContainer = styled.div``;
 
 const MonthNavigator = styled.div`
@@ -57,26 +60,56 @@ export function PlanejamentoPage() {
   const outlet = useOutlet();
   const navigate = useNavigate();
   const isEditing = !!tripId;
+  const { isLoggedIn } = useAuth();
 
   const [viagens, setViagens] = useState<Viagem[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("proximas");
   const [termoBusca, setTermoBusca] = useState("");
   const [viewMode, setViewMode] = useState("lista");
   const [displayedMonth, setDisplayedMonth] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const carregarViagens = async () => {
+    if (!isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
     try {
       const data = await viagemService.listar();
       setViagens(data);
     } catch (err) {
-      console.error("Erro ao buscar viagens", err);
-      alert("Não foi possível carregar as viagens.");
+      console.error("Erro capturado no frontend (PlanejamentoPage.tsx):", err);
+      if (axios.isAxiosError(err)) {
+        console.error("É um erro Axios. Resposta:", err.response);
+        console.error("Erro Axios. Config:", err.config);
+      }
+
+      if (axios.isAxiosError(err) && err.response) {
+        if (err.response.status === 403) {
+          setError("Acesso negado. Por favor, faça login novamente.");
+        } else {
+          setError(
+            `Erro ao buscar viagens: ${err.response.status} - ${err.response.statusText}`
+          );
+        }
+      } else if (err instanceof Error) {
+        setError(`Erro ao buscar viagens: ${err.message}`);
+      } else {
+        setError("Erro desconhecido ao buscar viagens.");
+      }
+      console.error("Erro completo ao buscar viagens:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     carregarViagens();
-  }, []);
+  }, [isLoggedIn]);
 
   const filtrosPlanejamento: Filtro[] = [
     { id: "proximas", label: "Próximas" },
@@ -87,7 +120,6 @@ export function PlanejamentoPage() {
   const viagensFiltradas = viagens.filter((viagem: Viagem) => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-    // As datas da API vêm como string YYYY-MM-DD, então a conversão é necessária para o filtro
     const dataInicio = new Date(viagem.startDate + "T00:00:00");
     const dataFim = new Date(viagem.endDate + "T00:00:00");
 
@@ -106,7 +138,7 @@ export function PlanejamentoPage() {
 
   const handleSuccess = () => {
     carregarViagens();
-    navigate("/"); // Navega para a raiz da seção para fechar o modal
+    navigate("/");
   };
 
   const handleExcluir = async (id: number) => {
@@ -172,7 +204,13 @@ export function PlanejamentoPage() {
       </FiltroGlobal>
 
       <ViewContainer>
-        {viewMode === "lista" ? (
+        {loading ? (
+          <div>Carregando viagens...</div>
+        ) : error ? (
+          <div style={{ color: "red" }}>{error}</div>
+        ) : viagensFiltradas.length === 0 ? (
+          <p>Nenhuma viagem encontrada para este filtro ou busca.</p>
+        ) : viewMode === "lista" ? (
           <ListaDeViagens viagens={viagensFiltradas} />
         ) : (
           <CalendarioMensal mesExibido={displayedMonth} viagens={viagens} />

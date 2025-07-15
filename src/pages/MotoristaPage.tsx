@@ -9,6 +9,8 @@ import { motoristaService } from "../services/motoristaService";
 import { viagemService } from "../services/viagemService";
 import { Button } from "../components/ui/Button";
 import { styled } from "styled-components";
+import { useAuth } from "../contexts/AuthContext";
+import axios, { AxiosError } from "axios";
 
 const ModalFooter = styled.footer`
   padding: 1.5rem;
@@ -29,15 +31,19 @@ export function MotoristaPage() {
   const navigate = useNavigate();
 
   const isEditing = !!driverId;
+  const { isLoggedIn } = useAuth();
 
-  const filtros: Filtro[] = [
-    { id: "Em Serviço", label: "Em Serviço" },
-    { id: "Ativo", label: "Ativos" },
-    { id: "Inativo", label: "Inativos" },
-    { id: "Férias", label: "Férias" },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const carregarDados = async () => {
+    if (!isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
     try {
       const [motoristasData, viagensData] = await Promise.all([
         motoristaService.listar(),
@@ -46,13 +52,40 @@ export function MotoristaPage() {
       setMotoristas(motoristasData);
       setViagens(viagensData);
     } catch (err) {
-      console.error("Erro ao carregar dados", err);
+      if (axios.isAxiosError(err)) {
+        const axiosError: AxiosError = err;
+        if (axiosError.response) {
+          if (axiosError.response.status === 403) {
+            setError("Acesso negado. Por favor, faça login novamente.");
+          } else {
+            setError(
+              `Erro ao buscar dados: ${axiosError.response.status} - ${axiosError.response.statusText}`
+            );
+          }
+        } else {
+          setError(`Erro de rede ou requisição: ${axiosError.message}`);
+        }
+      } else if (err instanceof Error) {
+        setError(`Erro ao buscar dados: ${err.message}`);
+      } else {
+        setError("Erro desconhecido ao buscar dados.");
+      }
+      console.error("Erro completo ao buscar dados:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     carregarDados();
-  }, []);
+  }, [isLoggedIn]);
+
+  const filtros: Filtro[] = [
+    { id: "Em Serviço", label: "Em Serviço" },
+    { id: "Ativo", label: "Ativos" },
+    { id: "Inativo", label: "Inativos" },
+    { id: "Férias", label: "Férias" },
+  ];
 
   const motoristasFiltrados = motoristas
     .filter((motorista) => {
@@ -69,7 +102,6 @@ export function MotoristaPage() {
             hoje <= dataFim
           );
         });
-
         return estaEmServico;
       }
 
@@ -96,18 +128,28 @@ export function MotoristaPage() {
   };
 
   const handleExcluir = async (id: number) => {
-    try {
-      await motoristaService.excluir(id);
+    if (window.confirm("Tem certeza que deseja excluir este motorista?")) {
+      try {
+        await motoristaService.excluir(id);
 
-      setMotoristas((motoristasAtuais) =>
-        motoristasAtuais.filter((m) => m.id !== id)
-      );
+        setMotoristas((motoristasAtuais) =>
+          motoristasAtuais.filter((m) => m.id !== id)
+        );
 
-      navigate("/motoristas");
-      alert("Motorista excluído com sucesso.");
-    } catch (err) {
-      alert((err as Error).message);
-      console.error("Erro ao excluir motorista", err);
+        navigate("/motoristas");
+        alert("Motorista excluído com sucesso.");
+      } catch (err) {
+        console.error("Erro ao excluir motorista", err);
+        if (axios.isAxiosError(err) && err.response) {
+          alert(
+            `Erro ao excluir: ${err.response.status} - ${err.response.statusText}`
+          );
+        } else if (err instanceof Error) {
+          alert(`Erro ao excluir: ${err.message}`);
+        } else {
+          alert("Erro desconhecido ao excluir.");
+        }
+      }
     }
   };
 
@@ -124,7 +166,16 @@ export function MotoristaPage() {
         filtroAtivo={filtroAtivo}
         onFiltroChange={setFiltroAtivo}
       />
-      <ListaDeMotoristas motoristas={motoristasFiltrados} viagens={viagens} />
+      {loading ? (
+        <div>Carregando motoristas...</div>
+      ) : error ? (
+        <div style={{ color: "red" }}>{error}</div>
+      ) : motoristasFiltrados.length === 0 ? (
+        <p>Nenhum motorista encontrado para este filtro ou busca.</p>
+      ) : (
+        <ListaDeMotoristas motoristas={motoristasFiltrados} viagens={viagens} />
+      )}
+
       {outlet && (
         <ModalGlobal
           title={driverId ? "Editar Motorista" : "Novo Motorista"}

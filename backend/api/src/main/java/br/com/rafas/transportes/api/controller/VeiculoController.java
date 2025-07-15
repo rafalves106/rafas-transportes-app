@@ -17,7 +17,7 @@ import jakarta.validation.ValidationException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/veiculos")
+@RequestMapping("/veiculos")
 public class VeiculoController {
 
     @Autowired

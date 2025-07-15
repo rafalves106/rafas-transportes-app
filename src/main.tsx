@@ -4,7 +4,16 @@ import App from "./App.tsx";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
+import { GlobalStyle } from "./styles/GlobalStyle";
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import { LoginPage } from "./pages/Login/LoginPage.tsx";
+
+import { AuthProvider } from "./contexts/AuthContext.tsx";
+
+import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
+
 import { PlanejamentoPage } from "./pages/PlanejamentoPage.tsx";
 import { ManutencaoPage } from "./pages/ManutencaoPage.tsx";
 import { MotoristaPage } from "./pages/MotoristaPage.tsx";
@@ -19,8 +28,16 @@ import { FormularioNovoMotorista } from "./pages/Motorista/components/Formulario
 
 const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
     path: "/",
-    element: <App />,
+    element: (
+      <ProtectedRoute>
+        <App />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "/",
@@ -92,6 +109,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <GlobalStyle /> <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );

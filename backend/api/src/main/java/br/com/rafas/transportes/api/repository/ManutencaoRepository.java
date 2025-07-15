@@ -11,6 +11,5 @@ import java.util.List;
 public interface ManutencaoRepository extends JpaRepository<Manutencao, Long> {
 
     @Query("select m from Manutencao m where m.veiculo.id = :veiculoId")
-    List<Manutencao> findByVeiculo_Id(Long veiculoId);
-
+    List<Manutencao> findByVeiculoId(Long veiculoId);
 }
