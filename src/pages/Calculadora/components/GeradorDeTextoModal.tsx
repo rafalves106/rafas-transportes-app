@@ -141,42 +141,13 @@ export function GeradorDeTextoModal({
     if (orcamento) {
       setNomeClienteLocal(orcamento.nomeCliente || "");
       setTelefoneLocal(orcamento.telefone || "");
-      setTipoViagemLocal(orcamento.tipoViagemOrcamento || "ida_e_volta_mg");
 
-      if (
-        !orcamento.descricaoIdaOrcamento ||
-        !orcamento.descricaoVoltaOrcamento ||
-        orcamento.descricaoIdaOrcamento.includes("[") ||
-        orcamento.descricaoVoltaOrcamento.includes("[")
-      ) {
-        const { descricaoIda, descricaoVolta } = generateDescription(
-          orcamento.tipoViagemOrcamento || tipoViagemLocal,
-          orcamento.origem,
-          orcamento.destino,
-          orcamento.paradas
-        );
-        setDescricaoIdaLocal(descricaoIda);
-        setDescricaoVoltaLocal(descricaoVolta);
-      } else {
-        setDescricaoIdaLocal(orcamento.descricaoIdaOrcamento);
-        setDescricaoVoltaLocal(orcamento.descricaoVoltaOrcamento);
-      }
+      const tipoViagemInicial =
+        orcamento.tipoViagemOrcamento || "ida_e_volta_mg";
+      setTipoViagemLocal(tipoViagemInicial);
 
-      if (!orcamento.textoGerado) {
-        const valorFormatado = orcamento.valorTotal?.toFixed(2);
-        setTextoGeradoLocal(
-          `Orçamento para ${orcamento.nomeCliente}: ${tipoViagemLocal} de ${orcamento.origem} para ${orcamento.destino}. Valor: R$ ${valorFormatado}.`
-        );
-      } else {
-        setTextoGeradoLocal(orcamento.textoGerado);
-      }
-    }
-  }, [orcamento, tipoViagemLocal]);
-
-  useEffect(() => {
-    if (orcamento) {
       const { descricaoIda, descricaoVolta } = generateDescription(
-        tipoViagemLocal,
+        tipoViagemInicial,
         orcamento.origem,
         orcamento.destino,
         orcamento.paradas
@@ -184,19 +155,27 @@ export function GeradorDeTextoModal({
       setDescricaoIdaLocal(descricaoIda);
       setDescricaoVoltaLocal(descricaoVolta);
 
-      const valorFormatado = orcamento.valorTotal?.toFixed(2);
-      setTextoGeradoLocal(
-        `Orçamento para ${nomeClienteLocal}: ${tipoViagemLocal} de ${orcamento.origem} para ${orcamento.destino}. Valor: R$ ${valorFormatado}. Detalhes: Ida - ${descricaoIda}, Volta - ${descricaoVolta}`
-      );
+      setTextoGeradoLocal(orcamento.textoGerado || "");
     }
-  }, [
-    tipoViagemLocal,
-    orcamento?.origem,
-    orcamento?.destino,
-    orcamento?.paradas,
-    orcamento,
-    nomeClienteLocal,
-  ]);
+  }, [orcamento]);
+
+  useEffect(() => {
+    if (!orcamento) return;
+
+    const { descricaoIda, descricaoVolta } = generateDescription(
+      tipoViagemLocal,
+      orcamento.origem,
+      orcamento.destino,
+      orcamento.paradas
+    );
+    setDescricaoIdaLocal(descricaoIda);
+    setDescricaoVoltaLocal(descricaoVolta);
+
+    const valorFormatado = orcamento.valorTotal?.toFixed(2);
+    setTextoGeradoLocal(
+      `Orçamento para ${nomeClienteLocal}: ${tipoViagemLocal} de ${orcamento.origem} para ${orcamento.destino}. Valor: R$ ${valorFormatado}.`
+    );
+  }, [tipoViagemLocal, orcamento, nomeClienteLocal]);
 
   if (!orcamento) {
     return null;
