@@ -50,7 +50,7 @@ const EmpresaInfo = styled.div`
   justify-content: space-between;
 
   @media (max-width: 768px) {
-    margin-top: 2.5rem;
+    margin-top: 5rem;
   }
 `;
 
