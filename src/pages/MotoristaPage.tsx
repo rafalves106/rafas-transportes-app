@@ -42,6 +42,7 @@ export function MotoristaPage() {
         viagemService.listar(),
       ]);
       setMotoristas(motoristasData);
+      console.log("Motoristas carregados:", motoristasData);
       setViagens(viagensData);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -148,6 +149,7 @@ export function MotoristaPage() {
   const motoristaParaEditar = driverId
     ? motoristas.find((d) => d.id === parseInt(driverId))
     : undefined;
+  console.log("Motorista passado para o Outlet:", motoristaParaEditar);
 
   return (
     <div>

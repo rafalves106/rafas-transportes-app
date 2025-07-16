@@ -41,6 +41,7 @@ export function FormularioNovoMotorista() {
 
   useEffect(() => {
     if (isEditing && motorista) {
+      console.log("Motorista recebido no formulário:", motorista);
       setDados({
         nome: motorista.nome,
         cpf: motorista.cpf,
