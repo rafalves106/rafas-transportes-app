@@ -79,7 +79,7 @@ export function ModalGlobal({ title, children, onClose }: ModalGlobalProps) {
   }, [onClose]);
 
   return (
-    <Backdrop onClick={onClose}>
+    <Backdrop>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <h2>{title}</h2>

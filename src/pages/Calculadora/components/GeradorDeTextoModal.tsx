@@ -135,6 +135,8 @@ export function GeradorDeTextoModal({
     null
   );
 
+  const mostraVolta = tipoViagemLocal.includes("ida_e_volta");
+
   useEffect(() => {
     if (orcamento) {
       setNomeClienteLocal(orcamento.nomeCliente || "");
@@ -317,15 +319,19 @@ Equipe Rafas Transportes`;
               onChange={(e) => setDescricaoIdaLocal(e.target.value)}
             />
           </InputGroup>
-          <InputGroup>
-            <Label htmlFor="descricaoVolta">Descrição Percurso de Volta</Label>
-            <StyledTextarea
-              id="descricaoVolta"
-              name="descricaoVolta"
-              value={descricaoVoltaLocal}
-              onChange={(e) => setDescricaoVoltaLocal(e.target.value)}
-            />
-          </InputGroup>
+          {mostraVolta && (
+            <InputGroup>
+              <Label htmlFor="descricaoVolta">
+                Descrição Percurso de Volta
+              </Label>
+              <StyledTextarea
+                id="descricaoVolta"
+                name="descricaoVolta"
+                value={descricaoVoltaLocal}
+                onChange={(e) => setDescricaoVoltaLocal(e.target.value)}
+              />
+            </InputGroup>
+          )}
         </FormSectionInModal>
 
         <div
