@@ -23,6 +23,10 @@ const CalendarGrid = styled.div`
   gap: 0.75rem;
   background-color: transparent;
   padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 `;
 
 const DayHeader = styled.div`
