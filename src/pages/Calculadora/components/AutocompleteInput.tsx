@@ -6,6 +6,7 @@ import cidadesJson from "../../../data/cidades.json";
 const AutocompleteContainer = styled.div`
   position: relative;
 `;
+
 const SuggestionsList = styled.ul`
   position: absolute;
   background-color: white;
@@ -17,9 +18,10 @@ const SuggestionsList = styled.ul`
   width: 100%;
   z-index: 10;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
 `;
+
 const SuggestionItem = styled.li`
   padding: 0.75rem;
   cursor: pointer;
@@ -61,7 +63,7 @@ export function AutocompleteInput({
       return;
     }
 
-    const textoDigitadoLimpo = removerAcentos(inputValue); // Limpa o que o usuário digitou
+    const textoDigitadoLimpo = removerAcentos(inputValue);
 
     const filteredSugestoes = todasAsCidadesComEstado
       .filter((cidade) => {

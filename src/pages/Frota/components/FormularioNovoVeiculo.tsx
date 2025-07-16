@@ -78,10 +78,18 @@ export function FormularioNovoVeiculo() {
       id={isEditing ? `form-editar-veiculo-${vehicleId}` : "form-novo-veiculo"}
       onSubmit={handleSubmit}
     >
-      <Label>Modelo:</Label>
-      <Input name="model" value={dados.model} onChange={handleInputChange} />
-      <Label>Placa:</Label>
-      <Input name="plate" value={dados.plate} onChange={handleInputChange} />
+      <Input
+        name="model"
+        placeholder="Modelo:"
+        value={dados.model}
+        onChange={handleInputChange}
+      />
+      <Input
+        name="plate"
+        placeholder="Placa:"
+        value={dados.plate}
+        onChange={handleInputChange}
+      />
       <Label>Status:</Label>
       <Select name="status" value={dados.status} onChange={handleInputChange}>
         <option value="Ativo">Ativo</option>

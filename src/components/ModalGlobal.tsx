@@ -30,6 +30,11 @@ const ModalContainer = styled.div`
   max-width: 70vw;
   max-height: 95vh;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    max-width: 75vw;
+    overflow-y: auto;
+  }
 `;
 
 const ModalHeader = styled.header`
@@ -40,6 +45,11 @@ const ModalHeader = styled.header`
   justify-content: space-between;
   align-items: center;
 
+  @media (max-width: 768px) {
+    margin: 0 1rem;
+    padding: 0.5rem 0;
+  }
+
   h2 {
     margin: 0;
     font-size: 1.25rem;
@@ -49,6 +59,10 @@ const ModalHeader = styled.header`
 const ModalBody = styled.div`
   padding: 1.5rem 2rem;
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const CloseButton = styled.button`

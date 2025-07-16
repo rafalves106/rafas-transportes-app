@@ -6,17 +6,9 @@ import { ListaDeVeiculos } from "./Frota/components/ListaDeVeiculos";
 import type { Vehicle } from "../services/veiculoService";
 import { veiculoService } from "../services/veiculoService";
 import { Button } from "../components/ui/Button";
-import { styled } from "styled-components";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
-
-const ModalFooter = styled.footer`
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-`;
+import { ModalFooter } from "../components/ui/ModalFooter";
 
 export function FrotaPage() {
   const [veiculos, setVeiculos] = useState<Vehicle[]>([]);

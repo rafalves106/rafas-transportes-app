@@ -4,7 +4,7 @@ import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeManutencoes } from "./Manutencoes/components/ListaDeManutencoes";
 import { Button } from "../components/ui/Button";
-import { styled } from "styled-components";
+import { ModalFooter } from "../components/ui/ModalFooter";
 
 import {
   manutencaoService,
@@ -13,14 +13,6 @@ import {
 import { veiculoService, type Vehicle } from "../services/veiculoService";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
-
-const ModalFooter = styled.footer`
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-`;
 
 export function ManutencaoPage() {
   const { maintenanceId } = useParams();

@@ -1,6 +1,12 @@
 import { styled } from "styled-components";
 
-export const FormContainer = styled.form``;
+export const FormContainer = styled.form`
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+`;
 
 export const InputGroup = styled.div`
   display: flex;
@@ -22,6 +28,9 @@ export const Input = styled.input<{ hasError?: boolean }>`
     ${(props) => (props.hasError ? "var(--cor-remover)" : "var(--cor-bordas)")};
   background-color: transparent;
   border-radius: 6px;
+
+  @media (max-width: 768px) {
+  }
 `;
 
 export const Select = styled.select<{ hasError?: boolean }>`

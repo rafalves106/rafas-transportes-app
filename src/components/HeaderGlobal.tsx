@@ -41,6 +41,13 @@ const HeaderContainer = styled.header`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.75rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem 1rem 0 1rem;
+    flex-direction: column;
+    align-items: start;
+    gap: 1rem;
+  }
 `;
 
 const AppInfo = styled.div`
@@ -66,6 +73,10 @@ const AppTitle = styled.h2`
   margin: 0;
   font-weight: 600;
   color: var(--cor-titulos);
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
 `;
 
 const AcoesContainer = styled.div`
@@ -178,12 +189,17 @@ export function HeaderGlobal({
               <DropdownLink to="/frota">Frota de Veículos</DropdownLink>
               <DropdownLink to="/motoristas">Motoristas</DropdownLink>
               <DropdownLink to="/calculadora">Calculadora</DropdownLink>
+              <DropdownLink to="/orcamentos">Orçamentos</DropdownLink>
             </AppSwitcherDropdown>
           )}
         </AppSwitcherContainer>
 
         {showActionButton && (
-          <Button variant="primary" onClick={onNovoItemClick}>
+          <Button
+            style={{ width: "12rem" }}
+            variant="primary"
+            onClick={onNovoItemClick}
+          >
             <span style={{ fontSize: "1.2rem", marginRight: "0.25rem" }}>
               +
             </span>{" "}

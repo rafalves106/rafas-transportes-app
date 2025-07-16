@@ -26,7 +26,14 @@ import {
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 30% 1fr;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
 `;
+
 const FormSectionSide = styled.div`
   display: flex;
   flex-direction: column;
@@ -35,6 +42,13 @@ const FormSectionSide = styled.div`
   border-right: 1px solid #e9ecef;
   max-height: calc(90vh - 180px);
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+    padding: 0;
+    border: none;
+    max-height: 100%;
+  }
 `;
 
 const FormSection = styled.div`
@@ -44,7 +58,15 @@ const FormSection = styled.div`
   gap: 1.5rem;
   max-height: calc(90vh - 180px);
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    margin-top: 1rem;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid #e9ecef;
+  }
 `;
+
 const SectionTitle = styled.h3`
   font-size: 1rem;
   color: #343a40;
@@ -52,6 +74,11 @@ const SectionTitle = styled.h3`
   margin: 0;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #e9ecef;
+
+  @media (max-width: 768px) {
+    border: none;
+    padding: 0;
+  }
 `;
 
 const RotaVeiculoBloco = styled.div`
@@ -439,11 +466,11 @@ export function FormularioNovaViagem() {
           <FormSectionSide>
             <InputGroup>
               <SectionTitle>Dados da Reserva</SectionTitle>
-              <Label htmlFor="title">Título da Reserva</Label>
               <Input
                 id="title"
                 name="title"
                 type="text"
+                placeholder="Título da Reserva"
                 value={dadosFormulario.title}
                 onChange={handleInputChange}
                 hasError={!!erros.title}
@@ -452,11 +479,11 @@ export function FormularioNovaViagem() {
             </InputGroup>
             <InputGroup>
               <SectionTitle>Dados Cliente</SectionTitle>
-              <Label htmlFor="clientName">Nome Cliente</Label>
               <Input
                 id="clientName"
                 name="clientName"
                 type="text"
+                placeholder="Nome Cliente"
                 value={dadosFormulario.clientName}
                 onChange={handleInputChange}
                 hasError={!!erros.clientName}
@@ -464,11 +491,11 @@ export function FormularioNovaViagem() {
               {erros.clientName && (
                 <ErrorMessage>{erros.clientName}</ErrorMessage>
               )}
-              <Label htmlFor="telefone">Telefone Cliente</Label>
               <Input
                 id="telefone"
                 name="telefone"
                 type="text"
+                placeholder="Telefone Cliente"
                 value={dadosFormulario.telefone}
                 onChange={handleInputChange}
               />
@@ -479,9 +506,6 @@ export function FormularioNovaViagem() {
                 {dadosFormulario.veiculos.map((veiculo, index) => (
                   <div key={index}>
                     <LabelContainer>
-                      <Label htmlFor={`veiculo-${index}`}>
-                        Veículo {index + 1}
-                      </Label>
                       {index > 0 && (
                         <Button
                           variant="danger"
@@ -525,9 +549,6 @@ export function FormularioNovaViagem() {
               {dadosFormulario.motoristas.map((motorista, index) => (
                 <div key={index}>
                   <LabelContainer>
-                    <Label htmlFor={`motorista-${index}`}>
-                      Motorista {index + 1}
-                    </Label>
                     {index > 0 && (
                       <Button
                         variant="danger"
@@ -566,12 +587,11 @@ export function FormularioNovaViagem() {
             </InputGroup>
             <InputGroup>
               <SectionTitle>Valores</SectionTitle>
-              <Label htmlFor="value">Valor do Serviço</Label>
               <Input
                 id="value"
                 name="value"
                 type="number"
-                placeholder="R$"
+                placeholder="R$ Valor do Serviço"
                 value={dadosFormulario.value}
                 onChange={handleInputChange}
                 hasError={!!erros.value}
@@ -581,7 +601,7 @@ export function FormularioNovaViagem() {
           </FormSectionSide>
           <FormSection>
             <InputGroup>
-              <Label htmlFor="tipoViagem">Tipo de Viagem</Label>
+              <SectionTitle>Dados da Viagem</SectionTitle>
               <Select
                 id="tipoViagem"
                 name="tipoViagem"
@@ -609,11 +629,11 @@ export function FormularioNovaViagem() {
                 <SectionTitle>Percurso de Ida</SectionTitle>
                 <InputRow>
                   <InputGroup>
-                    <Label htmlFor="startDate">Data de Início</Label>
                     <Input
                       id="startDate"
                       name="startDate"
                       type="date"
+                      placeholder="Data de Início"
                       value={dadosFormulario.startDate}
                       onChange={handleInputChange}
                       hasError={!!erros.startDate}
@@ -623,7 +643,6 @@ export function FormularioNovaViagem() {
                     )}
                   </InputGroup>
                   <InputGroup>
-                    <Label htmlFor="startTime">Hora Saída</Label>
                     <Input
                       id="startTime"
                       name="startTime"
@@ -638,7 +657,6 @@ export function FormularioNovaViagem() {
                   </InputGroup>
                 </InputRow>
                 <InputGroup>
-                  <Label htmlFor="startLocation">Descrição (Ida)</Label>
                   <Textarea
                     id="startLocation"
                     name="startLocation"
@@ -653,7 +671,6 @@ export function FormularioNovaViagem() {
                 <SectionTitle>Percurso de Volta</SectionTitle>
                 <InputRow>
                   <InputGroup>
-                    <Label htmlFor="endDate">Data de Retorno</Label>
                     <Input
                       id="endDate"
                       name="endDate"
@@ -667,7 +684,6 @@ export function FormularioNovaViagem() {
                     )}
                   </InputGroup>
                   <InputGroup>
-                    <Label htmlFor="endTime">Hora Volta</Label>
                     <Input
                       id="endTime"
                       name="endTime"
@@ -682,7 +698,6 @@ export function FormularioNovaViagem() {
                   </InputGroup>
                 </InputRow>
                 <InputGroup>
-                  <Label htmlFor="endLocation">Descrição (Volta)</Label>
                   <Textarea
                     id="endLocation"
                     name="endLocation"

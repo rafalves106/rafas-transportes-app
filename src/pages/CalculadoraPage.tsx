@@ -55,6 +55,12 @@ const MainGrid = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   gap: 2rem;
   align-items: start;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 `;
 
 const PageContainer = styled.div`
@@ -62,6 +68,10 @@ const PageContainer = styled.div`
   flex-direction: column;
   gap: 2rem;
   padding: 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 `;
 
 const ParametrosSection = styled.div`
@@ -81,6 +91,7 @@ const FormSection = styled.div`
   overflow-y: auto;
   grid-column: 1 / span 2;
 `;
+
 const ResultadoTitulo = styled.h3`
   margin-top: 0;
   margin-bottom: 1rem;

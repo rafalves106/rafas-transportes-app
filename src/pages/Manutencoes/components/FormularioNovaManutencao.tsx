@@ -11,7 +11,6 @@ import { Button } from "../../../components/ui/Button";
 import {
   FormContainer,
   InputGroup,
-  Label,
   Select,
   Input,
   ErrorMessage,
@@ -162,10 +161,10 @@ export function FormularioNovaManutencao() {
       onSubmit={handleSubmit}
     >
       <InputGroup>
-        <Label htmlFor="title">Título da Manutenção</Label>
         <Input
           id="title"
           name="title"
+          placeholder="Título da Manutenção"
           value={dados.title}
           onChange={handleInputChange}
           hasError={!!erros.title}
@@ -175,7 +174,6 @@ export function FormularioNovaManutencao() {
 
       <InputRow>
         <InputGroup>
-          <Label htmlFor="vehicleId">Veículo</Label>
           <Select
             id="veiculoId"
             name="veiculoId"
@@ -183,7 +181,7 @@ export function FormularioNovaManutencao() {
             onChange={handleInputChange}
             hasError={!!erros.veiculoId}
           >
-            <option value={0}>Selecione um veículo</option>
+            <option value={0}>Veículo</option>
             {listaDeVeiculos.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.model} ({v.plate})
@@ -194,7 +192,6 @@ export function FormularioNovaManutencao() {
         </InputGroup>
 
         <InputGroup>
-          <Label htmlFor="type">Tipo</Label>
           <Select
             id="type"
             name="type"
@@ -209,7 +206,6 @@ export function FormularioNovaManutencao() {
 
       <InputRow>
         <InputGroup>
-          <Label htmlFor="date">Data</Label>
           <Input
             id="date"
             name="date"
@@ -222,11 +218,11 @@ export function FormularioNovaManutencao() {
         </InputGroup>
 
         <InputGroup>
-          <Label htmlFor="cost">Custo (R$)</Label>
           <Input
             id="cost"
             name="cost"
             type="number"
+            placeholder="Custo (R$)"
             value={dados.cost}
             onChange={handleInputChange}
             hasError={!!erros.cost}
@@ -236,19 +232,17 @@ export function FormularioNovaManutencao() {
       </InputRow>
 
       <InputGroup>
-        <Label htmlFor="proximaKm">Próxima Manutenção (km)</Label>
         <Input
           id="proximaKm"
           name="proximaKm"
           type="number"
-          placeholder="Opcional"
+          placeholder="(Opcional) Próxima Manutenção (km)"
           value={dados.proximaKm}
           onChange={handleInputChange}
         />
       </InputGroup>
 
       <InputGroup>
-        <Label htmlFor="status">Status</Label>
         <Select
           id="status"
           name="status"

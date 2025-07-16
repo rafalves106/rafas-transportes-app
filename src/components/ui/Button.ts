@@ -23,6 +23,11 @@ const baseButtonStyles = css`
     filter: brightness(0.8);
     cursor: not-allowed;
   }
+
+  @media (max-width: 768px) {
+    min-width: 0rem;
+    padding: 0.5rem 0.5rem;
+  }
 `;
 
 const primaryStyles = css`

@@ -11,6 +11,7 @@ import { CalendarioMensal } from "./Planejamento/components/CalendarioMensal";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import { ModalFooter } from "../components/ui/ModalFooter";
 
 const ViewContainer = styled.div``;
 
@@ -45,14 +46,6 @@ const NavButton = styled.button`
   &:hover {
     background-color: var(--cor-de-fundo-cards);
   }
-`;
-
-const ModalFooter = styled.footer`
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
 `;
 
 export function PlanejamentoPage() {

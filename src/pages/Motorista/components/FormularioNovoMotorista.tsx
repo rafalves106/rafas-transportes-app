@@ -10,10 +10,10 @@ import { Button } from "../../../components/ui/Button";
 import {
   FormContainer,
   InputGroup,
-  Label,
   Input,
   Select,
   ErrorMessage,
+  Label,
 } from "../../../components/ui/Form";
 
 interface FormContextType {
@@ -128,19 +128,19 @@ export function FormularioNovoMotorista() {
       onSubmit={handleSubmit}
     >
       <InputGroup>
-        <Label htmlFor="nome">Nome Completo</Label>
         <Input
           name="nome"
           value={dados.nome}
+          placeholder="Nome Completo"
           onChange={handleInputChange}
           hasError={!!erros.nome}
         />
         {erros.nome && <ErrorMessage>{erros.nome}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
-        <Label htmlFor="cpf">CPF</Label>
         <Input
           name="cpf"
+          placeholder="CPF"
           value={dados.cpf}
           onChange={handleInputChange}
           hasError={!!erros.cpf}
@@ -148,9 +148,9 @@ export function FormularioNovoMotorista() {
         {erros.cpf && <ErrorMessage>{erros.cpf}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
-        <Label htmlFor="cnh">Nº da CNH</Label>
         <Input
           name="cnh"
+          placeholder="Nº da CNH"
           value={dados.cnh}
           onChange={handleInputChange}
           hasError={!!erros.cnh}
@@ -158,10 +158,11 @@ export function FormularioNovoMotorista() {
         {erros.cnh && <ErrorMessage>{erros.cnh}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
-        <Label htmlFor="validadeCnh">Validade da CNH</Label>
+        <Label htmlFor="validadeCnh">Validade</Label>
         <Input
           name="validadeCnh"
           type="date"
+          placeholder="Validade da CNH"
           value={dados.validadeCnh}
           onChange={handleInputChange}
           hasError={!!erros.validadeCnh}
@@ -169,9 +170,9 @@ export function FormularioNovoMotorista() {
         {erros.validadeCnh && <ErrorMessage>{erros.validadeCnh}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
-        <Label htmlFor="telefone">Telefone</Label>
         <Input
           name="telefone"
+          placeholder="Telefone"
           value={dados.telefone}
           onChange={handleInputChange}
         />
@@ -179,7 +180,6 @@ export function FormularioNovoMotorista() {
 
       {isEditing && (
         <InputGroup>
-          <Label htmlFor="status">Status</Label>
           <Select
             name="status"
             value={dados.status}

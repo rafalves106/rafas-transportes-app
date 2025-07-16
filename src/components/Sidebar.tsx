@@ -31,6 +31,7 @@ const SidebarContainer = styled.aside<{ isOpen: boolean }>`
   transition: transform 0.3s ease-in-out;
 
   @media (max-width: 768px) {
+    padding: 0 1rem;
     position: fixed;
     left: 0;
     top: 0;
@@ -58,6 +59,10 @@ const LogoContainer = styled.div`
   img {
     width: 4.5rem;
     height: auto;
+
+    @media (max-width: 760px) {
+      width: 6rem;
+    }
   }
 `;
 
@@ -70,10 +75,18 @@ const DataContainer = styled.div`
 const Naming = styled.h4`
   font-size: 0.9rem;
   font-weight: 600;
+
+  @media (max-width: 760px) {
+    font-size: 1.3rem;
+  }
 `;
 
 const Data = styled.p`
   font-size: 0.7rem;
+
+  @media (max-width: 760px) {
+    font-size: 1rem;
+  }
 `;
 
 const NavList = styled.nav`
@@ -162,7 +175,7 @@ export function Sidebar({
         </StyledNavLink>
         <StyledNavLink to="/orcamentos">
           <img src={orcamentoLogo} alt="Orçamentos" />
-          Orçamentos Salvos
+          Orçamentos
         </StyledNavLink>
       </NavList>
     </SidebarContainer>

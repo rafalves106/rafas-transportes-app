@@ -26,6 +26,10 @@ const TopBarContainer = styled.div`
   margin: 0.75rem 0;
   border-top: 1px solid var(--cor-bordas);
   border-bottom: 1px solid var(--cor-bordas);
+
+  @media (max-width: 768px) {
+    padding: 0.25rem;
+  }
 `;
 
 const ActionsContainer = styled.div`
@@ -36,11 +40,19 @@ const ActionsContainer = styled.div`
 
 const FilterTabsContainer = styled.div`
   display: flex;
+  flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
   gap: 3rem;
   padding-left: 2rem;
   margin: 0.75rem 0;
+
+  @media (max-width: 768px) {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0;
+    padding-left: 0rem;
+  }
 `;
 
 const ImgInput = styled.img`
@@ -56,6 +68,10 @@ const SearchInput = styled.input`
   border-radius: 6px;
   min-width: 250px;
   font-size: 1rem;
+
+  @media (max-width: 768px) {
+    min-width: 120px;
+  }
 `;
 
 export function FiltroGlobal({

@@ -40,6 +40,10 @@ const AreaDaPagina = styled.main`
   flex: 1;
   overflow-y: auto;
   padding: 0 2rem 2rem 2rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem 1rem 1rem;
+  }
 `;
 
 interface PageConfig {
@@ -102,10 +106,10 @@ const pageConfig: { [key: string]: PageConfig } = {
   },
   "/orcamentos": {
     icon: "📄",
-    title: "Orçamentos Salvos",
+    title: "Orçamentos",
     novoLabel: "Novo Orçamento",
     novoPath: "/orcamentos/novo",
-    showActionButton: true,
+    showActionButton: false,
   },
 };
 
