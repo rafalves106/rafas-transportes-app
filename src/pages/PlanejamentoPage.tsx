@@ -80,7 +80,21 @@ export function PlanejamentoPage() {
     setError(null);
     try {
       const data = await viagemService.listar();
-      setViagens(data);
+
+      const dadosOrdenados = data.sort((a, b) => {
+        const dataInicioA = new Date(a.startDate);
+        const dataInicioB = new Date(b.startDate);
+
+        if (dataInicioA.getTime() !== dataInicioB.getTime()) {
+          return dataInicioA.getTime() - dataInicioB.getTime();
+        }
+
+        const dataFimA = new Date(a.endDate);
+        const dataFimB = new Date(b.endDate);
+        return dataFimA.getTime() - dataFimB.getTime();
+      });
+
+      setViagens(dadosOrdenados);
     } catch (err) {
       console.error("Erro capturado no frontend (PlanejamentoPage.tsx):", err);
       if (axios.isAxiosError(err)) {
