@@ -42,7 +42,15 @@ const AreaDaPagina = styled.main`
   padding: 0 2rem 2rem 2rem;
 `;
 
-const pageConfig = {
+interface PageConfig {
+  icon: string;
+  title: string;
+  novoLabel: string;
+  novoPath: string;
+  showActionButton: boolean;
+}
+
+const pageConfig: { [key: string]: PageConfig } = {
   "/": {
     icon: "📅",
     title: "Planejamento",
@@ -95,16 +103,17 @@ const pageConfig = {
   "/orcamentos": {
     icon: "📄",
     title: "Orçamentos Salvos",
-    novoLabel: "",
-    novoPath: "",
-    showActionButton: false,
+    novoLabel: "Novo Orçamento",
+    novoPath: "/orcamentos/novo",
+    showActionButton: true,
   },
 };
 
-const defaultConfig = {
+const defaultConfig: PageConfig = {
   icon: "⭐",
   title: "Dashboard",
   novoLabel: "Novo Item",
+  novoPath: "/",
   showActionButton: false,
 };
 
@@ -135,8 +144,11 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  // CORREÇÃO APLICADA AQUI
   const handleNovoItemClick = () => {
-    navigate(`${location.pathname}/novo`);
+    if (configAtual.novoPath) {
+      navigate(configAtual.novoPath);
+    }
   };
 
   return (
