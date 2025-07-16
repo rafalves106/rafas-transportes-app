@@ -37,6 +37,7 @@ const SidebarContainer = styled.aside<{ isOpen: boolean }>`
     height: 100vh;
     width: 100vw;
     margin: 0;
+    margin-top: 2.5rem;
     z-index: 1000;
     border: none;
     transform: ${({ isOpen }) =>
