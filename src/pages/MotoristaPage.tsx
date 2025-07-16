@@ -176,6 +176,7 @@ export function MotoristaPage() {
           onClose={() => navigate("/motoristas")}
         >
           <Outlet
+            key={driverId || "novo"}
             context={{
               onSuccess: handleSuccess,
               onExcluir: handleExcluir,
