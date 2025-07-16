@@ -72,6 +72,9 @@ export function FormularioNovoMotorista() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log("DADOS QUE SERÃO ENVIADOS:", dados);
+
     const errosDeValidacao = validate();
     if (Object.keys(errosDeValidacao).length > 0) {
       setErros(errosDeValidacao);
