@@ -15,16 +15,33 @@ interface SidebarProps {
   novoItemLabel: string;
   onNovoItemClick: () => void;
   showActionButton: boolean;
+  isOpen: boolean;
 }
 
-const SidebarContainer = styled.aside`
+const SidebarContainer = styled.aside<{ isOpen: boolean }>`
+  background-color: var(--cor-de-fundo);
   width: 280px;
+  min-width: 280px;
   margin: 2.5rem 0;
   padding: 0 2rem;
   border-right: 1px solid #dee2e6;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  transition: transform 0.3s ease-in-out;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    z-index: 1000;
+    border: none;
+    transform: ${({ isOpen }) =>
+      isOpen ? "translateX(0)" : "translateX(-100%)"};
+  }
 `;
 
 const EmpresaInfo = styled.div`
@@ -92,9 +109,10 @@ export function Sidebar({
   novoItemLabel,
   onNovoItemClick,
   showActionButton,
+  isOpen,
 }: SidebarProps) {
   return (
-    <SidebarContainer>
+    <SidebarContainer isOpen={isOpen}>
       <EmpresaInfo>
         <LogoContainer>
           <img src={logo} alt="Logo" />

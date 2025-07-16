@@ -10,7 +10,30 @@ interface HeaderGlobalProps {
   onNovoItemClick: () => void;
   novoItemLabel: string;
   showActionButton: boolean;
+  onToggleMenu: () => void;
 }
+
+const HambuguerButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 1rem;
+  z-index: 1100;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+
+  span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--cor-titulos);
+    margin: 5px 0;
+  }
+`;
 
 const HeaderContainer = styled.header`
   padding: 1rem 2rem 0 2rem;
@@ -53,6 +76,10 @@ const AcoesContainer = styled.div`
 
 const AppSwitcherContainer = styled.div`
   position: relative;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const AppSwitcherButton = styled.button`
@@ -98,6 +125,7 @@ export function HeaderGlobal({
   onNovoItemClick,
   novoItemLabel,
   showActionButton,
+  onToggleMenu,
 }: HeaderGlobalProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -126,6 +154,11 @@ export function HeaderGlobal({
   return (
     <HeaderContainer>
       <AppInfo>
+        <HambuguerButton onClick={onToggleMenu}>
+          <span />
+          <span />
+          <span />
+        </HambuguerButton>
         <AppIconContainer>{appIcon}</AppIconContainer>
         <AppTitle>{appTitle}</AppTitle>
       </AppInfo>
