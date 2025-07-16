@@ -12,6 +12,7 @@ import logo from "../../assets/logo.webp";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
 import axios from "axios";
 
 const LoginContainer = styled.div`
@@ -68,7 +69,7 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:8080/login", dados);
+      const response = await api.post("/login", dados);
 
       login(response.data.token);
       navigate("/");
