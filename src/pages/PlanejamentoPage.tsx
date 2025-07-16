@@ -225,7 +225,7 @@ export function PlanejamentoPage() {
           <Outlet
             context={{
               onSuccess: handleSuccess,
-              onExcluir: handleExcluir,
+              onExcluirViagem: handleExcluir,
               viagem: viagemParaEditar,
             }}
           />
