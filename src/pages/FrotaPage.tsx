@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams, Outlet, useOutlet } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
@@ -33,7 +33,7 @@ export function FrotaPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchVeiculos = async () => {
+  const fetchVeiculos = useCallback(async () => {
     if (!isLoggedIn) {
       setLoading(false);
       return;
@@ -41,6 +41,7 @@ export function FrotaPage() {
 
     setLoading(true);
     setError(null);
+
     try {
       const data = await veiculoService.listar();
 
@@ -82,11 +83,11 @@ export function FrotaPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     fetchVeiculos();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, fetchVeiculos]);
 
   const handleAdicionar = async (dados: Omit<Vehicle, "id">) => {
     try {

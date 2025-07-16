@@ -494,7 +494,7 @@ export function FormularioNovaViagem() {
                     </LabelContainer>
                     <Select
                       id={`veiculo-${index}`}
-                      value={dadosFormulario.veiculos[0]?.id || ""}
+                      value={veiculo.id}
                       onChange={(e) =>
                         handleDynamicListChange(index, e, "veiculos")
                       }
@@ -540,7 +540,7 @@ export function FormularioNovaViagem() {
                   </LabelContainer>
                   <Select
                     id={`motorista-${index}`}
-                    value={dadosFormulario.motoristas[0]?.id || ""}
+                    value={motorista.id}
                     onChange={(e) =>
                       handleDynamicListChange(index, e, "motoristas")
                     }

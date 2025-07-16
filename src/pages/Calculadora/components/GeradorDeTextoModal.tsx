@@ -169,7 +169,7 @@ export function GeradorDeTextoModal({
         setTextoGeradoLocal(orcamento.textoGerado);
       }
     }
-  }, [orcamento]);
+  }, [orcamento, tipoViagemLocal]);
 
   useEffect(() => {
     if (orcamento) {

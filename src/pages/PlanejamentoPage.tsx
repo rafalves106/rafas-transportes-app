@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { ListaDeViagens } from "./Planejamento/components/ListaDeViagens";
 import { ModalGlobal } from "../components/ModalGlobal";
@@ -70,7 +70,7 @@ export function PlanejamentoPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const carregarViagens = async () => {
+  const carregarViagens = useCallback(async () => {
     if (!isLoggedIn) {
       setLoading(false);
       return;
@@ -105,11 +105,11 @@ export function PlanejamentoPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     carregarViagens();
-  }, [isLoggedIn]);
+  }, [carregarViagens]);
 
   const filtrosPlanejamento: Filtro[] = [
     { id: "proximas", label: "Próximas" },

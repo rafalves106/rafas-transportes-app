@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
@@ -36,7 +36,7 @@ export function MotoristaPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const carregarDados = async () => {
+  const carregarDados = useCallback(async () => {
     if (!isLoggedIn) {
       setLoading(false);
       return;
@@ -74,11 +74,11 @@ export function MotoristaPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     carregarDados();
-  }, [isLoggedIn]);
+  }, [carregarDados]);
 
   const filtros: Filtro[] = [
     { id: "Em Serviço", label: "Em Serviço" },

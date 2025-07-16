@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
@@ -37,7 +37,7 @@ export function ManutencaoPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!isLoggedIn) {
       setLoading(false);
       return;
@@ -75,11 +75,11 @@ export function ManutencaoPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     fetchData();
-  }, [isLoggedIn]);
+  }, [fetchData]);
 
   const filtros: Filtro[] = [
     { id: "Agendada", label: "Agendadas" },
