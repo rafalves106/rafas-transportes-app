@@ -17,11 +17,10 @@ public class DatabaseInitializer {
     @Bean
     public CommandLineRunner initDatabase(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (usuarioRepository.findByLogin("admin") == null) {
+            if (usuarioRepository.findByLogin("rafas") == null) {
                 String senhaCriptografada = passwordEncoder.encode("rafastur");
                 Usuario adminUser = new Usuario("rafas", senhaCriptografada);
                 usuarioRepository.save(adminUser);
-                System.out.println("Usuário 'admin' criado com sucesso!");
             } else {
                 System.out.println("Usuário 'admin' já existe no banco de dados.");
             }
