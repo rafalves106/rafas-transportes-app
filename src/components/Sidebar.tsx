@@ -37,7 +37,6 @@ const SidebarContainer = styled.aside<{ isOpen: boolean }>`
     height: 100vh;
     width: 100vw;
     margin: 0;
-    margin-top: 2.5rem;
     z-index: 1000;
     border: none;
     transform: ${({ isOpen }) =>
@@ -49,6 +48,10 @@ const EmpresaInfo = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  @media (max-width: 768px) {
+    margin-top: 2.5rem;
+  }
 `;
 
 const LogoContainer = styled.div`
