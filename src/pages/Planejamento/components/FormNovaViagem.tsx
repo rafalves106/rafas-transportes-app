@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useOutletContext, useParams, useLocation } from "react-router-dom";
 import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
+import { TipoViagem } from "../../../services/viagemService";
+
 import { Button } from "../../../components/ui/Button";
 
 import {
@@ -123,7 +125,7 @@ export function FormularioNovaViagem() {
     clientName: "",
     telefone: "",
     value: "",
-    tipoViagem: "ida_e_volta_mg",
+    tipo: TipoViagem.FRETAMENTO_AEROPORTO,
     startDate: "",
     startTime: "",
     startLocation: "",
@@ -168,12 +170,12 @@ export function FormularioNovaViagem() {
         endTime: viagem.endTime,
         clientName: viagem.clientName || "",
         telefone: viagem.telefone || "",
-        value: String(viagem.valor || ""),
+        value: viagem.valor ? String(viagem.valor) : "",
         startLocation: viagem.startLocation || "",
         endLocation: viagem.endLocation || "",
         veiculos: [{ id: String(viagem.veiculoId || "") }],
         motoristas: [{ id: String(viagem.motoristaId || "") }],
-        tipoViagem: viagem.tipoViagem || "ida_e_volta_mg",
+        tipo: viagem.tipo || TipoViagem.IDA_E_VOLTA_MG,
       }));
       setIsPrePopulatedFromBudget(false);
       return;
@@ -190,7 +192,7 @@ export function FormularioNovaViagem() {
         value: dadosDoOrcamento.valorTotal
           ? String(dadosDoOrcamento.valorTotal.toFixed(2))
           : "",
-        tipoViagem: dadosDoOrcamento.tipoViagemOrcamento || "ida_e_volta_mg",
+        tipo: dadosDoOrcamento.tipoViagemOrcamento || TipoViagem.IDA_E_VOLTA_MG,
         startLocation:
           dadosDoOrcamento.descricaoIdaOrcamento ||
           dadosDoOrcamento.origem ||
@@ -218,7 +220,7 @@ export function FormularioNovaViagem() {
         clientName: "",
         telefone: "",
         value: "",
-        tipoViagem: "ida_e_volta_mg",
+        tipo: TipoViagem.IDA_E_VOLTA_MG,
         startDate: "",
         startTime: "",
         startLocation: "",
@@ -231,7 +233,7 @@ export function FormularioNovaViagem() {
       }));
       setIsPrePopulatedFromBudget(false);
     }
-  }, [isEditing, viagem, location.state]);
+  }, [isEditing, viagem, location]);
 
   useEffect(() => {
     if (isEditing || isPrePopulatedFromBudget) return;
@@ -239,32 +241,42 @@ export function FormularioNovaViagem() {
     let textoIda = "";
     let textoVolta = "";
 
-    switch (dadosFormulario.tipoViagem) {
-      case "fretamento_aeroporto":
+    switch (dadosFormulario.tipo) {
+      case TipoViagem.FRETAMENTO_AEROPORTO:
         textoIda =
           "Buscar passageiros em [ENDEREÇO] e levar ao Aeroporto de Confins.";
         textoVolta =
           "Buscar passageiros no Aeroporto de Confins e levar para [ENDEREÇO].";
         break;
-      case "ida_e_volta_mg":
+
+      case TipoViagem.IDA_E_VOLTA_MG:
         textoIda = "Percurso de ida para [CIDADE-DESTINO].";
         textoVolta = "Percurso de volta de [CIDADE-DESTINO].";
         break;
-      case "somente_ida_mg":
+
+      case TipoViagem.SOMENTE_IDA_MG:
         textoIda = "Percurso somente de ida para [CIDADE-DESTINO].";
         textoVolta = "";
         break;
-      case "ida_e_volta_fora_mg":
+
+      case TipoViagem.IDA_E_VOLTA_FORA_MG:
         textoIda =
           "Percurso ida e volta saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
         textoVolta =
           "Volta do percurso saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
         break;
-      case "somente_ida_fora_mg":
+
+      case TipoViagem.SOMENTE_IDA_FORA_MG:
         textoIda =
           "Percurso somente ida saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
         textoVolta = "";
         break;
+
+      case TipoViagem.ROTA_COLABORADORES:
+        textoIda = "";
+        textoVolta = "";
+        break;
+
       default:
         textoIda = "";
         textoVolta = "";
@@ -276,7 +288,7 @@ export function FormularioNovaViagem() {
       startLocation: textoIda,
       endLocation: textoVolta,
     }));
-  }, [dadosFormulario.tipoViagem, isEditing, isPrePopulatedFromBudget]);
+  }, [dadosFormulario.tipo, isEditing, isPrePopulatedFromBudget]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -375,14 +387,14 @@ export function FormularioNovaViagem() {
       novosErros.clientName = "Nome é obrigatório.";
     if (!dadosFormulario.value || parseFloat(dadosFormulario.value) <= 0)
       novosErros.value = "Valor é obrigatório.";
-    const isRota = dadosFormulario.tipoViagem === "rota_colaboradores";
+    const isRota = dadosFormulario.tipo === "ROTA_COLABORADORES";
     if (!isRota) {
       if (!dadosFormulario.startDate)
         novosErros.startDate = "Data de início é obrigatória.";
       if (!dadosFormulario.startTime)
         novosErros.startTime = "Hora de saída é obrigatória.";
     }
-    const isIdaEVolta = dadosFormulario.tipoViagem.includes("ida_e_volta");
+    const isIdaEVolta = dadosFormulario.tipo.includes("ida_e_volta");
     if (isIdaEVolta) {
       if (!dadosFormulario.endDate)
         novosErros.endDate = "Data de retorno é obrigatória.";
@@ -414,7 +426,7 @@ export function FormularioNovaViagem() {
       startTime: dadosFormulario.startTime,
       endDate: dadosFormulario.endDate,
       endTime: dadosFormulario.endTime,
-      tipoViagem: dadosFormulario.tipoViagem,
+      tipo: dadosFormulario.tipo,
     };
 
     if (!dadosParaApi.veiculoId || !dadosParaApi.motoristaId) {
@@ -444,18 +456,13 @@ export function FormularioNovaViagem() {
     setIsConfirmModalOpen(false);
   };
 
-  const isRota = dadosFormulario.tipoViagem === "rota_colaboradores";
-  const mostraPercursoIda = [
-    "ida_e_volta_mg",
-    "somente_ida_mg",
-    "ida_e_volta_fora_mg",
-    "somente_ida_fora_mg",
-    "fretamento_aeroporto",
-  ].includes(dadosFormulario.tipoViagem);
+  const isRota = dadosFormulario.tipo === TipoViagem.ROTA_COLABORADORES;
+
   const mostraPercursoVolta = [
-    "ida_e_volta_mg",
-    "ida_e_volta_fora_mg",
-  ].includes(dadosFormulario.tipoViagem);
+    TipoViagem.FRETAMENTO_AEROPORTO,
+    TipoViagem.IDA_E_VOLTA_MG,
+    TipoViagem.IDA_E_VOLTA_FORA_MG,
+  ].includes(dadosFormulario.tipo);
 
   return (
     <>
@@ -495,6 +502,7 @@ export function FormularioNovaViagem() {
               <Input
                 id="telefone"
                 name="telefone"
+                placeholder="Telefone Cliente"
                 value={dadosFormulario.telefone}
                 onChange={handleInputChange}
                 inputMode="numeric"
@@ -604,28 +612,35 @@ export function FormularioNovaViagem() {
             <InputGroup>
               <SectionTitle>Dados da Viagem</SectionTitle>
               <Select
-                id="tipoViagem"
-                name="tipoViagem"
-                value={dadosFormulario.tipoViagem}
-                onChange={handleInputChange}
+                value={dadosFormulario.tipo}
+                onChange={(e) =>
+                  setDadosFormulario((prev) => ({
+                    ...prev,
+                    tipo: e.target.value as TipoViagem,
+                  }))
+                }
               >
-                <option value="fretamento_aeroporto">
+                <option value={TipoViagem.FRETAMENTO_AEROPORTO}>
                   Fretamento Aeroporto
                 </option>
-                <option value="ida_e_volta_mg">Viagem Ida e Volta - MG</option>
-                <option value="somente_ida_mg">Viagem Somente Ida - MG</option>
-                <option value="ida_e_volta_fora_mg">
-                  Viagem Ida e Volta - Fora de MG
+                <option value={TipoViagem.IDA_E_VOLTA_MG}>
+                  Ida e volta (MG)
                 </option>
-                <option value="somente_ida_fora_mg">
-                  Viagem Somente Ida - Fora de MG
+                <option value={TipoViagem.SOMENTE_IDA_MG}>
+                  Somente ida (MG)
                 </option>
-                <option value="rota_colaboradores">
-                  Rota de Colaboradores
+                <option value={TipoViagem.IDA_E_VOLTA_FORA_MG}>
+                  Ida e volta (fora de MG)
+                </option>
+                <option value={TipoViagem.SOMENTE_IDA_FORA_MG}>
+                  Somente ida (fora de MG)
+                </option>
+                <option value={TipoViagem.ROTA_COLABORADORES}>
+                  Rota Colaboradores
                 </option>
               </Select>
             </InputGroup>
-            {mostraPercursoIda && (
+            {!isRota && (
               <>
                 <SectionTitle>Percurso de Ida</SectionTitle>
                 <InputRow>

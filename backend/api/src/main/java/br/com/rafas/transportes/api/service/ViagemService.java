@@ -69,7 +69,7 @@ public class ViagemService {
         viagem.setEndDate(dados.endDate());
         viagem.setEndTime(dados.endTime());
         viagem.setStatus(StatusViagem.AGENDADA);
-        viagem.setTipoViagem(TipoViagem.IDA_E_VOLTA_MG);
+        viagem.setTipoViagem(dados.tipo() != null ? dados.tipo() : TipoViagem.IDA_E_VOLTA_MG);
 
         viagemRepository.save(viagem);
 

@@ -1,7 +1,7 @@
 import api from "./api";
 
 export interface Viagem {
-  tipoViagem: string;
+  tipo: TipoViagem;
   id: number;
   title: string;
   clientName: string;
@@ -20,6 +20,15 @@ export interface Viagem {
   status: string;
 }
 
+export enum TipoViagem {
+  FRETAMENTO_AEROPORTO = "FRETAMENTO_AEROPORTO",
+  IDA_E_VOLTA_MG = "IDA_E_VOLTA_MG",
+  SOMENTE_IDA_MG = "SOMENTE_IDA_MG",
+  IDA_E_VOLTA_FORA_MG = "IDA_E_VOLTA_FORA_MG",
+  SOMENTE_IDA_FORA_MG = "SOMENTE_IDA_FORA_MG",
+  ROTA_COLABORADORES = "ROTA_COLABORADORES",
+}
+
 export interface CadastroViagemData {
   title: string;
   clientName: string;
@@ -33,7 +42,7 @@ export interface CadastroViagemData {
   startTime: string;
   endDate: string;
   endTime: string;
-  tipoViagem: string;
+  tipo: TipoViagem;
 }
 
 export type UpdateViagemData = Partial<CadastroViagemData>;
