@@ -50,7 +50,8 @@ export function FormularioNovoMotorista() {
         status: motorista.status,
       });
     }
-  }, [driverId, isEditing, motorista]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
