@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -46,6 +47,12 @@ public class ViagemService {
         var conflitosVeiculo = viagemRepository.findVeiculoConflitos(dados.veiculoId(), dados.startDate(), dados.endDate());
         if (!conflitosVeiculo.isEmpty()) {
             throw new ValidationException("Conflito de agendamento: O veículo já está em outra viagem neste período.");
+        }
+
+        if (dados.startDate() != null && dados.endDate() != null) {
+            if (dados.endDate().isBefore(dados.startDate())) {
+                throw new ValidationException("Data de retorno não pode ser anterior à data de saída.");
+            }
         }
 
         var viagem = new Viagem();
@@ -79,6 +86,15 @@ public class ViagemService {
     public Viagem atualizar(Long id, DadosAtualizacaoViagem dados) {
         var viagem = viagemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Viagem não encontrada"));
+
+        LocalDate startDate = dados.startDate() != null ? dados.startDate() : viagem.getStartDate();
+        LocalDate endDate = dados.endDate() != null ? dados.endDate() : viagem.getEndDate();
+
+        if (startDate != null && endDate != null) {
+            if (endDate.isBefore(startDate)) {
+                throw new ValidationException("Data de retorno não pode ser anterior à data de saída.");
+            }
+        }
 
         if (dados.title() != null) viagem.setTitle(dados.title());
         if (dados.clientName() != null) viagem.setClientName(dados.clientName());
