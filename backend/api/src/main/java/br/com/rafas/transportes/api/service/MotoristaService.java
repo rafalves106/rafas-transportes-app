@@ -29,18 +29,16 @@ public class MotoristaService {
   private MotoristaRepository repository;
 
   public Motorista cadastrar(DadosCadastroMotorista dados) {
-    if (repository.existsByCpf(dados.cpf())) {
-      throw new ValidationException("CPF já cadastrado no sistema.");
+    if (repository.existsByNome(dados.nome())) {
+      throw new ValidationException("Nome já cadastrado no sistema.");
     }
 
-    if (repository.existsByCnh(dados.cnh())) {
-      throw new ValidationException("CNH já cadastrada no sistema.");
+    if (repository.existsByTel(dados.telefone())) {
+      throw new ValidationException("Telefone já cadastrada no sistema.");
     }
 
     var motorista = new Motorista();
     motorista.setNome(dados.nome());
-    motorista.setCpf(dados.cpf());
-    motorista.setCnh(dados.cnh());
     motorista.setValidadeCnh(dados.validadeCnh());
     motorista.setTelefone(dados.telefone());
     motorista.setStatus(StatusMotorista.ATIVO);
@@ -86,12 +84,6 @@ public class MotoristaService {
     }
     if (dados.telefone() != null) {
       motorista.setTelefone(dados.telefone());
-    }
-    if (dados.cpf() != null) {
-      motorista.setCpf(dados.cpf());
-    }
-    if (dados.cnh() != null) {
-      motorista.setCnh(dados.cnh());
     }
     if (dados.validadeCnh() != null) {
       motorista.setValidadeCnh(dados.validadeCnh());

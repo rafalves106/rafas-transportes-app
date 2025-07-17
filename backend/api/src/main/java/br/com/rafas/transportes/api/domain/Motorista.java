@@ -25,12 +25,6 @@ public class Motorista {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false, unique = true)
-    private String cpf;
-
-    @Column(nullable = false, unique = true)
-    private String cnh;
-
     private LocalDate validadeCnh;
 
     private String telefone;

@@ -109,11 +109,7 @@ export function MotoristaPage() {
           return false;
       }
     })
-    .filter(
-      (d) =>
-        d.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
-        d.cnh.toLowerCase().includes(termoBusca.toLowerCase())
-    );
+    .filter((d) => d.nome.toLowerCase().includes(termoBusca.toLowerCase()));
 
   const handleSuccess = (motoristaAtualizado?: Driver) => {
     if (motoristaAtualizado) {

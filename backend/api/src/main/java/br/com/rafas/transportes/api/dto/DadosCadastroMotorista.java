@@ -13,12 +13,6 @@ public record DadosCadastroMotorista(
         @NotBlank
         String nome,
 
-        @NotBlank
-        String cpf,
-
-        @NotBlank
-        String cnh,
-
         @Future
         LocalDate validadeCnh,
 

@@ -3,8 +3,6 @@ import api from "./api";
 export interface Driver {
   id: number;
   nome: string;
-  cpf: string;
-  cnh: string;
   validadeCnh: string;
   telefone: string;
   status: string;

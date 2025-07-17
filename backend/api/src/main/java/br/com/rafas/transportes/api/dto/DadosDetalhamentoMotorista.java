@@ -12,8 +12,6 @@ import java.time.LocalDate;
 public record DadosDetalhamentoMotorista(
         Long id,
         String nome,
-        String cpf,
-        String cnh,
         LocalDate validadeCnh,
         String telefone,
         StatusMotorista status
@@ -22,8 +20,6 @@ public record DadosDetalhamentoMotorista(
         this(
                 motorista.getId(),
                 motorista.getNome(),
-                motorista.getCpf(),
-                motorista.getCnh(),
                 motorista.getValidadeCnh(),
                 motorista.getTelefone(),
                 motorista.getStatus()

@@ -32,8 +32,6 @@ export function FormularioNovoMotorista() {
 
   const [dados, setDados] = useState<FormState>({
     nome: "",
-    cpf: "",
-    cnh: "",
     validadeCnh: "",
     telefone: "",
     status: "ATIVO",
@@ -44,8 +42,6 @@ export function FormularioNovoMotorista() {
     if (isEditing && motorista) {
       setDados({
         nome: motorista.nome,
-        cpf: motorista.cpf,
-        cnh: motorista.cnh,
         validadeCnh: motorista.validadeCnh,
         telefone: motorista.telefone,
         status: motorista.status,
@@ -66,8 +62,6 @@ export function FormularioNovoMotorista() {
   const validate = () => {
     const novosErros: { [key: string]: string } = {};
     if (!dados.nome.trim()) novosErros.nome = "Nome é obrigatório.";
-    if (!dados.cnh.trim()) novosErros.cnh = "CNH é obrigatória.";
-    if (!dados.cpf.trim()) novosErros.cpf = "CPF é obrigatório.";
     return novosErros;
   };
 
@@ -86,7 +80,7 @@ export function FormularioNovoMotorista() {
     try {
       if (isEditing && driverId) {
         await motoristaService.editar(parseInt(driverId), dados);
-        onSuccess({ ...dados, id: parseInt(driverId, 10) }); // radix 10 é sempre recomendado
+        onSuccess({ ...dados, id: parseInt(driverId, 10) });
       } else {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { status, ...dadosParaCadastro } = dados;
@@ -99,11 +93,7 @@ export function FormularioNovoMotorista() {
       const errorMsg = (error as Error).message;
       console.error("Erro da API:", error);
 
-      if (errorMsg.toLowerCase().includes("cnh")) {
-        setErros({ cnh: errorMsg });
-      } else if (errorMsg.toLowerCase().includes("cpf")) {
-        setErros({ cpf: errorMsg });
-      } else if (
+      if (
         errorMsg.toLowerCase().includes("data") ||
         errorMsg.toLowerCase().includes("validade")
       ) {
@@ -141,26 +131,6 @@ export function FormularioNovoMotorista() {
           hasError={!!erros.nome}
         />
         {erros.nome && <ErrorMessage>{erros.nome}</ErrorMessage>}
-      </InputGroup>
-      <InputGroup>
-        <Input
-          name="cpf"
-          placeholder="CPF"
-          value={dados.cpf}
-          onChange={handleInputChange}
-          hasError={!!erros.cpf}
-        />
-        {erros.cpf && <ErrorMessage>{erros.cpf}</ErrorMessage>}
-      </InputGroup>
-      <InputGroup>
-        <Input
-          name="cnh"
-          placeholder="Nº da CNH"
-          value={dados.cnh}
-          onChange={handleInputChange}
-          hasError={!!erros.cnh}
-        />
-        {erros.cnh && <ErrorMessage>{erros.cnh}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
         <Label htmlFor="validadeCnh">Validade</Label>
