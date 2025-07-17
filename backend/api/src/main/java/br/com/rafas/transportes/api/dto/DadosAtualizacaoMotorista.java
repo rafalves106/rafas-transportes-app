@@ -12,6 +12,7 @@ import java.time.LocalDate;
 public record DadosAtualizacaoMotorista(
         String nome,
         String telefone,
+        String cnh,
         @Future
         LocalDate validadeCnh,
         StatusMotorista status
