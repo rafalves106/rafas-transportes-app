@@ -33,7 +33,7 @@ public class MotoristaService {
       throw new ValidationException("Nome já cadastrado no sistema.");
     }
 
-    if (repository.existsByTel(dados.telefone())) {
+    if (repository.existsByTelefone(dados.telefone())) {
       throw new ValidationException("Telefone já cadastrada no sistema.");
     }
 

@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MotoristaRepository extends JpaRepository<Motorista, Long> {
 
     boolean existsByNome(String nome);
-    boolean existsByTel(String telefone);
+    boolean existsByTelefone(String telefone);
 
 }

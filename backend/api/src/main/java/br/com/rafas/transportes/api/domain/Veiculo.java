@@ -19,9 +19,6 @@ public class Veiculo {
 
     private String model;
     private String plate;
-    private String ano;
-    private String color;
-    private String renavam;
 
     @Enumerated(EnumType.STRING)
     private StatusVeiculo status;
@@ -29,9 +26,6 @@ public class Veiculo {
     public Veiculo(DadosCadastroVeiculo dados) {
         this.model = dados.model();
         this.plate = dados.plate();
-        this.ano = dados.ano();
-        this.color = dados.color();
-        this.renavam = dados.renavam();
         this.status = StatusVeiculo.ATIVO;
     }
 
@@ -45,15 +39,6 @@ public class Veiculo {
         }
         if (dados.plate() != null) {
             this.plate = dados.plate();
-        }
-        if (dados.ano() != null) {
-            this.ano = dados.ano();
-        }
-        if (dados.color() != null) {
-            this.color = dados.color();
-        }
-        if (dados.renavam() != null) {
-            this.renavam = dados.renavam();
         }
         if (dados.status() != null) {
             this.status = dados.status();

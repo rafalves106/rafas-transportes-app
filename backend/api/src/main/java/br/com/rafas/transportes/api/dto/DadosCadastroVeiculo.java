@@ -6,9 +6,6 @@ public record DadosCadastroVeiculo(
         @NotBlank
         String model,
         @NotBlank
-        String plate,
-        String ano,
-        String color,
-        String renavam
+        String plate
 ) {
 }

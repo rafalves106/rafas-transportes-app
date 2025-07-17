@@ -7,9 +7,6 @@ public record DadosDetalhamentoVeiculo(
         Long id,
         String model,
         String plate,
-        String ano,
-        String color,
-        String renavam,
         StatusVeiculo status
 ) {
     public DadosDetalhamentoVeiculo(Veiculo veiculo) {
@@ -17,9 +14,6 @@ public record DadosDetalhamentoVeiculo(
                 veiculo.getId(),
                 veiculo.getModel(),
                 veiculo.getPlate(),
-                veiculo.getAno(),
-                veiculo.getColor(),
-                veiculo.getRenavam(),
                 veiculo.getStatus()
         );
     }

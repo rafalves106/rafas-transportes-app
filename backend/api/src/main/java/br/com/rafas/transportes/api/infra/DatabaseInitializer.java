@@ -22,7 +22,7 @@ public class DatabaseInitializer {
                 Usuario adminUser = new Usuario("rafas", senhaCriptografada);
                 usuarioRepository.save(adminUser);
             } else {
-                System.out.println("Usuário 'admin' já existe no banco de dados.");
+                System.out.println("Usuário 'rafas' já existe no banco de dados.");
             }
         };
     }
