@@ -22,7 +22,6 @@ public record DadosCadastroViagem(
         @NotBlank
         String startLocation,
 
-        @NotBlank
         String endLocation,
 
         @NotNull
@@ -37,10 +36,9 @@ public record DadosCadastroViagem(
         @NotNull
         LocalTime startTime,
 
-        @NotNull @FutureOrPresent
+        @FutureOrPresent
         LocalDate endDate,
 
-        @NotNull
         LocalTime endTime
 ) {
 }

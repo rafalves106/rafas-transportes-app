@@ -45,6 +45,7 @@ public class DataLoader implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
+    /*
     if (viagemRepository.count() == 0 && veiculoRepository.count() == 0 && motoristaRepository.count() == 0) {
       System.out.println(">>> Nenhum dado de teste encontrado, populando o banco de dados...");
 
@@ -185,4 +186,5 @@ public class DataLoader implements CommandLineRunner {
       System.out.println(">>> Dados de teste cadastrados com sucesso!");
     }
   }
-}
+     */
+}}
