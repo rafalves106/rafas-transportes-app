@@ -87,6 +87,9 @@ public class MotoristaService {
     if (dados.telefone() != null) {
       motorista.setTelefone(dados.telefone());
     }
+    if (dados.cpf() != null) {
+      motorista.setCpf(dados.cpf());
+    }
     if (dados.cnh() != null) {
       motorista.setCnh(dados.cnh());
     }

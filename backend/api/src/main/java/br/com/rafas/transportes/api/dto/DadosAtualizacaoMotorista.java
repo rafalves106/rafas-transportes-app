@@ -13,6 +13,7 @@ public record DadosAtualizacaoMotorista(
         String nome,
         String telefone,
         String cnh,
+        String cpf,
         @Future
         LocalDate validadeCnh,
         StatusMotorista status
