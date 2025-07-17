@@ -17,10 +17,11 @@ import {
 } from "../../../components/ui/Form";
 
 interface FormContextType {
-  onSuccess: () => void;
+  onSuccess: (motoristaAtualizado?: Driver) => void;
   onExcluir: (id: number) => void;
   motorista?: Driver;
 }
+
 type FormState = CadastroDriverData & { status: string };
 
 export function FormularioNovoMotorista() {
@@ -50,8 +51,7 @@ export function FormularioNovoMotorista() {
         status: motorista.status,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [driverId]);
+  }, [isEditing, motorista]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -86,6 +86,7 @@ export function FormularioNovoMotorista() {
     try {
       if (isEditing && driverId) {
         await motoristaService.editar(parseInt(driverId), dados);
+        onSuccess({ ...dados, id: parseInt(driverId, 10) }); // radix 10 é sempre recomendado
       } else {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { status, ...dadosParaCadastro } = dados;

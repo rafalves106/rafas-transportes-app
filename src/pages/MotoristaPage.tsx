@@ -115,8 +115,17 @@ export function MotoristaPage() {
         d.cnh.toLowerCase().includes(termoBusca.toLowerCase())
     );
 
-  const handleSuccess = () => {
-    carregarDados();
+  const handleSuccess = (motoristaAtualizado?: Driver) => {
+    if (motoristaAtualizado) {
+      setMotoristas((prev) =>
+        prev.map((m) =>
+          m.id === motoristaAtualizado.id ? motoristaAtualizado : m
+        )
+      );
+    } else {
+      carregarDados();
+    }
+
     navigate("/motoristas");
   };
 
