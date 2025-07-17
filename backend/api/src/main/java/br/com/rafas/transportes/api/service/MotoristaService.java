@@ -4,18 +4,17 @@
 
 package br.com.rafas.transportes.api.service;
 
-import br.com.rafas.transportes.api.domain.Viagem;
+import br.com.rafas.transportes.api.domain.*;
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoMotorista;
 import br.com.rafas.transportes.api.dto.DadosCadastroMotorista;
 import br.com.rafas.transportes.api.dto.DadosDetalhamentoMotorista;
-import br.com.rafas.transportes.api.domain.Motorista;
-import br.com.rafas.transportes.api.domain.StatusMotorista;
 import br.com.rafas.transportes.api.repository.MotoristaRepository;
 import br.com.rafas.transportes.api.repository.ViagemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,13 +27,17 @@ public class MotoristaService {
   @Autowired
   private MotoristaRepository repository;
 
+  @Autowired
+  private ViagemRepository viagemRepository;
+
+  @Transactional
   public Motorista cadastrar(DadosCadastroMotorista dados) {
     if (repository.existsByNome(dados.nome())) {
       throw new ValidationException("Nome já cadastrado no sistema.");
     }
 
     if (repository.existsByTelefone(dados.telefone())) {
-      throw new ValidationException("Telefone já cadastrada no sistema.");
+      throw new ValidationException("Telefone já cadastrado no sistema.");
     }
 
     var motorista = new Motorista();
@@ -44,7 +47,6 @@ public class MotoristaService {
     motorista.setStatus(StatusMotorista.ATIVO);
 
     repository.save(motorista);
-    repository.flush();
 
     return motorista;
   }
@@ -55,6 +57,7 @@ public class MotoristaService {
             .toList();
   }
 
+  @Transactional
   public Motorista atualizar(Long id, DadosAtualizacaoMotorista dados) {
     var motorista = repository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado"));
@@ -62,8 +65,11 @@ public class MotoristaService {
     if (dados.validadeCnh() != null) {
       LocalDate novaValidadeCnh = dados.validadeCnh();
 
-      var viagemFuturaOptional = viagemRepository
-              .findFirstByMotoristaIdAndEndDateGreaterThanOrderByEndDateAsc(id, novaValidadeCnh);
+      var viagensDoMotorista = viagemRepository.findByMotoristaId(id);
+
+      Optional<Viagem> viagemFuturaOptional = viagensDoMotorista.stream()
+              .filter(v -> v.getEndDate().isAfter(novaValidadeCnh))
+              .findFirst();
 
       if (viagemFuturaOptional.isPresent()) {
         Viagem viagemConflitante = viagemFuturaOptional.get();
@@ -79,40 +85,30 @@ public class MotoristaService {
       }
     }
 
-    if (dados.nome() != null) {
-      motorista.setNome(dados.nome());
-    }
-    if (dados.telefone() != null) {
-      motorista.setTelefone(dados.telefone());
-    }
-    if (dados.validadeCnh() != null) {
-      motorista.setValidadeCnh(dados.validadeCnh());
-    }
-    if (dados.status() != null) {
-      motorista.setStatus(dados.status());
-    }
+    if (dados.nome() != null) motorista.setNome(dados.nome());
+    if (dados.telefone() != null) motorista.setTelefone(dados.telefone());
+    if (dados.validadeCnh() != null) motorista.setValidadeCnh(dados.validadeCnh());
+    if (dados.status() != null) motorista.setStatus(dados.status());
 
     return motorista;
   }
 
-  @Autowired
-  private ViagemRepository viagemRepository;
-
+  @Transactional
   public void excluir(Long id) {
     if (!repository.existsById(id)) {
       throw new EntityNotFoundException("Motorista não encontrado");
     }
 
-    Optional<Viagem> primeiraViagemOptional = viagemRepository.findFirstByMotoristaId(id);
+    List<Viagem> viagensAssociadas = viagemRepository.findByMotoristaId(id);
 
-    if (primeiraViagemOptional.isPresent()) {
-      Viagem viagem = primeiraViagemOptional.get();
+    if (!viagensAssociadas.isEmpty()) {
+      Viagem viagemExemplo = viagensAssociadas.get(0);
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-      LocalDate dataViagem = viagem.getStartDate();
+      LocalDate dataViagem = viagemExemplo.getStartDate();
 
       String mensagemDeErro = String.format(
-              "Este motorista não pode ser excluído. Ele está associado à viagem '%s' na data de %s.",
-              viagem.getTitle(),
+              "Este motorista não pode ser excluído. Ele está associado à viagem '%s' na data de %s (e possivelmente outras).",
+              viagemExemplo.getTitle(),
               dataViagem.format(formatter)
       );
 

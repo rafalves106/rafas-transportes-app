@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "viagens")
@@ -24,13 +26,21 @@ public class Viagem {
     @Enumerated(EnumType.STRING)
     private TipoViagem tipoViagem;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_id")
-    private Veiculo veiculo;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "viagem_veiculos",
+            joinColumns = @JoinColumn(name = "viagem_id"),
+            inverseJoinColumns = @JoinColumn(name = "veiculo_id")
+    )
+    private Set<Veiculo> veiculos = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver_id")
-    private Motorista motorista;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "viagem_motoristas",
+            joinColumns = @JoinColumn(name = "viagem_id"),
+            inverseJoinColumns = @JoinColumn(name = "motorista_id")
+    )
+    private Set<Motorista> motoristas = new HashSet<>();
 
     private LocalDate startDate;
     private LocalTime startTime;

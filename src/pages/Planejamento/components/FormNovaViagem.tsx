@@ -387,20 +387,39 @@ export function FormularioNovaViagem() {
       novosErros.clientName = "Nome é obrigatório.";
     if (!dadosFormulario.value || parseFloat(dadosFormulario.value) <= 0)
       novosErros.value = "Valor é obrigatório.";
-    const isRota = dadosFormulario.tipo === "ROTA_COLABORADORES";
+
+    const isRota = dadosFormulario.tipo === TipoViagem.ROTA_COLABORADORES;
+
     if (!isRota) {
       if (!dadosFormulario.startDate)
         novosErros.startDate = "Data de início é obrigatória.";
       if (!dadosFormulario.startTime)
         novosErros.startTime = "Hora de saída é obrigatória.";
+
+      const veiculosValidos = dadosFormulario.veiculos.filter((v) => v.id);
+      if (veiculosValidos.length === 0) {
+        novosErros.veiculos = "Selecione ao menos um veículo.";
+      }
+
+      const motoristasValidos = dadosFormulario.motoristas.filter((m) => m.id);
+      if (motoristasValidos.length === 0) {
+        novosErros.motoristas = "Selecione ao menos um motorista.";
+      }
     }
-    const isIdaEVolta = dadosFormulario.tipo.includes("ida_e_volta");
+
+    const isIdaEVolta = [
+      TipoViagem.FRETAMENTO_AEROPORTO,
+      TipoViagem.IDA_E_VOLTA_MG,
+      TipoViagem.IDA_E_VOLTA_FORA_MG,
+    ].includes(dadosFormulario.tipo);
+
     if (isIdaEVolta) {
       if (!dadosFormulario.endDate)
         novosErros.endDate = "Data de retorno é obrigatória.";
       if (!dadosFormulario.endTime)
         novosErros.endTime = "Hora de volta é obrigatória.";
     }
+
     return novosErros;
   };
 
@@ -413,6 +432,14 @@ export function FormularioNovaViagem() {
     }
     setErros({});
 
+    const veiculoIds = dadosFormulario.veiculos
+      .map((v) => parseInt(v.id, 10))
+      .filter((id) => !isNaN(id) && id > 0);
+
+    const motoristaIds = dadosFormulario.motoristas
+      .map((m) => parseInt(m.id, 10))
+      .filter((id) => !isNaN(id) && id > 0);
+
     const dadosParaApi = {
       title: dadosFormulario.title,
       clientName: dadosFormulario.clientName,
@@ -420,19 +447,14 @@ export function FormularioNovaViagem() {
       valor: parseFloat(dadosFormulario.value || "0"),
       startLocation: dadosFormulario.startLocation,
       endLocation: dadosFormulario.endLocation,
-      veiculoId: parseInt(dadosFormulario.veiculos[0]?.id || "0"),
-      motoristaId: parseInt(dadosFormulario.motoristas[0]?.id || "0"),
       startDate: dadosFormulario.startDate,
       startTime: dadosFormulario.startTime,
       endDate: dadosFormulario.endDate,
       endTime: dadosFormulario.endTime,
       tipo: dadosFormulario.tipo,
+      veiculoIds: veiculoIds,
+      motoristaIds: motoristaIds,
     };
-
-    if (!dadosParaApi.veiculoId || !dadosParaApi.motoristaId) {
-      alert("Por favor, selecione ao menos um veículo e um motorista.");
-      return;
-    }
 
     try {
       if (isEditing && tripId) {

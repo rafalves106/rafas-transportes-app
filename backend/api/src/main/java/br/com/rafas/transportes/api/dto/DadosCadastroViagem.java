@@ -3,10 +3,12 @@ package br.com.rafas.transportes.api.dto;
 import br.com.rafas.transportes.api.domain.TipoViagem;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public record DadosCadastroViagem(
         @NotBlank
@@ -25,12 +27,6 @@ public record DadosCadastroViagem(
 
         String endLocation,
 
-        @NotNull
-        Long veiculoId,
-
-        @NotNull
-        Long motoristaId,
-
         @NotNull @FutureOrPresent
         LocalDate startDate,
 
@@ -42,6 +38,12 @@ public record DadosCadastroViagem(
 
         LocalTime endTime,
 
-        TipoViagem tipo
+        TipoViagem tipo,
+
+        @NotEmpty
+        List<Long> veiculoIds,
+
+        @NotEmpty
+        List<Long> motoristaIds
 ) {
 }

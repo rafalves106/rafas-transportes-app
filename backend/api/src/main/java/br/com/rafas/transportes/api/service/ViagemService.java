@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -32,21 +33,26 @@ public class ViagemService {
     @Autowired
     private MotoristaRepository motoristaRepository;
 
+    @Transactional
     public Viagem cadastrar(DadosCadastroViagem dados) {
-        Veiculo veiculo = veiculoRepository.findById(dados.veiculoId())
-                .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
+        var veiculos = new HashSet<>(veiculoRepository.findAllById(dados.veiculoIds()));
+        var motoristas = new HashSet<>(motoristaRepository.findAllById(dados.motoristaIds()));
 
-        Motorista motorista = motoristaRepository.findById(dados.motoristaId())
-                .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado"));
-
-        var conflitosMotorista = viagemRepository.findMotoristaConflitos(dados.motoristaId(), dados.startDate(), dados.endDate());
-        if (!conflitosMotorista.isEmpty()) {
-            throw new ValidationException("Conflito de agendamento: O motorista já está em outra viagem neste período.");
+        if (veiculos.size() != dados.veiculoIds().size()) {
+            throw new EntityNotFoundException("Um ou mais IDs de veículos são inválidos.");
+        }
+        if (motoristas.size() != dados.motoristaIds().size()) {
+            throw new EntityNotFoundException("Um ou mais IDs de motoristas são inválidos.");
         }
 
-        var conflitosVeiculo = viagemRepository.findVeiculoConflitos(dados.veiculoId(), dados.startDate(), dados.endDate());
+        var conflitosMotorista = viagemRepository.findMotoristaConflitos(dados.motoristaIds(), dados.startDate(), dados.endDate());
+        if (!conflitosMotorista.isEmpty()) {
+            throw new ValidationException("Conflito de agendamento: Um ou mais motoristas já estão em outra viagem neste período.");
+        }
+
+        var conflitosVeiculo = viagemRepository.findVeiculoConflitos(dados.veiculoIds(), dados.startDate(), dados.endDate());
         if (!conflitosVeiculo.isEmpty()) {
-            throw new ValidationException("Conflito de agendamento: O veículo já está em outra viagem neste período.");
+            throw new ValidationException("Conflito de agendamento: Um ou mais veículos já estão em outra viagem neste período.");
         }
 
         if (dados.startDate() != null && dados.endDate() != null) {
@@ -62,14 +68,14 @@ public class ViagemService {
         viagem.setValor(dados.valor());
         viagem.setStartLocation(dados.startLocation());
         viagem.setEndLocation(dados.endLocation());
-        viagem.setVeiculo(veiculo);
-        viagem.setMotorista(motorista);
         viagem.setStartDate(dados.startDate());
         viagem.setStartTime(dados.startTime());
         viagem.setEndDate(dados.endDate());
         viagem.setEndTime(dados.endTime());
         viagem.setStatus(StatusViagem.AGENDADA);
         viagem.setTipoViagem(dados.tipo() != null ? dados.tipo() : TipoViagem.IDA_E_VOLTA_MG);
+        viagem.setVeiculos(veiculos);
+        viagem.setMotoristas(motoristas);
 
         viagemRepository.save(viagem);
 
@@ -83,6 +89,7 @@ public class ViagemService {
                 .toList();
     }
 
+    @Transactional
     public Viagem atualizar(Long id, DadosAtualizacaoViagem dados) {
         var viagem = viagemRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Viagem não encontrada"));
@@ -99,9 +106,7 @@ public class ViagemService {
         if (dados.title() != null) viagem.setTitle(dados.title());
         if (dados.clientName() != null) viagem.setClientName(dados.clientName());
         if (dados.telefone() != null) viagem.setTelefone(dados.telefone());
-        if (dados.valor() != null) {
-            viagem.setValor(dados.valor());
-        }
+        if (dados.valor() != null) viagem.setValor(dados.valor());
         if (dados.startLocation() != null) viagem.setStartLocation(dados.startLocation());
         if (dados.endLocation() != null) viagem.setEndLocation(dados.endLocation());
         if (dados.startDate() != null) viagem.setStartDate(dados.startDate());
@@ -111,18 +116,20 @@ public class ViagemService {
         if (dados.status() != null) viagem.setStatus(dados.status());
         if (dados.tipo() != null) viagem.setTipoViagem(dados.tipo());
 
-        if (dados.veiculoId() != null) {
-            var veiculo = veiculoRepository.findById(dados.veiculoId()).orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
-            viagem.setVeiculo(veiculo);
+        if (dados.veiculoIds() != null) {
+            var veiculos = new HashSet<>(veiculoRepository.findAllById(dados.veiculoIds()));
+            viagem.setVeiculos(veiculos);
         }
-        if (dados.motoristaId() != null) {
-            var motorista = motoristaRepository.findById(dados.motoristaId()).orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado"));
-            viagem.setMotorista(motorista);
+        if (dados.motoristaIds() != null) {
+            var motoristas = new HashSet<>(motoristaRepository.findAllById(dados.motoristaIds()));
+            viagem.setMotoristas(motoristas);
         }
+        viagemRepository.save(viagem);
 
         return viagem;
     }
 
+    @Transactional
     public void excluir(Long id) {
         if (!viagemRepository.existsById(id)) {
             throw new EntityNotFoundException("Viagem não encontrada");

@@ -6,6 +6,7 @@ import br.com.rafas.transportes.api.domain.TipoViagem;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public record DadosAtualizacaoViagem(
         String title,
@@ -14,13 +15,13 @@ public record DadosAtualizacaoViagem(
         BigDecimal valor,
         String startLocation,
         String endLocation,
-        Long veiculoId,
-        Long motoristaId,
         LocalDate startDate,
         LocalTime startTime,
         LocalDate endDate,
         LocalTime endTime,
         StatusViagem status,
-        TipoViagem tipo
+        TipoViagem tipo,
+        List<Long> veiculoIds,
+        List<Long> motoristaIds
 ) {
 }
