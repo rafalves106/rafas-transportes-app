@@ -1,6 +1,7 @@
 import api from "./api";
 
 export interface Viagem {
+  tipoViagem: string;
   id: number;
   title: string;
   clientName: string;
@@ -32,6 +33,7 @@ export interface CadastroViagemData {
   startTime: string;
   endDate: string;
   endTime: string;
+  tipoViagem: string;
 }
 
 export type UpdateViagemData = Partial<CadastroViagemData>;

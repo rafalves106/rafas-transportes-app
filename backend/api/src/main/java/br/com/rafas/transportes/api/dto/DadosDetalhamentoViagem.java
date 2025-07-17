@@ -1,6 +1,7 @@
 package br.com.rafas.transportes.api.dto;
 
 import br.com.rafas.transportes.api.domain.StatusViagem;
+import br.com.rafas.transportes.api.domain.TipoViagem;
 import br.com.rafas.transportes.api.domain.Viagem;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,7 +23,8 @@ public record DadosDetalhamentoViagem(
         LocalTime startTime,
         LocalDate endDate,
         LocalTime endTime,
-        StatusViagem status
+        StatusViagem status,
+        TipoViagem tipo
 ) {
     public DadosDetalhamentoViagem(Viagem viagem) {
         this(
@@ -41,7 +43,8 @@ public record DadosDetalhamentoViagem(
                 viagem.getStartTime(),
                 viagem.getEndDate(),
                 viagem.getEndTime(),
-                viagem.getStatus()
+                viagem.getStatus(),
+                viagem.getTipoViagem()
         );
     }
 }

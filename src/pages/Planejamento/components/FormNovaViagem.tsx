@@ -173,6 +173,7 @@ export function FormularioNovaViagem() {
         endLocation: viagem.endLocation || "",
         veiculos: [{ id: String(viagem.veiculoId || "") }],
         motoristas: [{ id: String(viagem.motoristaId || "") }],
+        tipoViagem: viagem.tipoViagem || "ida_e_volta_mg",
       }));
       setIsPrePopulatedFromBudget(false);
       return;
@@ -413,6 +414,7 @@ export function FormularioNovaViagem() {
       startTime: dadosFormulario.startTime,
       endDate: dadosFormulario.endDate,
       endTime: dadosFormulario.endTime,
+      tipoViagem: dadosFormulario.tipoViagem,
     };
 
     if (!dadosParaApi.veiculoId || !dadosParaApi.motoristaId) {
@@ -453,7 +455,6 @@ export function FormularioNovaViagem() {
   const mostraPercursoVolta = [
     "ida_e_volta_mg",
     "ida_e_volta_fora_mg",
-    "fretamento_aeroporto",
   ].includes(dadosFormulario.tipoViagem);
 
   return (
@@ -494,10 +495,10 @@ export function FormularioNovaViagem() {
               <Input
                 id="telefone"
                 name="telefone"
-                type="text"
-                placeholder="Telefone Cliente"
                 value={dadosFormulario.telefone}
                 onChange={handleInputChange}
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
             </InputGroup>
             {!isRota && (

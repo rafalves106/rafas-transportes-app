@@ -4,10 +4,7 @@
 
 package br.com.rafas.transportes.api.service;
 
-import br.com.rafas.transportes.api.domain.Motorista;
-import br.com.rafas.transportes.api.domain.StatusViagem;
-import br.com.rafas.transportes.api.domain.Veiculo;
-import br.com.rafas.transportes.api.domain.Viagem;
+import br.com.rafas.transportes.api.domain.*;
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoViagem;
 import br.com.rafas.transportes.api.dto.DadosCadastroViagem;
 import br.com.rafas.transportes.api.dto.DadosDetalhamentoViagem;
@@ -35,14 +32,12 @@ public class ViagemService {
     private MotoristaRepository motoristaRepository;
 
     public Viagem cadastrar(DadosCadastroViagem dados) {
-        // 1. Busca as entidades UMA ÚNICA VEZ
         Veiculo veiculo = veiculoRepository.findById(dados.veiculoId())
                 .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
 
         Motorista motorista = motoristaRepository.findById(dados.motoristaId())
                 .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado"));
 
-        // 2. Faz a verificação de conflitos
         var conflitosMotorista = viagemRepository.findMotoristaConflitos(dados.motoristaId(), dados.startDate(), dados.endDate());
         if (!conflitosMotorista.isEmpty()) {
             throw new ValidationException("Conflito de agendamento: O motorista já está em outra viagem neste período.");
@@ -53,7 +48,6 @@ public class ViagemService {
             throw new ValidationException("Conflito de agendamento: O veículo já está em outra viagem neste período.");
         }
 
-        // 3. Cria e salva a viagem (sem o código duplicado)
         var viagem = new Viagem();
         viagem.setTitle(dados.title());
         viagem.setClientName(dados.clientName());
@@ -68,13 +62,13 @@ public class ViagemService {
         viagem.setEndDate(dados.endDate());
         viagem.setEndTime(dados.endTime());
         viagem.setStatus(StatusViagem.AGENDADA);
+        viagem.setTipoViagem(TipoViagem.IDA_E_VOLTA_MG);
 
         viagemRepository.save(viagem);
 
         return viagem;
     }
 
-    // Seus outros métodos (listarTodas, atualizar, excluir) permanecem os mesmos...
     @Transactional(readOnly = true)
     public List<DadosDetalhamentoViagem> listarTodas() {
         return viagemRepository.findAll().stream()
@@ -99,6 +93,7 @@ public class ViagemService {
         if (dados.endDate() != null) viagem.setEndDate(dados.endDate());
         if (dados.endTime() != null) viagem.setEndTime(dados.endTime());
         if (dados.status() != null) viagem.setStatus(dados.status());
+        if (dados.tipo() != null) viagem.setTipoViagem(dados.tipo());
 
         if (dados.veiculoId() != null) {
             var veiculo = veiculoRepository.findById(dados.veiculoId()).orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));

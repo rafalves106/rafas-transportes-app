@@ -1,6 +1,8 @@
 package br.com.rafas.transportes.api.dto;
 
 import br.com.rafas.transportes.api.domain.StatusViagem;
+import br.com.rafas.transportes.api.domain.TipoViagem;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,6 +20,7 @@ public record DadosAtualizacaoViagem(
         LocalTime startTime,
         LocalDate endDate,
         LocalTime endTime,
-        StatusViagem status
+        StatusViagem status,
+        TipoViagem tipo
 ) {
 }

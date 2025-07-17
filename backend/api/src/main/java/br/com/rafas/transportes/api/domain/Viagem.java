@@ -21,6 +21,9 @@ public class Viagem {
 
     private String title;
 
+    @Enumerated(EnumType.STRING)
+    private TipoViagem tipoViagem;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id")
     private Veiculo veiculo;

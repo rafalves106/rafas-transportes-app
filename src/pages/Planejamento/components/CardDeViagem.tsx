@@ -73,10 +73,12 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
           Início: {formatarData(viagem.startDate)} às {viagem.startTime}{" "}
           {viagem.startLocation}
         </InfoText>
-        <InfoText>
-          Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
-          {viagem.endLocation}
-        </InfoText>
+        {viagem.endDate && viagem.endTime && viagem.endLocation && (
+          <InfoText>
+            Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
+            {viagem.endLocation}
+          </InfoText>
+        )}
       </InfoRow>
     </CardContainer>
   );
