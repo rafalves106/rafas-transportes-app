@@ -481,7 +481,7 @@ export function FormularioNovaViagem() {
 
     // Validação para tipo de viagem "ida_e_volta" ou "fretamento_aeroporto"
     const isIdaEVolta =
-      dadosFormulario.tipoViagem.includes("ida_e_volta") ||
+      dadosFormulario.tipoViagem.includes("IDA_E_VOLTA") ||
       dadosFormulario.tipoViagem === "FRETAMENTO_AEROPORTO";
     if (isIdaEVolta && !isRota) {
       // Validação de retorno para ida e volta, exceto para rota
@@ -598,16 +598,16 @@ export function FormularioNovaViagem() {
   // Essas variáveis controlam quais seções do formulário serão exibidas
   const isRota = dadosFormulario.tipoViagem === "ROTA_COLABORADORES";
   const mostraPercursoIda = [
-    "ida_e_volta_mg",
-    "somente_ida_mg",
-    "ida_e_volta_fora_mg",
-    "somente_ida_fora_mg",
-    "fretamento_aeroporto",
+    "IDA_E_VOLTA_MG",
+    "SOMENTE_IDA_MG",
+    "IDA_E_VOLTA_FORA_MG",
+    "SOMENTE_IDA_FORA_MG",
+    "FRETAMENTO_AEROPORTO",
   ].includes(dadosFormulario.tipoViagem);
   const mostraPercursoVolta = [
-    "ida_e_volta_mg",
-    "ida_e_volta_fora_mg",
-    "fretamento_aeroporto",
+    "IDA_E_VOLTA_MG",
+    "IDA_E_VOLTA_FORA_MG",
+    "FRETAMENTO_AEROPORTO",
   ].includes(dadosFormulario.tipoViagem);
 
   return (
