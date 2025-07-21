@@ -123,17 +123,20 @@ interface ViagemFormState {
   title: string;
   clientName: string;
   telefone: string;
-  valor: string; // Usar string para o input type="number"
-  tipoViagem: TipoViagemEnum; // Para controlar o tipo de viagem no formulário
-  startDate: string; // "YYYY-MM-DD"
-  startTime: string; // "HH:MM"
+  valor: string;
+  tipoViagem: TipoViagemEnum;
+  startDate: string;
+  startTime: string;
   startLocation: string;
-  endDate: string; // "YYYY-MM-DD"
-  endTime: string; // "HH:MM"
+  endDate: string;
+  endTime: string;
   endLocation: string;
-  // 'rota' é específica para o frontend (se for tipo "rota_colaboradores")
-  rota: { veiculoId: string; horarios: { inicio: string; fim: string }[] }[];
-  // status do backend, usado para edição. Para cadastro, definimos um padrão.
+  // Inclua motoristaId em cada item da rota
+  rota: {
+    veiculoId: string;
+    motoristaId: string;
+    horarios: { inicio: string; fim: string }[];
+  }[]; // <-- ADICIONADO motoristaId
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
 }
 
@@ -165,7 +168,13 @@ export function FormularioNovaViagem() {
     endDate: "",
     endTime: "",
     endLocation: "",
-    rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
+    rota: [
+      {
+        veiculoId: "",
+        horarios: [{ inicio: "", fim: "" }],
+        motoristaId: "",
+      },
+    ],
     status: "AGENDADA", // Status padrão para nova viagem
   });
 
@@ -199,26 +208,44 @@ export function FormularioNovaViagem() {
   useEffect(() => {
     if (isEditing && viagem) {
       // Modo Edição - Preenche com dados da viagem existente
+      const rotaParaFormulario =
+        viagem.tipoViagem === "ROTA_COLABORADORES" && viagem.itensRota
+          ? viagem.itensRota.map((item) => ({
+              veiculoId: String(item.veiculoId),
+              motoristaId: String(item.motoristaId), // Popula o motoristaId
+              horarios: [
+                {
+                  inicio: item.horarioInicio || "",
+                  fim: item.horarioFim || "",
+                },
+              ], // Assumindo 1 par de horários
+            }))
+          : [
+              {
+                veiculoId: "",
+                motoristaId: "",
+                horarios: [{ inicio: "", fim: "" }],
+              },
+            ]; // Default vazio
+
       setDadosFormulario({
         title: viagem.title,
         clientName: viagem.clientName || "",
         telefone: viagem.telefone || "",
-        valor: String(viagem.valor || ""), // Garante que seja string para o input
-        // tipoViagem não existe na entidade Viagem, então defina um padrão ou o que for relevante
-        // ou mantenha o valor atual do estado se não for resetar
-        tipoViagem: viagem.tipoViagem, // Mantém o tipo de viagem atual ou defina um padrão
+        valor: String(viagem.valor || ""),
+        tipoViagem: viagem.tipoViagem,
         startDate: viagem.startDate,
         startTime: viagem.startTime,
         startLocation: viagem.startLocation || "",
         endDate: viagem.endDate,
         endTime: viagem.endTime,
         endLocation: viagem.endLocation || "",
-        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }], // TODO: Preencher com dados reais da rota se houver
+        rota: rotaParaFormulario, // <-- ADICIONADO AQUI
         status: viagem.status,
       });
-      setVeiculoIdSelecionado(String(viagem.veiculoId || ""));
-      setMotoristaIdSelecionado(String(viagem.motoristaId || ""));
-      setIsPrePopulatedFromBudget(false); // Não é preenchido de orçamento se estiver editando
+      setVeiculoIdSelecionado(String(viagem.veiculoId || "")); // Se não for ROTA_COLABORADORES, será um ID real
+      setMotoristaIdSelecionado(String(viagem.motoristaId || "")); // Se não for ROTA_COLABORADORES, será um ID real
+      setIsPrePopulatedFromBudget(false);
     } else if (location.state?.dadosDoOrcamento) {
       // Preenchimento a partir de Orçamento
       const { dadosDoOrcamento } = location.state;
@@ -242,7 +269,13 @@ export function FormularioNovaViagem() {
           dadosDoOrcamento.descricaoVoltaOrcamento ||
           dadosDoOrcamento.destino ||
           "",
-        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }], // Default para rota (orçamento não tem info de rota)
+        rota: [
+          {
+            veiculoId: "",
+            horarios: [{ inicio: "", fim: "" }],
+            motoristaId: "",
+          },
+        ], // Default para rota (orçamento não tem info de rota)
         status: "AGENDADA", // Status padrão para orçamento -> viagem
       });
       setVeiculoIdSelecionado(""); // Não vem do orçamento
@@ -262,7 +295,13 @@ export function FormularioNovaViagem() {
         endDate: "",
         endTime: "",
         endLocation: "",
-        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
+        rota: [
+          {
+            veiculoId: "",
+            horarios: [{ inicio: "", fim: "" }],
+            motoristaId: "",
+          },
+        ],
         status: "AGENDADA", // Status padrão para nova viagem
       });
       setVeiculoIdSelecionado("");
@@ -347,12 +386,22 @@ export function FormularioNovaViagem() {
     setDadosFormulario((prev) => ({ ...prev, rota: novaRota }));
   };
 
+  const handleRotaMotoristaChange = (
+    veiculoIndex: number,
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const novaRota = [...dadosFormulario.rota];
+    novaRota[veiculoIndex].motoristaId = event.target.value; // Atualiza o motoristaId
+    setDadosFormulario((prev) => ({ ...prev, rota: novaRota }));
+  };
+
+  // Modifique adicionarVeiculoRota para incluir motoristaId no objeto inicial:
   const adicionarVeiculoRota = () => {
     setDadosFormulario((prev) => ({
       ...prev,
       rota: [
         ...prev.rota,
-        { veiculoId: "", horarios: [{ inicio: "", fim: "" }] },
+        { veiculoId: "", motoristaId: "", horarios: [{ inicio: "", fim: "" }] }, // <-- ADICIONADO motoristaId
       ],
     }));
   };
@@ -456,6 +505,12 @@ export function FormularioNovaViagem() {
               `rota[${idx}].veiculoId`
             ] = `Selecione o veículo da rota ${idx + 1}.`;
           }
+          if (!itemRota.motoristaId) {
+            // <-- NOVA VALIDAÇÃO
+            novosErros[
+              `rota[${idx}].motoristaId`
+            ] = `Selecione o motorista da rota ${idx + 1}.`;
+          }
           if (itemRota.horarios.length === 0) {
             novosErros[
               `rota[${idx}].horarios`
@@ -524,26 +579,66 @@ export function FormularioNovaViagem() {
     }
     setErros({}); // Limpa erros se a validação passar
 
-    // Monta o objeto de dados para a API (CadastroViagemData ou UpdateViagemData)
-    // Garante que o status seja enviado em MAIÚSCULAS
-    const dadosParaApi: CadastroViagemData | UpdateViagemData = {
-      title: dadosFormulario.title.trim(),
-      clientName: dadosFormulario.clientName.trim(),
-      telefone: dadosFormulario.telefone,
-      valor: parseFloat(dadosFormulario.valor || "0"), // Converte para number
-      startLocation: dadosFormulario.startLocation.trim(),
-      endLocation: dadosFormulario.endLocation.trim(),
-      veiculoId: parseInt(veiculoIdSelecionado || "0"), // Converte para number
-      motoristaId: parseInt(motoristaIdSelecionado || "0"), // Converte para number
-      startDate: dadosFormulario.startDate,
-      startTime: dadosFormulario.startTime,
-      endDate: dadosFormulario.endDate,
-      endTime: dadosFormulario.endTime,
-      status: dadosFormulario.status, // Envia o status do formulário (que já é AGENDADA por padrão)
-      tipoViagem: dadosFormulario.tipoViagem,
-    };
+    let dadosParaApi: CadastroViagemData | UpdateViagemData;
+
+    if (dadosFormulario.tipoViagem === "ROTA_COLABORADORES") {
+      dadosParaApi = {
+        title: dadosFormulario.title.trim(),
+        clientName: dadosFormulario.clientName.trim(),
+        telefone: dadosFormulario.telefone,
+        valor: parseFloat(dadosFormulario.valor || "0"),
+        startLocation: dadosFormulario.startLocation.trim(),
+        endLocation: dadosFormulario.endLocation.trim(),
+        startDate: dadosFormulario.startDate,
+        startTime: dadosFormulario.startTime,
+        endDate: dadosFormulario.endDate,
+        endTime: dadosFormulario.endTime,
+        status: dadosFormulario.status,
+        tipoViagem: dadosFormulario.tipoViagem,
+        // Mapeia a lista 'rota' do frontend para 'itensRota' do backend
+        itensRota: dadosFormulario.rota.map((item) => ({
+          id: undefined, // Para novos itens ou atualização, o ID será gerenciado pelo backend
+          veiculoId: parseInt(item.veiculoId),
+          motoristaId: parseInt(item.motoristaId),
+          horarioInicio: item.horarios[0].inicio, // Assumindo por enquanto 1 horário por itemRota
+          horarioFim: item.horarios[0].fim,
+        })),
+        // veiculoId e motoristaId diretos da Viagem não são enviados para ROTA_COLABORADORES
+        veiculoId: undefined, // Deixa como undefined para não enviar 0
+        motoristaId: undefined, // Deixa como undefined para não enviar 0
+      };
+    } else {
+      // Para outros tipos de viagem, envia os IDs principais e a lista de itensRota é nula/vazia
+      dadosParaApi = {
+        title: dadosFormulario.title.trim(),
+        clientName: dadosFormulario.clientName.trim(),
+        telefone: dadosFormulario.telefone,
+        valor: parseFloat(dadosFormulario.valor || "0"),
+        startLocation: dadosFormulario.startLocation.trim(),
+        endLocation: dadosFormulario.endLocation.trim(),
+        veiculoId: parseInt(veiculoIdSelecionado || "0"),
+        motoristaId: parseInt(motoristaIdSelecionado || "0"),
+        startDate: dadosFormulario.startDate,
+        startTime: dadosFormulario.startTime,
+        endDate: dadosFormulario.endDate,
+        endTime: dadosFormulario.endTime,
+        status: dadosFormulario.status,
+        tipoViagem: dadosFormulario.tipoViagem,
+        itensRota: [], // Garante que a lista é enviada vazia para outros tipos de viagem
+      };
+    }
 
     console.log("Enviando para API:", dadosParaApi);
+
+    // Validação adicional de IDs principais antes de enviar (se não for rota)
+    if (dadosParaApi.tipoViagem !== "ROTA_COLABORADORES") {
+      if (!dadosParaApi.veiculoId || !dadosParaApi.motoristaId) {
+        alert(
+          "Por favor, selecione ao menos um veículo e um motorista para este tipo de viagem."
+        );
+        return;
+      }
+    }
 
     try {
       if (isEditing && tripId) {
@@ -914,6 +1009,30 @@ export function FormularioNovaViagem() {
                     {erros[`rota[${veiculoIndex}].veiculoId`] && (
                       <ErrorMessage>
                         {erros[`rota[${veiculoIndex}].veiculoId`]}
+                      </ErrorMessage>
+                    )}
+
+                    <Label htmlFor={`motorista-rota-${veiculoIndex}`}>
+                      Motorista da Rota {veiculoIndex + 1}
+                    </Label>
+                    <Select
+                      id={`motorista-rota-${veiculoIndex}`}
+                      value={itemRota.motoristaId} // Use itemRota.motoristaId
+                      onChange={(e) =>
+                        handleRotaMotoristaChange(veiculoIndex, e)
+                      } // Nova função
+                      hasError={!!erros[`rota[${veiculoIndex}].motoristaId`]}
+                    >
+                      <option value="">Selecione</option>
+                      {listaMotoristas.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.nome}
+                        </option>
+                      ))}
+                    </Select>
+                    {erros[`rota[${veiculoIndex}].motoristaId`] && (
+                      <ErrorMessage>
+                        {erros[`rota[${veiculoIndex}].motoristaId`]}
                       </ErrorMessage>
                     )}
 

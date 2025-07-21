@@ -1,6 +1,6 @@
 package br.com.rafas.transportes.api.dto;
 
-import br.com.rafas.transportes.api.domain.StatusViagem; // Importa o enum de status
+import br.com.rafas.transportes.api.domain.StatusViagem;
 import br.com.rafas.transportes.api.domain.TipoViagem;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List; // Importar List
 
 public record DadosCadastroViagem(
         @NotBlank // Título da reserva é obrigatório
@@ -27,10 +28,10 @@ public record DadosCadastroViagem(
 
         String endLocation, // Local de fim pode ser vazio
 
-        @NotNull // ID do veículo é obrigatório
+        // --- Estes campos (veiculoId, motoristaId) agora são opcionais aqui ---
+        // A validação de obrigatoriedade será condicional no ViagemService,
+        // dependendo do tipoViagem (se for ou não ROTA_COLABORADORES).
         Long veiculoId,
-
-        @NotNull // ID do motorista é obrigatório
         Long motoristaId,
 
         @NotNull @FutureOrPresent // Data de início é obrigatória e não pode ser no passado
@@ -44,12 +45,14 @@ public record DadosCadastroViagem(
 
         LocalTime endTime,
 
-        // Adicione o status da viagem aqui, se o frontend for enviá-lo no cadastro
-        // Geralmente, o status inicial é AGENDADA, então o backend pode definir
-        // ou receber aqui. Para manter consistente com a entidade, vamos incluí-lo.
         @NotNull
         StatusViagem status,
 
         @NotNull
-        TipoViagem tipoViagem
+        TipoViagem tipoViagem,
+
+        // --- NOVO CAMPO: Lista de itens para rotas de colaboradores ---
+        // Esta lista só será preenchida se tipoViagem for ROTA_COLABORADORES
+        // Pode ser @Valid para validar os itens individualmente, e @NotNull se for obrigatória para rotas
+        List<DadosItemRotaColaborador> itensRota
 ) {}
