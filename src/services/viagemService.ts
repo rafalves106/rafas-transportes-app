@@ -1,5 +1,13 @@
 import api from "./api";
 
+export type TipoViagemEnum =
+  | "FRETAMENTO_AEROPORTO"
+  | "IDA_E_VOLTA_MG"
+  | "SOMENTE_IDA_MG"
+  | "IDA_E_VOLTA_FORA_MG"
+  | "SOMENTE_IDA_FORA_MG"
+  | "ROTA_COLABORADORES";
+
 // Interface para os dados de Viagem retornados pelo backend (DadosDetalhamentoViagem)
 export interface Viagem {
   id: number;
@@ -18,7 +26,7 @@ export interface Viagem {
   endDate: string; // Formato "YYYY-MM-DD"
   endTime: string; // Formato "HH:MM"
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA"; // Agora um enum string no backend
-  tipoViagem: string;
+  tipoViagem: TipoViagemEnum;
 }
 
 // Interface para os dados de Cadastro de Viagem enviados ao backend (DadosCadastroViagem)
@@ -37,7 +45,7 @@ export interface CadastroViagemData {
   endDate: string;
   endTime: string;
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
-  tipoViagem: string;
+  tipoViagem: TipoViagemEnum;
 }
 
 // Interface para os dados de Atualização de Viagem enviados ao backend (DadosAtualizacaoViagem)

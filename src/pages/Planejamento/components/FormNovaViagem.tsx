@@ -23,6 +23,7 @@ import {
   type Viagem,
   type CadastroViagemData,
   type UpdateViagemData,
+  type TipoViagemEnum,
 } from "../../../services/viagemService";
 import { veiculoService, type Vehicle } from "../../../services/veiculoService";
 import {
@@ -123,7 +124,7 @@ interface ViagemFormState {
   clientName: string;
   telefone: string;
   valor: string; // Usar string para o input type="number"
-  tipoViagem: string; // Para controlar o tipo de viagem no formulário
+  tipoViagem: TipoViagemEnum; // Para controlar o tipo de viagem no formulário
   startDate: string; // "YYYY-MM-DD"
   startTime: string; // "HH:MM"
   startLocation: string;
@@ -157,7 +158,7 @@ export function FormularioNovaViagem() {
     clientName: "",
     telefone: "",
     valor: "",
-    tipoViagem: "ida_e_volta_mg", // Valor padrão inicial
+    tipoViagem: "IDA_E_VOLTA_MG", // Valor padrão inicial
     startDate: "",
     startTime: "",
     startLocation: "",
@@ -254,7 +255,7 @@ export function FormularioNovaViagem() {
         clientName: "",
         telefone: "",
         valor: "",
-        tipoViagem: "ida_e_volta_mg",
+        tipoViagem: "IDA_E_VOLTA_MG",
         startDate: "",
         startTime: "",
         startLocation: "",
@@ -280,32 +281,32 @@ export function FormularioNovaViagem() {
     let textoVolta = "";
 
     switch (dadosFormulario.tipoViagem) {
-      case "fretamento_aeroporto":
+      case "FRETAMENTO_AEROPORTO":
         textoIda =
           "Buscar passageiros em [ENDEREÇO] e levar ao Aeroporto de Confins.";
         textoVolta =
           "Buscar passageiros no Aeroporto de Confins e levar para [ENDEREÇO].";
         break;
-      case "ida_e_volta_mg":
+      case "IDA_E_VOLTA_MG":
         textoIda = "Percurso de ida para [CIDADE-DESTINO].";
         textoVolta = "Percurso de volta de [CIDADE-DESTINO].";
         break;
-      case "somente_ida_mg":
+      case "SOMENTE_IDA_MG":
         textoIda = "Percurso somente de ida para [CIDADE-DESTINO].";
         textoVolta = "Não aplicável para somente ida."; // Garante que não é vazio
         break;
-      case "ida_e_volta_fora_mg":
+      case "IDA_E_VOLTA_FORA_MG":
         textoIda =
           "Percurso ida e volta saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
         textoVolta =
           "Volta do percurso saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
         break;
-      case "somente_ida_fora_mg":
+      case "SOMENTE_IDA_FORA_MG":
         textoIda =
           "Percurso somente ida saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
         textoVolta = "Não aplicável para somente ida."; // Garante que não é vazio
         break;
-      case "rota_colaboradores": // Para rota, startLocation e endLocation são os pontos da rota
+      case "ROTA_COLABORADORES": // Para rota, startLocation e endLocation são os pontos da rota
         textoIda = "Ponto de partida da rota de colaboradores.";
         textoVolta = "Ponto final da rota de colaboradores.";
         break;
@@ -406,7 +407,7 @@ export function FormularioNovaViagem() {
       novosErros.valor = "O valor deve ser um número positivo.";
     }
 
-    const isRota = dadosFormulario.tipoViagem === "rota_colaboradores";
+    const isRota = dadosFormulario.tipoViagem === "ROTA_COLABORADORES";
 
     if (!isRota) {
       // Validações para tipos de viagem que não são "rota_colaboradores"
@@ -481,7 +482,7 @@ export function FormularioNovaViagem() {
     // Validação para tipo de viagem "ida_e_volta" ou "fretamento_aeroporto"
     const isIdaEVolta =
       dadosFormulario.tipoViagem.includes("ida_e_volta") ||
-      dadosFormulario.tipoViagem === "fretamento_aeroporto";
+      dadosFormulario.tipoViagem === "FRETAMENTO_AEROPORTO";
     if (isIdaEVolta && !isRota) {
       // Validação de retorno para ida e volta, exceto para rota
       if (!dadosFormulario.endDate) {
@@ -595,7 +596,7 @@ export function FormularioNovaViagem() {
 
   // --- Lógicas de Renderização Condicional ---
   // Essas variáveis controlam quais seções do formulário serão exibidas
-  const isRota = dadosFormulario.tipoViagem === "rota_colaboradores";
+  const isRota = dadosFormulario.tipoViagem === "ROTA_COLABORADORES";
   const mostraPercursoIda = [
     "ida_e_volta_mg",
     "somente_ida_mg",
