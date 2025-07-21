@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import type { Viagem } from "../../../services/viagemService";
 import {
   format,
   startOfMonth,
@@ -11,6 +10,7 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
+import type { Viagem } from "../../../services/viagemService";
 
 interface CalendarioMensalProps {
   mesExibido: Date;
@@ -25,7 +25,7 @@ const CalendarGrid = styled.div`
   padding: 0 2rem;
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr); /* Ajuste para telas menores */
   }
 `;
 
@@ -54,7 +54,9 @@ const DayCell = styled.div<{ isToday: boolean; isCurrentMonth: boolean }>`
 `;
 
 const TripInCalendar = styled(Link)`
-  background-color: var(--cor-fundo-card);
+  background-color: var(
+    --cor-fundo-card
+  ); /* Ajuste para uma cor específica se desejar */
   color: var(--cor-primaria);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -77,9 +79,13 @@ export function CalendarioMensal({
   viagens,
 }: CalendarioMensalProps) {
   const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas a data
+
   const primeiroDiaDoMes = startOfMonth(mesExibido);
   const ultimoDiaDoMes = endOfMonth(mesExibido);
 
+  // Calcula o início da semana do primeiro dia e o fim da semana do último dia
+  // para preencher o calendário completo
   const inicioDaGrade = startOfWeek(primeiroDiaDoMes);
   const fimDaGrade = endOfWeek(ultimoDiaDoMes);
 
@@ -94,8 +100,9 @@ export function CalendarioMensal({
         ))}
 
         {dias.map((dia) => {
+          // Filtra as viagens que começam no dia atual
           const viagensDoDia = viagens.filter((v) =>
-            isSameDay(new Date(v.startDate + "T00:00"), dia)
+            isSameDay(new Date(v.startDate + "T00:00:00"), dia)
           );
 
           return (
@@ -104,7 +111,7 @@ export function CalendarioMensal({
               isToday={isSameDay(dia, hoje)}
               isCurrentMonth={isSameMonth(dia, mesExibido)}
             >
-              <div>{format(dia, "d")}</div>
+              <div>{format(dia, "d")}</div> {/* Exibe o número do dia */}
               {viagensDoDia.map((viagem) => (
                 <TripInCalendar key={viagem.id} to={`/editar/${viagem.id}`}>
                   {viagem.title}

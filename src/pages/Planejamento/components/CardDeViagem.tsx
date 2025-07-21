@@ -36,6 +36,7 @@ const InfoText = styled.p`
   font-weight: 500;
 `;
 
+// Adaptação para exibir o status do enum (em maiúsculas) de forma legível
 const InfoTag = styled.span`
   background-color: #e9ecef;
   color: #495057;
@@ -58,11 +59,29 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
     }
   };
 
+  // Função para formatar o status do enum para exibição amigável
+  const formatarStatusParaExibicao = (status: Viagem["status"]) => {
+    switch (status) {
+      case "AGENDADA":
+        return "Agendada";
+      case "EM_CURSO":
+        return "Em Curso";
+      case "FINALIZADA":
+        return "Finalizada";
+      case "CANCELADA":
+        return "Cancelada";
+      default:
+        return status; // Retorna o próprio valor se for desconhecido
+    }
+  };
+
   return (
     <CardContainer to={`/editar/${viagem.id}`}>
       <CardHeader>
         <CardTitle>{viagem.title}</CardTitle>
-        <InfoTag>{viagem.status}</InfoTag>
+        <InfoTag status={viagem.status}>
+          {formatarStatusParaExibicao(viagem.status)}
+        </InfoTag>
       </CardHeader>
 
       <InfoText>Veículo: {viagem.veiculoInfo}</InfoText>
@@ -73,12 +92,10 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
           Início: {formatarData(viagem.startDate)} às {viagem.startTime}{" "}
           {viagem.startLocation}
         </InfoText>
-        {viagem.endDate && viagem.endTime && viagem.endLocation && (
-          <InfoText>
-            Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
-            {viagem.endLocation}
-          </InfoText>
-        )}
+        <InfoText>
+          Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
+          {viagem.endLocation}
+        </InfoText>
       </InfoRow>
     </CardContainer>
   );

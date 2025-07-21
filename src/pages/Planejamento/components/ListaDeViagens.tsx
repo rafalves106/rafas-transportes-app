@@ -21,6 +21,7 @@ export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const ITENS_POR_PAGINA = 6;
 
+  // Reseta a página para 1 sempre que a lista de viagens muda (ex: filtro)
   useEffect(() => {
     setPaginaAtual(1);
   }, [viagens]);
@@ -65,6 +66,10 @@ export function ListaDeViagens({ viagens }: ListaDeViagensProps) {
           >
             <img src={BtnPagLft} alt="Página Anterior" />
           </Button>
+
+          <span>
+            Página {paginaAtual} de {totalDePaginas}
+          </span>
 
           <Button
             variant="secondary"
