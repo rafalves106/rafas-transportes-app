@@ -18,6 +18,7 @@ export interface Viagem {
   endDate: string; // Formato "YYYY-MM-DD"
   endTime: string; // Formato "HH:MM"
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA"; // Agora um enum string no backend
+  tipoViagem: string;
 }
 
 // Interface para os dados de Cadastro de Viagem enviados ao backend (DadosCadastroViagem)
@@ -36,6 +37,7 @@ export interface CadastroViagemData {
   endDate: string;
   endTime: string;
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
+  tipoViagem: string;
 }
 
 // Interface para os dados de Atualização de Viagem enviados ao backend (DadosAtualizacaoViagem)

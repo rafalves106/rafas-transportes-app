@@ -53,6 +53,8 @@ public class Viagem {
     @Column(columnDefinition = "TEXT") // Local de fim pode ser opcional
     private String endLocation;
 
+    private TipoViagem tipoViagem;
+
     // --- NOVO CONSTRUTOR PARA CADASTRO A PARTIR DO DTO ---
     public Viagem(DadosCadastroViagem dados, Veiculo veiculo, Motorista motorista) {
         this.title = dados.title();
@@ -68,6 +70,8 @@ public class Viagem {
         this.endDate = dados.endDate();
         this.endTime = dados.endTime();
         this.status = StatusViagem.AGENDADA; // Status inicial padrão
+        this.tipoViagem = TipoViagem.IDA_E_VOLTA_MG; // Status inicial padrão
+
     }
 
     // --- MÉTODO DE ATUALIZAÇÃO DE INFORMAÇÕES (APÓS REMOVER @Setter) ---
@@ -104,6 +108,9 @@ public class Viagem {
         }
         if (dados.status() != null) {
             this.status = dados.status(); // Permite atualizar o status
+        }
+        if (dados.tipoViagem() != null) {
+            this.tipoViagem = dados.tipoViagem(); // Permite atualizar o tipo de viagem
         }
         // Atualiza as referências de veículo e motorista se forem fornecidas
         if (veiculoAtualizado != null) {

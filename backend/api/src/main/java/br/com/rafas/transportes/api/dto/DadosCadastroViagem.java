@@ -1,6 +1,7 @@
 package br.com.rafas.transportes.api.dto;
 
 import br.com.rafas.transportes.api.domain.StatusViagem; // Importa o enum de status
+import br.com.rafas.transportes.api.domain.TipoViagem;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -47,5 +48,8 @@ public record DadosCadastroViagem(
         // Geralmente, o status inicial é AGENDADA, então o backend pode definir
         // ou receber aqui. Para manter consistente com a entidade, vamos incluí-lo.
         @NotNull
-        StatusViagem status
+        StatusViagem status,
+
+        @NotNull
+        TipoViagem tipoViagem
 ) {}

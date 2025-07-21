@@ -205,7 +205,7 @@ export function FormularioNovaViagem() {
         valor: String(viagem.valor || ""), // Garante que seja string para o input
         // tipoViagem não existe na entidade Viagem, então defina um padrão ou o que for relevante
         // ou mantenha o valor atual do estado se não for resetar
-        tipoViagem: dadosFormulario.tipoViagem, // Mantém o tipo de viagem atual ou defina um padrão
+        tipoViagem: dadosFormulario.tipoViagem || "ida_e_volta_mg", // Mantém o tipo de viagem atual ou defina um padrão
         startDate: viagem.startDate,
         startTime: viagem.startTime,
         startLocation: viagem.startLocation || "",
@@ -525,6 +525,7 @@ export function FormularioNovaViagem() {
       endDate: dadosFormulario.endDate,
       endTime: dadosFormulario.endTime,
       status: dadosFormulario.status, // Envia o status do formulário (que já é AGENDADA por padrão)
+      tipoViagem: dadosFormulario.tipoViagem,
     };
 
     console.log("Enviando para API:", dadosParaApi);

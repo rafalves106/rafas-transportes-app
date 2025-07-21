@@ -1,6 +1,7 @@
 package br.com.rafas.transportes.api.dto;
 
 import br.com.rafas.transportes.api.domain.StatusViagem;
+import br.com.rafas.transportes.api.domain.TipoViagem;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -24,5 +25,6 @@ public record DadosAtualizacaoViagem(
         @FutureOrPresent
         LocalDate endDate,
         LocalTime endTime,
-        StatusViagem status // Status pode ser alterado
+        StatusViagem status, // Status pode ser alterado
+        TipoViagem tipoViagem // Tipo de viagem pode ser alterado
 ) {}
