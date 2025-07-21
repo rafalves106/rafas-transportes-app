@@ -794,26 +794,28 @@ export function FormularioNovaViagem() {
             )}
 
             {/* Motoristas */}
-            <InputGroup>
-              <SectionTitle>Motoristas</SectionTitle>
-              <Label htmlFor="motoristaIdSelecionado">Motorista</Label>
-              <Select
-                id="motoristaIdSelecionado"
-                value={motoristaIdSelecionado}
-                onChange={(e) => setMotoristaIdSelecionado(e.target.value)}
-                hasError={!!erros.motoristaIdSelecionado}
-              >
-                <option value="">Selecione um motorista</option>
-                {listaMotoristas.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.nome}
-                  </option>
-                ))}
-              </Select>
-              {erros.motoristaIdSelecionado && (
-                <ErrorMessage>{erros.motoristaIdSelecionado}</ErrorMessage>
-              )}
-            </InputGroup>
+            {!isRota && (
+              <InputGroup>
+                <SectionTitle>Motoristas</SectionTitle>
+                <Label htmlFor="motoristaIdSelecionado">Motorista</Label>
+                <Select
+                  id="motoristaIdSelecionado"
+                  value={motoristaIdSelecionado}
+                  onChange={(e) => setMotoristaIdSelecionado(e.target.value)}
+                  hasError={!!erros.motoristaIdSelecionado}
+                >
+                  <option value="">Selecione um motorista</option>
+                  {listaMotoristas.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.nome}
+                    </option>
+                  ))}
+                </Select>
+                {erros.motoristaIdSelecionado && (
+                  <ErrorMessage>{erros.motoristaIdSelecionado}</ErrorMessage>
+                )}
+              </InputGroup>
+            )}
 
             {/* Valores */}
             <InputGroup>
