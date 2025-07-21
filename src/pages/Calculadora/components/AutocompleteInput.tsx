@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { Input, Label, InputGroup } from "../../../components/ui/Form";
 import cidadesJson from "../../../data/cidades.json";
@@ -44,12 +44,10 @@ export function AutocompleteInput({
   onChange,
   placeholder,
 }: AutocompleteProps) {
-  const [inputValue, setInputValue] = useState(value);
   const [sugestoes, setSugestoes] = useState<string[]>([]);
+  const [listaVisivel, setListaVisivel] = useState(false);
 
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const todasAsCidadesComEstado = useMemo(() => {
     return cidadesJson.estados.flatMap((estado) =>
@@ -58,12 +56,12 @@ export function AutocompleteInput({
   }, []);
 
   useEffect(() => {
-    if (inputValue.length < 2) {
+    if (value.length < 2) {
       setSugestoes([]);
       return;
     }
 
-    const textoDigitadoLimpo = removerAcentos(inputValue);
+    const textoDigitadoLimpo = removerAcentos(value);
 
     const filteredSugestoes = todasAsCidadesComEstado
       .filter((cidade) => {
@@ -73,12 +71,27 @@ export function AutocompleteInput({
       .slice(0, 7);
 
     setSugestoes(filteredSugestoes);
-  }, [inputValue, todasAsCidadesComEstado]);
+  }, [value, todasAsCidadesComEstado]);
+
+  useEffect(() => {
+    const handleClickFora = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setListaVisivel(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickFora);
+    return () => {
+      document.removeEventListener("mousedown", handleClickFora);
+    };
+  }, []);
 
   const handleSuggestionClick = (sugestao: string) => {
     onChange(sugestao);
-    setInputValue(sugestao);
-    setSugestoes([]);
+    setListaVisivel(false);
   };
 
   const removerAcentos = (texto: string) =>
@@ -90,20 +103,23 @@ export function AutocompleteInput({
   return (
     <InputGroup>
       {label && <Label>{label}</Label>}
-      <AutocompleteContainer>
+      <AutocompleteContainer ref={containerRef}>
         <Input
           type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setListaVisivel(true);
+          }}
           placeholder={placeholder}
           autoComplete="off"
         />
-        {sugestoes.length > 0 && (
+        {listaVisivel && sugestoes.length > 0 && (
           <SuggestionsList>
             {sugestoes.map((sugestao) => (
               <SuggestionItem
                 key={sugestao}
-                onClick={() => handleSuggestionClick(sugestao)}
+                onMouseDown={() => handleSuggestionClick(sugestao)}
               >
                 {sugestao}
               </SuggestionItem>
