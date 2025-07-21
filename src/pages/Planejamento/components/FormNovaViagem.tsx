@@ -268,7 +268,8 @@ export function FormularioNovaViagem() {
       setMotoristaIdSelecionado("");
       setIsPrePopulatedFromBudget(false);
     }
-  }, [isEditing, viagem, location.state, dadosFormulario.tipoViagem]); // Dependências do useEffect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, viagem, location.state]); // Dependências do useEffect
 
   // Efeito para autogerar descrições de percurso baseadas no tipo de viagem
   useEffect(() => {
