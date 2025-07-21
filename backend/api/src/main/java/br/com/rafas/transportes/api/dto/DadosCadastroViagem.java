@@ -2,7 +2,6 @@ package br.com.rafas.transportes.api.dto;
 
 import br.com.rafas.transportes.api.domain.StatusViagem;
 import br.com.rafas.transportes.api.domain.TipoViagem;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -34,13 +33,10 @@ public record DadosCadastroViagem(
         Long veiculoId,
         Long motoristaId,
 
-        @NotNull @FutureOrPresent // Data de início é obrigatória e não pode ser no passado
         LocalDate startDate,
 
-        @NotNull // Hora de início é obrigatória
         LocalTime startTime,
 
-        @FutureOrPresent // Data de fim não pode ser no passado (se presente)
         LocalDate endDate,
 
         LocalTime endTime,

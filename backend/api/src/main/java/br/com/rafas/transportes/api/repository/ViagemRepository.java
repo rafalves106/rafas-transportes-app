@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,4 +36,49 @@ public interface ViagemRepository extends JpaRepository<Viagem, Long> {
             and v.startDate <= :endDate
             """)
     List<Viagem> findVeiculoConflitos(Long veiculoId, LocalDate startDate, LocalDate endDate);
+
+    @Query("""
+            SELECT v FROM Viagem v
+            WHERE
+                (v.veiculo.id = :veiculoId OR :veiculoId IS NULL)
+                AND v.tipoViagem != 'ROTA_COLABORADORES'
+                AND v.startDate <= :endDate
+                AND v.endDate >= :startDate
+                AND (
+                    (v.startTime <= :endTime AND v.endTime >= :startTime)
+                    OR (v.startDate < :endDate AND v.endDate > :startDate)
+                )
+                AND v.id != :viagemIdToExclude
+            """)
+    List<Viagem> findVeiculoConflitosByTime(
+            Long veiculoId,
+            LocalDate startDate,
+            LocalTime startTime,
+            LocalDate endDate,
+            LocalTime endTime,
+            Long viagemIdToExclude
+    );
+
+    @Query("""
+        SELECT v FROM Viagem v
+        WHERE
+            (v.motorista.id = :motoristaId OR :motoristaId IS NULL) -- Conflito com motorista principal da viagem OU com o ID do motorista do item da rota (se o motorista principal for nulo)
+            AND v.tipoViagem != 'ROTA_COLABORADORES' -- Exclui outras rotas por enquanto
+            AND v.startDate <= :endDate
+            AND v.endDate >= :startDate
+            AND (
+                (v.startTime <= :endTime AND v.endTime >= :startTime)
+                OR (v.startDate < :endDate AND v.endDate > :startDate)
+            )
+            AND v.id != :viagemIdToExclude -- Exclui a própria viagem em caso de atualização
+        """)
+    List<Viagem> findMotoristaConflitosByTime(
+            Long motoristaId,
+            LocalDate startDate,
+            LocalTime startTime,
+            LocalDate endDate,
+            LocalTime endTime,
+            Long viagemIdToExclude
+    );
+
 }
