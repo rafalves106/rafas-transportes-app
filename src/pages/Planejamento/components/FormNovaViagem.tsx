@@ -975,16 +975,79 @@ export function FormularioNovaViagem() {
               </>
             )}
 
-            {/* Seção Rota de Colaboradores - Exibida apenas para tipo "rota_colaboradores" */}
             {isRota && (
               <InputGroup>
-                <SectionTitle>Veículos e Horários da Rota</SectionTitle>
+                <SectionTitle>Período da Rota</SectionTitle>{" "}
+                {/* Nova seção para as datas da rota */}
+                <InputRow>
+                  <InputGroup>
+                    <Label htmlFor="startDate">Data de Início da Rota</Label>
+                    <Input
+                      id="startDate"
+                      name="startDate"
+                      type="date"
+                      value={dadosFormulario.startDate}
+                      onChange={handleInputChange}
+                      hasError={!!erros.startDate}
+                    />
+                    {erros.startDate && (
+                      <ErrorMessage>{erros.startDate}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                  <InputGroup>
+                    <Label htmlFor="startTime">Hora de Início da Rota</Label>
+                    <Input
+                      id="startTime"
+                      name="startTime"
+                      type="time"
+                      value={dadosFormulario.startTime}
+                      onChange={handleInputChange}
+                      hasError={!!erros.startTime}
+                    />
+                    {erros.startTime && (
+                      <ErrorMessage>{erros.startTime}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                </InputRow>
+                <InputRow>
+                  <InputGroup>
+                    <Label htmlFor="endDate">Data de Fim da Rota</Label>
+                    <Input
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      value={dadosFormulario.endDate}
+                      onChange={handleInputChange}
+                      hasError={!!erros.endDate}
+                    />
+                    {erros.endDate && (
+                      <ErrorMessage>{erros.endDate}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                  <InputGroup>
+                    <Label htmlFor="endTime">Hora de Fim da Rota</Label>
+                    <Input
+                      id="endTime"
+                      name="endTime"
+                      type="time"
+                      value={dadosFormulario.endTime}
+                      onChange={handleInputChange}
+                      hasError={!!erros.endTime}
+                    />
+                    {erros.endTime && (
+                      <ErrorMessage>{erros.endTime}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                </InputRow>
+                {/* Título da seção de veículos e horários da rota */}
+                <SectionTitle style={{ marginTop: "1.5rem" }}>
+                  Veículos e Horários da Rota
+                </SectionTitle>
                 {dadosFormulario.rota.map((itemRota, veiculoIndex) => (
                   <RotaVeiculoBloco key={veiculoIndex}>
                     <LabelContainer>
-                      <Label htmlFor={`veiculo-rota-${veiculoIndex}`}>
-                        Veículo da Rota {veiculoIndex + 1}
-                      </Label>
+                      <Label>Item da Rota {veiculoIndex + 1}</Label>{" "}
+                      {/* Título para cada item */}
                       {veiculoIndex > 0 && (
                         <Button
                           variant="danger"
@@ -995,48 +1058,64 @@ export function FormularioNovaViagem() {
                         </Button>
                       )}
                     </LabelContainer>
-                    <Select
-                      id={`veiculo-rota-${veiculoIndex}`}
-                      value={itemRota.veiculoId}
-                      onChange={(e) => handleRotaVeiculoChange(veiculoIndex, e)}
-                      hasError={!!erros[`rota[${veiculoIndex}].veiculoId`]}
-                    >
-                      <option value="">Selecione</option>
-                      {listaVeiculos.map((v) => (
-                        <option key={v.id} value={v.id}>
-                          {v.model} ({v.plate})
-                        </option>
-                      ))}
-                    </Select>
-                    {erros[`rota[${veiculoIndex}].veiculoId`] && (
-                      <ErrorMessage>
-                        {erros[`rota[${veiculoIndex}].veiculoId`]}
-                      </ErrorMessage>
-                    )}
 
-                    <Label htmlFor={`motorista-rota-${veiculoIndex}`}>
-                      Motorista da Rota {veiculoIndex + 1}
-                    </Label>
-                    <Select
-                      id={`motorista-rota-${veiculoIndex}`}
-                      value={itemRota.motoristaId} // Use itemRota.motoristaId
-                      onChange={(e) =>
-                        handleRotaMotoristaChange(veiculoIndex, e)
-                      } // Nova função
-                      hasError={!!erros[`rota[${veiculoIndex}].motoristaId`]}
-                    >
-                      <option value="">Selecione</option>
-                      {listaMotoristas.map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.nome}
-                        </option>
-                      ))}
-                    </Select>
-                    {erros[`rota[${veiculoIndex}].motoristaId`] && (
-                      <ErrorMessage>
-                        {erros[`rota[${veiculoIndex}].motoristaId`]}
-                      </ErrorMessage>
-                    )}
+                    {/* NOVO: Agrupando Veículo e Motorista na mesma linha */}
+                    <InputRow>
+                      <InputGroup>
+                        <Label htmlFor={`veiculo-rota-${veiculoIndex}`}>
+                          Veículo
+                        </Label>
+                        <Select
+                          id={`veiculo-rota-${veiculoIndex}`}
+                          value={itemRota.veiculoId}
+                          onChange={(e) =>
+                            handleRotaVeiculoChange(veiculoIndex, e)
+                          }
+                          hasError={!!erros[`rota[${veiculoIndex}].veiculoId`]}
+                        >
+                          <option value="">Selecione</option>
+                          {listaVeiculos.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.model} ({v.plate})
+                            </option>
+                          ))}
+                        </Select>
+                        {erros[`rota[${veiculoIndex}].veiculoId`] && (
+                          <ErrorMessage>
+                            {erros[`rota[${veiculoIndex}].veiculoId`]}
+                          </ErrorMessage>
+                        )}
+                      </InputGroup>
+
+                      <InputGroup>
+                        <Label htmlFor={`motorista-rota-${veiculoIndex}`}>
+                          Motorista
+                        </Label>
+                        <Select
+                          id={`motorista-rota-${veiculoIndex}`}
+                          value={itemRota.motoristaId}
+                          onChange={(e) =>
+                            handleRotaMotoristaChange(veiculoIndex, e)
+                          }
+                          hasError={
+                            !!erros[`rota[${veiculoIndex}].motoristaId`]
+                          }
+                        >
+                          <option value="">Selecione</option>
+                          {listaMotoristas.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.nome}
+                            </option>
+                          ))}
+                        </Select>
+                        {erros[`rota[${veiculoIndex}].motoristaId`] && (
+                          <ErrorMessage>
+                            {erros[`rota[${veiculoIndex}].motoristaId`]}
+                          </ErrorMessage>
+                        )}
+                      </InputGroup>
+                    </InputRow>
+                    {/* FIM do NOVO agrupamento */}
 
                     <Label>Horários do Veículo</Label>
                     {itemRota.horarios.map((horario, horarioIndex) => (

@@ -76,6 +76,13 @@ const InfoTag = styled.span<{ status: Viagem["status"] }>`
   }};
 `;
 
+const RotaItemText = styled.p`
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+  padding-left: 0.5rem;
+`;
+
 interface CardDeViagemProps {
   viagem: Viagem;
 }
@@ -120,21 +127,40 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
         </InfoTag>
       </CardHeader>
 
-      <InfoText>Veículo: {viagem.veiculoInfo}</InfoText>
-      <InfoText>Motorista: {viagem.motoristaNome}</InfoText>
+      {viagem.tipoViagem === "ROTA_COLABORADORES" ? (
+        <>
+          {viagem.itensRota && viagem.itensRota.length > 0 ? (
+            viagem.itensRota.map((item, index) => (
+              <RotaItemText key={index}>
+                {item.veiculoInfo} | {item.motoristaNome} | {item.horarioInicio}{" "}
+                - {item.horarioFim}
+              </RotaItemText>
+            ))
+          ) : (
+            <RotaItemText>
+              Nenhum veículo/motorista definido para esta rota.
+            </RotaItemText>
+          )}
+        </>
+      ) : (
+        <>
+          <InfoText>Veículo: {viagem.veiculoInfo}</InfoText>
+          <InfoText>Motorista: {viagem.motoristaNome}</InfoText>
 
-      <InfoRow>
-        <InfoText>
-          Início: {formatarData(viagem.startDate)} às {viagem.startTime}{" "}
-          {viagem.startLocation}
-        </InfoText>
-        {mostraInfoFim && (
-          <InfoText>
-            Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
-            {viagem.endLocation}
-          </InfoText>
-        )}
-      </InfoRow>
+          <InfoRow>
+            <InfoText>
+              Início: {formatarData(viagem.startDate)} às {viagem.startTime}{" "}
+              {viagem.startLocation}
+            </InfoText>
+            {mostraInfoFim && (
+              <InfoText>
+                Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
+                {viagem.endLocation}
+              </InfoText>
+            )}
+          </InfoRow>
+        </>
+      )}
     </CardContainer>
   );
 }
