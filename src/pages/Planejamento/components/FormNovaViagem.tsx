@@ -431,6 +431,20 @@ export function FormularioNovaViagem() {
             "A data de retorno não pode ser anterior à data de início.";
         }
       }
+
+      if (
+        dadosFormulario.startDate &&
+        dadosFormulario.startTime &&
+        dadosFormulario.endDate &&
+        dadosFormulario.endTime &&
+        dadosFormulario.startDate === dadosFormulario.endDate // Apenas se as datas forem as mesmas
+      ) {
+        if (dadosFormulario.startTime >= dadosFormulario.endTime) {
+          // Se hora de início for igual ou depois da hora de fim
+          novosErros.endTime =
+            "A hora de retorno deve ser posterior à hora de saída no mesmo dia.";
+        }
+      }
     } else {
       // Validações específicas para "rota_colaboradores"
       if (dadosFormulario.rota.length === 0) {
