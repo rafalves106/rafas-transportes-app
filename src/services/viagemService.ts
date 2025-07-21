@@ -1,34 +1,27 @@
 import api from "./api";
 
+// Interface para os dados de Viagem retornados pelo backend (DadosDetalhamentoViagem)
 export interface Viagem {
-  tipo: TipoViagem;
   id: number;
   title: string;
   clientName: string;
   telefone: string;
-  valor: number;
+  valor: number; // BigDecimal no backend, number no JS
   startLocation: string;
   endLocation: string;
   veiculoId: number;
-  veiculoInfo: string;
+  veiculoInfo: string; // Ex: "Modelo (Placa)"
   motoristaId: number;
-  motoristaNome: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  status: string;
+  motoristaNome: string; // Ex: "Nome do Motorista"
+  startDate: string; // Formato "YYYY-MM-DD"
+  startTime: string; // Formato "HH:MM"
+  endDate: string; // Formato "YYYY-MM-DD"
+  endTime: string; // Formato "HH:MM"
+  status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA"; // Agora um enum string no backend
 }
 
-export enum TipoViagem {
-  FRETAMENTO_AEROPORTO = "FRETAMENTO_AEROPORTO",
-  IDA_E_VOLTA_MG = "IDA_E_VOLTA_MG",
-  SOMENTE_IDA_MG = "SOMENTE_IDA_MG",
-  IDA_E_VOLTA_FORA_MG = "IDA_E_VOLTA_FORA_MG",
-  SOMENTE_IDA_FORA_MG = "SOMENTE_IDA_FORA_MG",
-  ROTA_COLABORADORES = "ROTA_COLABORADORES",
-}
-
+// Interface para os dados de Cadastro de Viagem enviados ao backend (DadosCadastroViagem)
+// O status é obrigatório no cadastro, como definido no backend.
 export interface CadastroViagemData {
   title: string;
   clientName: string;
@@ -42,9 +35,11 @@ export interface CadastroViagemData {
   startTime: string;
   endDate: string;
   endTime: string;
-  tipo: TipoViagem;
+  status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
 }
 
+// Interface para os dados de Atualização de Viagem enviados ao backend (DadosAtualizacaoViagem)
+// Todos os campos são opcionais, exceto o ID da viagem a ser atualizada
 export type UpdateViagemData = Partial<CadastroViagemData>;
 
 const ROTA = "/viagens";

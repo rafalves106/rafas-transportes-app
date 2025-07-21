@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useParams, useLocation, useOutletContext } from "react-router-dom";
+import { isAxiosError } from "axios";
 
 // Componentes UI reutilizáveis
 import { Button } from "../../../components/ui/Button";
@@ -16,7 +17,7 @@ import {
 import { InputRow } from "../../../components/ui/Layout";
 import { ConfirmationModal } from "../../../components/ConfirmationModal";
 
-// Serviços da API
+// Services da API (tipagem e acesso aos endpoints)
 import {
   viagemService,
   type Viagem,
@@ -28,7 +29,6 @@ import {
   motoristaService,
   type Driver,
 } from "../../../services/motoristaService";
-import axios from "axios";
 
 // Styled Components (Manter os que já existem e fazem sentido para o layout)
 const FormGrid = styled.div`
@@ -117,22 +117,23 @@ interface FormContextType {
   viagem?: Viagem;
 }
 
-// **NOVA TIPAGEM PARA O ESTADO DO FORMULÁRIO**
-// Isso é crucial para a validação e consistência
+// NOVA TIPAGEM PARA O ESTADO DO FORMULÁRIO DO FRONTEND
 interface ViagemFormState {
   title: string;
   clientName: string;
   telefone: string;
   valor: string; // Usar string para o input type="number"
-  tipoViagem: string; // "fretamento_aeroporto", "ida_e_volta_mg", etc.
+  tipoViagem: string; // Para controlar o tipo de viagem no formulário
   startDate: string; // "YYYY-MM-DD"
   startTime: string; // "HH:MM"
   startLocation: string;
   endDate: string; // "YYYY-MM-DD"
   endTime: string; // "HH:MM"
   endLocation: string;
-  // A 'rota' é um campo mais complexo, só aparece se 'tipoViagem' for 'rota_colaboradores'
+  // 'rota' é específica para o frontend (se for tipo "rota_colaboradores")
   rota: { veiculoId: string; horarios: { inicio: string; fim: string }[] }[];
+  // status do backend, usado para edição. Para cadastro, definimos um padrão.
+  status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
 }
 
 export function FormularioNovaViagem() {
@@ -156,7 +157,7 @@ export function FormularioNovaViagem() {
     clientName: "",
     telefone: "",
     valor: "",
-    tipoViagem: "ida_e_volta_mg",
+    tipoViagem: "ida_e_volta_mg", // Valor padrão inicial
     startDate: "",
     startTime: "",
     startLocation: "",
@@ -164,6 +165,7 @@ export function FormularioNovaViagem() {
     endTime: "",
     endLocation: "",
     rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
+    status: "AGENDADA", // Status padrão para nova viagem
   });
 
   const [erros, setErros] = useState<{ [key: string]: string }>({});
@@ -186,7 +188,6 @@ export function FormularioNovaViagem() {
         setListaMotoristas(motoristasData.filter((m) => m.status === "ATIVO"));
       } catch (err) {
         console.error("Erro ao carregar listas para o formulário:", err);
-        // Implementar um alerta para o usuário, se for um erro crítico
         alert("Não foi possível carregar as listas de veículos ou motoristas.");
       }
     };
@@ -196,20 +197,23 @@ export function FormularioNovaViagem() {
   // Efeito para preencher o formulário em modo edição ou com dados do orçamento
   useEffect(() => {
     if (isEditing && viagem) {
-      // Modo Edição
+      // Modo Edição - Preenche com dados da viagem existente
       setDadosFormulario({
         title: viagem.title,
         clientName: viagem.clientName || "",
         telefone: viagem.telefone || "",
-        valor: String(viagem.valor || ""), // Garante que seja string
-        tipoViagem: "ida_e_volta_mg",
+        valor: String(viagem.valor || ""), // Garante que seja string para o input
+        // tipoViagem não existe na entidade Viagem, então defina um padrão ou o que for relevante
+        // ou mantenha o valor atual do estado se não for resetar
+        tipoViagem: dadosFormulario.tipoViagem, // Mantém o tipo de viagem atual ou defina um padrão
         startDate: viagem.startDate,
         startTime: viagem.startTime,
         startLocation: viagem.startLocation || "",
         endDate: viagem.endDate,
         endTime: viagem.endTime,
         endLocation: viagem.endLocation || "",
-        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }], // Ou preencher com dados reais se a Viagem tiver rota
+        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }], // TODO: Preencher com dados reais da rota se houver
+        status: viagem.status,
       });
       setVeiculoIdSelecionado(String(viagem.veiculoId || ""));
       setMotoristaIdSelecionado(String(viagem.motoristaId || ""));
@@ -237,7 +241,8 @@ export function FormularioNovaViagem() {
           dadosDoOrcamento.descricaoVoltaOrcamento ||
           dadosDoOrcamento.destino ||
           "",
-        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }], // Default para rota
+        rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }], // Default para rota (orçamento não tem info de rota)
+        status: "AGENDADA", // Status padrão para orçamento -> viagem
       });
       setVeiculoIdSelecionado(""); // Não vem do orçamento
       setMotoristaIdSelecionado(""); // Não vem do orçamento
@@ -257,12 +262,13 @@ export function FormularioNovaViagem() {
         endTime: "",
         endLocation: "",
         rota: [{ veiculoId: "", horarios: [{ inicio: "", fim: "" }] }],
+        status: "AGENDADA", // Status padrão para nova viagem
       });
       setVeiculoIdSelecionado("");
       setMotoristaIdSelecionado("");
       setIsPrePopulatedFromBudget(false);
     }
-  }, [isEditing, viagem, location.state]);
+  }, [isEditing, viagem, location.state, dadosFormulario.tipoViagem]); // Dependências do useEffect
 
   // Efeito para autogerar descrições de percurso baseadas no tipo de viagem
   useEffect(() => {
@@ -285,7 +291,7 @@ export function FormularioNovaViagem() {
         break;
       case "somente_ida_mg":
         textoIda = "Percurso somente de ida para [CIDADE-DESTINO].";
-        textoVolta = "";
+        textoVolta = "Não aplicável para somente ida."; // Garante que não é vazio
         break;
       case "ida_e_volta_fora_mg":
         textoIda =
@@ -296,9 +302,13 @@ export function FormularioNovaViagem() {
       case "somente_ida_fora_mg":
         textoIda =
           "Percurso somente ida saindo de [CIDADE-INICIAL] para [CIDADE-DESTINO].";
-        textoVolta = "";
+        textoVolta = "Não aplicável para somente ida."; // Garante que não é vazio
         break;
-      default: // "rota_colaboradores" ou outros tipos que não precisam de auto-descrição simples
+      case "rota_colaboradores": // Para rota, startLocation e endLocation são os pontos da rota
+        textoIda = "Ponto de partida da rota de colaboradores.";
+        textoVolta = "Ponto final da rota de colaboradores.";
+        break;
+      default: // Fallback caso o tipo de viagem não se encaixe
         textoIda = "";
         textoVolta = "";
         break;
@@ -309,7 +319,7 @@ export function FormularioNovaViagem() {
       startLocation: textoIda,
       endLocation: textoVolta,
     }));
-  }, [dadosFormulario.tipoViagem, isEditing, isPrePopulatedFromBudget]);
+  }, [dadosFormulario.tipoViagem, isEditing, isPrePopulatedFromBudget]); // Adicionadas deps para evitar loop infinito
 
   // --- Funções de Manipulação de Eventos ---
 
@@ -380,7 +390,7 @@ export function FormularioNovaViagem() {
   };
 
   // --- Validação do Formulário ---
-
+  // Use useCallback para memorizar a função de validação e evitar recriações desnecessárias
   const validate = useCallback(() => {
     const novosErros: { [key: string]: string } = {};
 
@@ -413,8 +423,8 @@ export function FormularioNovaViagem() {
       }
       // Validação de datas para que endDate não seja anterior a startDate
       if (dadosFormulario.startDate && dadosFormulario.endDate) {
-        const start = new Date(dadosFormulario.startDate);
-        const end = new Date(dadosFormulario.endDate);
+        const start = new Date(dadosFormulario.startDate + "T00:00:00"); // Adiciona T00:00:00 para evitar problemas de fuso horário
+        const end = new Date(dadosFormulario.endDate + "T00:00:00");
         if (end < start) {
           novosErros.endDate =
             "A data de retorno não pode ser anterior à data de início.";
@@ -455,10 +465,11 @@ export function FormularioNovaViagem() {
               if (
                 horario.inicio &&
                 horario.fim &&
-                horario.inicio > horario.fim
+                horario.inicio >= horario.fim
               ) {
+                // Alterado para >= para incluir horários iguais
                 novosErros[`rota[${idx}].horarios[${hIdx}].fim`] =
-                  "A hora de fim não pode ser anterior à hora de início.";
+                  "A hora de fim não pode ser anterior ou igual à hora de início.";
               }
             });
           }
@@ -466,6 +477,7 @@ export function FormularioNovaViagem() {
       }
     }
 
+    // Validação para tipo de viagem "ida_e_volta" ou "fretamento_aeroporto"
     const isIdaEVolta =
       dadosFormulario.tipoViagem.includes("ida_e_volta") ||
       dadosFormulario.tipoViagem === "fretamento_aeroporto";
@@ -498,6 +510,7 @@ export function FormularioNovaViagem() {
     setErros({}); // Limpa erros se a validação passar
 
     // Monta o objeto de dados para a API (CadastroViagemData ou UpdateViagemData)
+    // Garante que o status seja enviado em MAIÚSCULAS
     const dadosParaApi: CadastroViagemData | UpdateViagemData = {
       title: dadosFormulario.title.trim(),
       clientName: dadosFormulario.clientName.trim(),
@@ -511,17 +524,10 @@ export function FormularioNovaViagem() {
       startTime: dadosFormulario.startTime,
       endDate: dadosFormulario.endDate,
       endTime: dadosFormulario.endTime,
-      // status: "AGENDADA" (se quiser definir um status inicial para novas viagens)
+      status: dadosFormulario.status, // Envia o status do formulário (que já é AGENDADA por padrão)
     };
 
     console.log("Enviando para API:", dadosParaApi);
-
-    // Validação adicional de IDs antes de enviar (já coberta pelo 'validate' agora)
-    if (!dadosParaApi.veiculoId || !dadosParaApi.motoristaId) {
-      // Este alerta será menos frequente com a validação do 'validate()'
-      alert("Por favor, selecione ao menos um veículo e um motorista.");
-      return;
-    }
 
     try {
       if (isEditing && tripId) {
@@ -534,29 +540,24 @@ export function FormularioNovaViagem() {
       alert("Viagem salva com sucesso!");
       onSuccess(); // Chama a função do contexto para atualizar a lista e fechar o modal
     } catch (error) {
-      // --- MODIFICAÇÃO AQUI ---
+      // Tratamento de erros da API (melhorado para AxiosError)
       let errorMessage = "Ocorreu um erro desconhecido ao salvar a viagem.";
-
       // Importar axios se ainda não estiver importado no topo do arquivo
       // import axios from "axios";
-      if (axios.isAxiosError(error)) {
-        console.error("Erro Axios completo:", error); // Loga o erro completo para ver todos os detalhes
+      if (isAxiosError(error)) {
+        console.error("Erro Axios completo:", error);
 
         if (error.response) {
-          // O servidor respondeu com um status diferente de 2xx
           console.error("Dados do erro da API:", error.response.data);
           console.error("Status do erro da API:", error.response.status);
-          console.error("Headers do erro da API:", error.response.headers);
 
           if (error.response.data && typeof error.response.data === "string") {
-            // Se o backend retorna apenas uma string de erro
             errorMessage = error.response.data;
           } else if (
             error.response.data &&
             typeof error.response.data === "object" &&
             error.response.data.message
           ) {
-            // Se o backend retorna um objeto com uma propriedade 'message'
             errorMessage = error.response.data.message;
           } else if (error.response.status === 403) {
             errorMessage =
@@ -567,12 +568,9 @@ export function FormularioNovaViagem() {
             }`;
           }
         } else if (error.request) {
-          // A requisição foi feita, mas não houve resposta (e.g., rede caiu)
           errorMessage =
             "Erro de rede: Não foi possível conectar ao servidor. Verifique sua conexão.";
-          console.error("Erro de requisição (sem resposta):", error.request);
         } else {
-          // Algo mais aconteceu na configuração da requisição que disparou um erro
           errorMessage = `Erro na requisição: ${error.message}`;
         }
       } else if (error instanceof Error) {
@@ -580,7 +578,6 @@ export function FormularioNovaViagem() {
       }
 
       alert(errorMessage);
-      // --- FIM DA MODIFICAÇÃO ---
     }
   };
 
@@ -712,8 +709,8 @@ export function FormularioNovaViagem() {
               <SectionTitle>Valores</SectionTitle>
               <Label htmlFor="valor">Valor do Serviço (R$)</Label>
               <Input
-                id="valor" // Alterado de "value" para "valor" para consistência
-                name="valor" // Alterado de "value" para "valor" para consistência
+                id="valor"
+                name="valor"
                 type="number"
                 placeholder="R$ Valor do Serviço"
                 value={dadosFormulario.valor}
@@ -722,6 +719,25 @@ export function FormularioNovaViagem() {
               />
               {erros.valor && <ErrorMessage>{erros.valor}</ErrorMessage>}
             </InputGroup>
+
+            {/* Status da Viagem (adicionado para edição) */}
+            {isEditing && (
+              <InputGroup>
+                <SectionTitle>Status da Viagem</SectionTitle>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  id="status"
+                  name="status"
+                  value={dadosFormulario.status}
+                  onChange={handleInputChange}
+                >
+                  <option value="AGENDADA">Agendada</option>
+                  <option value="EM_CURSO">Em Curso</option>
+                  <option value="FINALIZADA">Finalizada</option>
+                  <option value="CANCELADA">Cancelada</option>
+                </Select>
+              </InputGroup>
+            )}
           </FormSectionSide>
 
           {/* Coluna Principal - Dados da Viagem e Rota */}
@@ -753,100 +769,98 @@ export function FormularioNovaViagem() {
             </InputGroup>
 
             {/* Percurso de Ida - Exibido para tipos de viagem que não são rota */}
-            {mostraPercursoIda &&
-              !isRota && ( // Adicionado !isRota
-                <>
-                  <SectionTitle>Percurso de Ida</SectionTitle>
-                  <InputRow>
-                    <InputGroup>
-                      <Label htmlFor="startDate">Data de Início</Label>
-                      <Input
-                        id="startDate"
-                        name="startDate"
-                        type="date"
-                        value={dadosFormulario.startDate}
-                        onChange={handleInputChange}
-                        hasError={!!erros.startDate}
-                      />
-                      {erros.startDate && (
-                        <ErrorMessage>{erros.startDate}</ErrorMessage>
-                      )}
-                    </InputGroup>
-                    <InputGroup>
-                      <Label htmlFor="startTime">Hora de Saída</Label>
-                      <Input
-                        id="startTime"
-                        name="startTime"
-                        type="time"
-                        value={dadosFormulario.startTime}
-                        onChange={handleInputChange}
-                        hasError={!!erros.startTime}
-                      />
-                      {erros.startTime && (
-                        <ErrorMessage>{erros.startTime}</ErrorMessage>
-                      )}
-                    </InputGroup>
-                  </InputRow>
+            {mostraPercursoIda && !isRota && (
+              <>
+                <SectionTitle>Percurso de Ida</SectionTitle>
+                <InputRow>
                   <InputGroup>
-                    <Label htmlFor="startLocation">Local de Início</Label>
-                    <Textarea
-                      id="startLocation"
-                      name="startLocation"
-                      placeholder="Detalhes do local de início"
-                      value={dadosFormulario.startLocation}
+                    <Label htmlFor="startDate">Data de Início</Label>
+                    <Input
+                      id="startDate"
+                      name="startDate"
+                      type="date"
+                      value={dadosFormulario.startDate}
                       onChange={handleInputChange}
+                      hasError={!!erros.startDate}
                     />
+                    {erros.startDate && (
+                      <ErrorMessage>{erros.startDate}</ErrorMessage>
+                    )}
                   </InputGroup>
-                </>
-              )}
+                  <InputGroup>
+                    <Label htmlFor="startTime">Hora de Saída</Label>
+                    <Input
+                      id="startTime"
+                      name="startTime"
+                      type="time"
+                      value={dadosFormulario.startTime}
+                      onChange={handleInputChange}
+                      hasError={!!erros.startTime}
+                    />
+                    {erros.startTime && (
+                      <ErrorMessage>{erros.startTime}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                </InputRow>
+                <InputGroup>
+                  <Label htmlFor="startLocation">Local de Início</Label>
+                  <Textarea
+                    id="startLocation"
+                    name="startLocation"
+                    placeholder="Detalhes do local de início"
+                    value={dadosFormulario.startLocation}
+                    onChange={handleInputChange}
+                  />
+                </InputGroup>
+              </>
+            )}
 
             {/* Percurso de Volta - Exibido para tipos de viagem de ida e volta que não são rota */}
-            {mostraPercursoVolta &&
-              !isRota && ( // Adicionado !isRota
-                <>
-                  <SectionTitle>Percurso de Volta</SectionTitle>
-                  <InputRow>
-                    <InputGroup>
-                      <Label htmlFor="endDate">Data de Retorno</Label>
-                      <Input
-                        id="endDate"
-                        name="endDate"
-                        type="date"
-                        value={dadosFormulario.endDate}
-                        onChange={handleInputChange}
-                        hasError={!!erros.endDate}
-                      />
-                      {erros.endDate && (
-                        <ErrorMessage>{erros.endDate}</ErrorMessage>
-                      )}
-                    </InputGroup>
-                    <InputGroup>
-                      <Label htmlFor="endTime">Hora de Volta</Label>
-                      <Input
-                        id="endTime"
-                        name="endTime"
-                        type="time"
-                        value={dadosFormulario.endTime}
-                        onChange={handleInputChange}
-                        hasError={!!erros.endTime}
-                      />
-                      {erros.endTime && (
-                        <ErrorMessage>{erros.endTime}</ErrorMessage>
-                      )}
-                    </InputGroup>
-                  </InputRow>
+            {mostraPercursoVolta && !isRota && (
+              <>
+                <SectionTitle>Percurso de Volta</SectionTitle>
+                <InputRow>
                   <InputGroup>
-                    <Label htmlFor="endLocation">Local de Fim</Label>
-                    <Textarea
-                      id="endLocation"
-                      name="endLocation"
-                      placeholder="Detalhes do local de fim"
-                      value={dadosFormulario.endLocation}
+                    <Label htmlFor="endDate">Data de Retorno</Label>
+                    <Input
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      value={dadosFormulario.endDate}
                       onChange={handleInputChange}
+                      hasError={!!erros.endDate}
                     />
+                    {erros.endDate && (
+                      <ErrorMessage>{erros.endDate}</ErrorMessage>
+                    )}
                   </InputGroup>
-                </>
-              )}
+                  <InputGroup>
+                    <Label htmlFor="endTime">Hora de Volta</Label>
+                    <Input
+                      id="endTime"
+                      name="endTime"
+                      type="time"
+                      value={dadosFormulario.endTime}
+                      onChange={handleInputChange}
+                      hasError={!!erros.endTime}
+                    />
+                    {erros.endTime && (
+                      <ErrorMessage>{erros.endTime}</ErrorMessage>
+                    )}
+                  </InputGroup>
+                </InputRow>
+                <InputGroup>
+                  <Label htmlFor="endLocation">Local de Fim</Label>
+                  <Textarea
+                    id="endLocation"
+                    name="endLocation"
+                    placeholder="Detalhes do local de fim"
+                    value={dadosFormulario.endLocation}
+                    onChange={handleInputChange}
+                  />
+                </InputGroup>
+              </>
+            )}
 
             {/* Seção Rota de Colaboradores - Exibida apenas para tipo "rota_colaboradores" */}
             {isRota && (
