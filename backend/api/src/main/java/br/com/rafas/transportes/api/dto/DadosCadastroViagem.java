@@ -1,49 +1,51 @@
 package br.com.rafas.transportes.api.dto;
 
-import br.com.rafas.transportes.api.domain.TipoViagem;
+import br.com.rafas.transportes.api.domain.StatusViagem; // Importa o enum de status
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 public record DadosCadastroViagem(
-        @NotBlank
+        @NotBlank // Título da reserva é obrigatório
         String title,
 
-        @NotBlank
+        @NotBlank // Nome do cliente é obrigatório
         String clientName,
 
-        String telefone,
+        String telefone, // Telefone pode ser opcional
 
-        @NotNull
+        @NotNull @Positive // Valor é obrigatório e deve ser positivo
         BigDecimal valor,
 
-        @NotBlank
+        @NotBlank // Local de início é obrigatório
         String startLocation,
 
-        String endLocation,
+        String endLocation, // Local de fim pode ser vazio
 
-        @NotNull @FutureOrPresent
+        @NotNull // ID do veículo é obrigatório
+        Long veiculoId,
+
+        @NotNull // ID do motorista é obrigatório
+        Long motoristaId,
+
+        @NotNull @FutureOrPresent // Data de início é obrigatória e não pode ser no passado
         LocalDate startDate,
 
-        @NotNull
+        @NotNull // Hora de início é obrigatória
         LocalTime startTime,
 
-        @FutureOrPresent
+        @FutureOrPresent // Data de fim não pode ser no passado (se presente)
         LocalDate endDate,
 
         LocalTime endTime,
 
-        TipoViagem tipo,
-
-        @NotEmpty
-        List<Long> veiculoIds,
-
-        @NotEmpty
-        List<Long> motoristaIds
-) {
-}
+        // Adicione o status da viagem aqui, se o frontend for enviá-lo no cadastro
+        // Geralmente, o status inicial é AGENDADA, então o backend pode definir
+        // ou receber aqui. Para manter consistente com a entidade, vamos incluí-lo.
+        @NotNull
+        StatusViagem status
+) {}

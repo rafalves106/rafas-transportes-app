@@ -36,8 +36,8 @@ export interface CadastroViagemData {
   valor: number;
   startLocation: string;
   endLocation: string;
-  veiculoIds: number[];
-  motoristaIds: number[];
+  veiculoId: number;
+  motoristaId: number;
   startDate: string;
   startTime: string;
   endDate: string;

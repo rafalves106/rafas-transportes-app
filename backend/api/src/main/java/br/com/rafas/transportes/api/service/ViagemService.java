@@ -1,10 +1,8 @@
-/**
- * @author falvesmac
- */
-
 package br.com.rafas.transportes.api.service;
 
-import br.com.rafas.transportes.api.domain.*;
+import br.com.rafas.transportes.api.domain.Motorista;
+import br.com.rafas.transportes.api.domain.Veiculo;
+import br.com.rafas.transportes.api.domain.Viagem;
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoViagem;
 import br.com.rafas.transportes.api.dto.DadosCadastroViagem;
 import br.com.rafas.transportes.api.dto.DadosDetalhamentoViagem;
@@ -18,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ViagemService {
@@ -34,105 +32,102 @@ public class ViagemService {
     private MotoristaRepository motoristaRepository;
 
     @Transactional
-    public Viagem cadastrar(DadosCadastroViagem dados) {
-        var veiculos = new HashSet<>(veiculoRepository.findAllById(dados.veiculoIds()));
-        var motoristas = new HashSet<>(motoristaRepository.findAllById(dados.motoristaIds()));
-
-        if (veiculos.size() != dados.veiculoIds().size()) {
-            throw new EntityNotFoundException("Um ou mais IDs de veículos são inválidos.");
+    public DadosDetalhamentoViagem cadastrar(DadosCadastroViagem dados) {
+        // Validação de IDs de Veículo e Motorista (se não for feita no DTO com @NotNull)
+        if (dados.veiculoId() == null) {
+            throw new ValidationException("O ID do veículo é obrigatório.");
         }
-        if (motoristas.size() != dados.motoristaIds().size()) {
-            throw new EntityNotFoundException("Um ou mais IDs de motoristas são inválidos.");
+        if (dados.motoristaId() == null) {
+            throw new ValidationException("O ID do motorista é obrigatório.");
         }
 
-        var conflitosMotorista = viagemRepository.findMotoristaConflitos(dados.motoristaIds(), dados.startDate(), dados.endDate());
+        var veiculo = veiculoRepository.findById(dados.veiculoId())
+                .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado com o ID: " + dados.veiculoId()));
+
+        var motorista = motoristaRepository.findById(dados.motoristaId())
+                .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado com o ID: " + dados.motoristaId()));
+
+        // Validações de Conflito de Agendamento
+        var conflitosMotorista = viagemRepository.findMotoristaConflitos(dados.motoristaId(), dados.startDate(), dados.endDate());
         if (!conflitosMotorista.isEmpty()) {
-            throw new ValidationException("Conflito de agendamento: Um ou mais motoristas já estão em outra viagem neste período.");
+            throw new ValidationException("Conflito de agendamento: O motorista já está em outra viagem neste período.");
         }
 
-        var conflitosVeiculo = viagemRepository.findVeiculoConflitos(dados.veiculoIds(), dados.startDate(), dados.endDate());
+        var conflitosVeiculo = viagemRepository.findVeiculoConflitos(dados.veiculoId(), dados.startDate(), dados.endDate());
         if (!conflitosVeiculo.isEmpty()) {
-            throw new ValidationException("Conflito de agendamento: Um ou mais veículos já estão em outra viagem neste período.");
+            throw new ValidationException("Conflito de agendamento: O veículo já está em outra viagem neste período.");
         }
 
-        if (dados.startDate() != null && dados.endDate() != null) {
-            if (dados.endDate().isBefore(dados.startDate())) {
-                throw new ValidationException("Data de retorno não pode ser anterior à data de saída.");
-            }
-        }
-
-        var viagem = new Viagem();
-        viagem.setTitle(dados.title());
-        viagem.setClientName(dados.clientName());
-        viagem.setTelefone(dados.telefone());
-        viagem.setValor(dados.valor());
-        viagem.setStartLocation(dados.startLocation());
-        viagem.setEndLocation(dados.endLocation());
-        viagem.setStartDate(dados.startDate());
-        viagem.setStartTime(dados.startTime());
-        viagem.setEndDate(dados.endDate());
-        viagem.setEndTime(dados.endTime());
-        viagem.setStatus(StatusViagem.AGENDADA);
-        viagem.setTipoViagem(dados.tipo() != null ? dados.tipo() : TipoViagem.IDA_E_VOLTA_MG);
-        viagem.setVeiculos(veiculos);
-        viagem.setMotoristas(motoristas);
+        // Cria a entidade usando o novo construtor
+        var viagem = new Viagem(dados, veiculo, motorista);
 
         viagemRepository.save(viagem);
 
-        return viagem;
+        return new DadosDetalhamentoViagem(viagem);
     }
 
     @Transactional(readOnly = true)
     public List<DadosDetalhamentoViagem> listarTodas() {
         return viagemRepository.findAll().stream()
                 .map(DadosDetalhamentoViagem::new)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public Viagem atualizar(Long id, DadosAtualizacaoViagem dados) {
+    public DadosDetalhamentoViagem atualizar(Long id, DadosAtualizacaoViagem dados) {
         var viagem = viagemRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Viagem não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Viagem não encontrada com o ID: " + id));
 
-        LocalDate startDate = dados.startDate() != null ? dados.startDate() : viagem.getStartDate();
-        LocalDate endDate = dados.endDate() != null ? dados.endDate() : viagem.getEndDate();
+        // Busca as entidades relacionadas APENAS se os IDs forem fornecidos nos dados
+        Veiculo veiculoAtualizado = null;
+        if (dados.veiculoId() != null) {
+            veiculoAtualizado = veiculoRepository.findById(dados.veiculoId())
+                    .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado com o ID: " + dados.veiculoId()));
+        }
 
-        if (startDate != null && endDate != null) {
-            if (endDate.isBefore(startDate)) {
-                throw new ValidationException("Data de retorno não pode ser anterior à data de saída.");
+        Motorista motoristaAtualizado = null;
+        if (dados.motoristaId() != null) {
+            motoristaAtualizado = motoristaRepository.findById(dados.motoristaId())
+                    .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado com o ID: " + dados.motoristaId()));
+        }
+
+        // Validações de Conflito de Agendamento (para a data/veículo/motorista ATUALIZADOS)
+        // Cuidado: Se o ID do motorista/veículo não mudou, você precisa excluir a própria viagem da validação de conflito
+        // Isso requer uma query mais complexa ou uma lógica no service para ignorar a própria viagem
+        // Por simplicidade, para este escopo, vamos assumir que as datas/horas serão testadas para o motorista/veículo 'alvo'
+
+        // Exemplo de validação de conflito de datas/horários após atualização
+        if ((dados.startDate() != null && dados.endDate() != null) || (dados.veiculoId() != null || dados.motoristaId() != null)) {
+            // Se as datas ou os recursos (veiculo/motorista) mudaram, revalida o conflito
+            LocalDate dataInicioValidar = dados.startDate() != null ? dados.startDate() : viagem.getStartDate();
+            LocalDate dataFimValidar = dados.endDate() != null ? dados.endDate() : viagem.getEndDate();
+            Long motoristaIdValidar = motoristaAtualizado != null ? motoristaAtualizado.getId() : viagem.getMotorista().getId();
+            Long veiculoIdValidar = veiculoAtualizado != null ? veiculoAtualizado.getId() : viagem.getVeiculo().getId();
+
+            // Lógica para excluir a própria viagem dos conflitos (JPQL mais complexo)
+            List<Viagem> conflitosMotorista = viagemRepository.findMotoristaConflitos(motoristaIdValidar, dataInicioValidar, dataFimValidar);
+            conflitosMotorista.removeIf(v -> v.getId().equals(viagem.getId())); // Ignora a própria viagem
+            if (!conflitosMotorista.isEmpty()) {
+                throw new ValidationException("Conflito de agendamento: O motorista já estará em outra viagem neste período após a atualização.");
+            }
+
+            List<Viagem> conflitosVeiculo = viagemRepository.findVeiculoConflitos(veiculoIdValidar, dataInicioValidar, dataFimValidar);
+            conflitosVeiculo.removeIf(v -> v.getId().equals(viagem.getId())); // Ignora a própria viagem
+            if (!conflitosVeiculo.isEmpty()) {
+                throw new ValidationException("Conflito de agendamento: O veículo já estará em outra viagem neste período após a atualização.");
             }
         }
 
-        if (dados.title() != null) viagem.setTitle(dados.title());
-        if (dados.clientName() != null) viagem.setClientName(dados.clientName());
-        if (dados.telefone() != null) viagem.setTelefone(dados.telefone());
-        if (dados.valor() != null) viagem.setValor(dados.valor());
-        if (dados.startLocation() != null) viagem.setStartLocation(dados.startLocation());
-        if (dados.endLocation() != null) viagem.setEndLocation(dados.endLocation());
-        if (dados.startDate() != null) viagem.setStartDate(dados.startDate());
-        if (dados.startTime() != null) viagem.setStartTime(dados.startTime());
-        if (dados.endDate() != null) viagem.setEndDate(dados.endDate());
-        if (dados.endTime() != null) viagem.setEndTime(dados.endTime());
-        if (dados.status() != null) viagem.setStatus(dados.status());
-        if (dados.tipo() != null) viagem.setTipoViagem(dados.tipo());
+        // Chama o método da entidade para atualizar as informações
+        viagem.atualizarInformacoes(dados, veiculoAtualizado, motoristaAtualizado);
 
-        if (dados.veiculoIds() != null) {
-            var veiculos = new HashSet<>(veiculoRepository.findAllById(dados.veiculoIds()));
-            viagem.setVeiculos(veiculos);
-        }
-        if (dados.motoristaIds() != null) {
-            var motoristas = new HashSet<>(motoristaRepository.findAllById(dados.motoristaIds()));
-            viagem.setMotoristas(motoristas);
-        }
-        viagemRepository.save(viagem);
-
-        return viagem;
+        return new DadosDetalhamentoViagem(viagem);
     }
 
     @Transactional
     public void excluir(Long id) {
         if (!viagemRepository.existsById(id)) {
-            throw new EntityNotFoundException("Viagem não encontrada");
+            throw new EntityNotFoundException("Viagem não encontrada com o ID: " + id);
         }
         viagemRepository.deleteById(id);
     }

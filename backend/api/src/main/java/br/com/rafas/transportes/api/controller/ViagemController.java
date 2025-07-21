@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/viagens")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Se o CORS já é tratado globalmente no SecurityConfigurations, esta linha é redundante
 public class ViagemController {
 
     @Autowired
@@ -23,11 +23,15 @@ public class ViagemController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroViagem dados, UriComponentsBuilder uriBuilder) {
-        var viagem = service.cadastrar(dados);
+    public ResponseEntity<DadosDetalhamentoViagem> cadastrar(@RequestBody @Valid DadosCadastroViagem dados, UriComponentsBuilder uriBuilder) {
+        // service.cadastrar agora retorna DadosDetalhamentoViagem
+        var viagemDetalhada = service.cadastrar(dados);
 
-        var uri = uriBuilder.path("/viagens/{id}").buildAndExpand(viagem.getId()).toUri();
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoViagem(viagem));
+        // Acessa o ID usando o método de record: .id()
+        var uri = uriBuilder.path("/viagens/{id}").buildAndExpand(viagemDetalhada.id()).toUri();
+
+        // Já é um DadosDetalhamentoViagem, não precisa criar um novo
+        return ResponseEntity.created(uri).body(viagemDetalhada);
     }
 
     @GetMapping
@@ -38,14 +42,17 @@ public class ViagemController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoViagem dados) {
-        var viagem = service.atualizar(id, dados);
-        return ResponseEntity.ok(new DadosDetalhamentoViagem(viagem));
+    public ResponseEntity<DadosDetalhamentoViagem> atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoViagem dados) {
+        // service.atualizar agora retorna DadosDetalhamentoViagem
+        var viagemDetalhada = service.atualizar(id, dados);
+
+        // Já é um DadosDetalhamentoViagem, não precisa criar um novo
+        return ResponseEntity.ok(viagemDetalhada);
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
         return ResponseEntity.noContent().build();
     }

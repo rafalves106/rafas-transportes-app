@@ -3,30 +3,36 @@ package br.com.rafas.transportes.api.repository;
 import br.com.rafas.transportes.api.domain.Viagem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface ViagemRepository extends JpaRepository<Viagem, Long> {
 
-    @Query("SELECT v FROM Viagem v JOIN v.motoristas m WHERE m.id = :motoristaId")
-    List<Viagem> findByMotoristaId(Long motoristaId);
+    Optional<Viagem> findFirstByMotoristaId(Long motoristaId); // Para a exclusão
+    Optional<Viagem> findFirstByMotoristaIdAndEndDateGreaterThanOrderByEndDateAsc(Long motoristaId, LocalDate endDate); // Para a validação da CNH
+    List<Viagem> findByMotoristaId(Long motoristaId); // Para listar todas as viagens de um motorista (utilizado na exclusão)
 
-    @Query("SELECT v FROM Viagem v JOIN v.veiculos ve WHERE ve.id = :veiculoId")
+
+    @Query("select v from Viagem v where v.veiculo.id = :veiculoId")
     List<Viagem> findByVeiculoId(Long veiculoId);
 
     @Query("""
-            SELECT v FROM Viagem v
-            JOIN v.motoristas m
-            WHERE m.id IN :motoristaIds
-            AND v.endDate >= :startDate AND v.startDate <= :endDate
+            select v from Viagem v
+            where
+            v.motorista.id = :motoristaId
+            and v.endDate >= :startDate
+            and v.startDate <= :endDate
             """)
-    List<Viagem> findMotoristaConflitos(List<Long> motoristaIds, LocalDate startDate, LocalDate endDate);
+    List<Viagem> findMotoristaConflitos(Long motoristaId, LocalDate startDate, LocalDate endDate);
 
     @Query("""
-            SELECT v FROM Viagem v
-            JOIN v.veiculos ve
-            WHERE ve.id IN :veiculoIds
-            AND v.endDate >= :startDate AND v.startDate <= :endDate
+            select v from Viagem v
+            where
+            v.veiculo.id = :veiculoId
+            and v.endDate >= :startDate
+            and v.startDate <= :endDate
             """)
-    List<Viagem> findVeiculoConflitos(List<Long> veiculoIds, LocalDate startDate, LocalDate endDate);
+    List<Viagem> findVeiculoConflitos(Long veiculoId, LocalDate startDate, LocalDate endDate);
 }
