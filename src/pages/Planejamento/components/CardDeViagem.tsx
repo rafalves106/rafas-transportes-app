@@ -37,13 +37,43 @@ const InfoText = styled.p`
 `;
 
 // Adaptação para exibir o status do enum (em maiúsculas) de forma legível
-const InfoTag = styled.span`
+const InfoTag = styled.span<{ status: Viagem["status"] }>`
+  // <--- ADICIONE A TIPAGEM AQUI
   background-color: #e9ecef;
   color: #495057;
   font-size: 0.8rem;
   font-weight: 600;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
+  /* Agora você pode usar props.status aqui se quiser estilos condicionais, por exemplo: */
+  background-color: ${(props) => {
+    switch (props.status) {
+      case "AGENDADA":
+        return "#e0f7fa"; // Light blue
+      case "EM_CURSO":
+        return "#fff3cd"; // Light yellow
+      case "FINALIZADA":
+        return "#d1e7dd"; // Light green
+      case "CANCELADA":
+        return "#f8d7da"; // Light red
+      default:
+        return "#e9ecef";
+    }
+  }};
+  color: ${(props) => {
+    switch (props.status) {
+      case "AGENDADA":
+        return "#00bcd4";
+      case "EM_CURSO":
+        return "#ffc107";
+      case "FINALIZADA":
+        return "#28a745";
+      case "CANCELADA":
+        return "#dc3545";
+      default:
+        return "#495057";
+    }
+  }};
 `;
 
 interface CardDeViagemProps {
