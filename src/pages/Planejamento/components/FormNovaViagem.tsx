@@ -754,18 +754,18 @@ export function FormularioNovaViagem() {
                 value={dadosFormulario.tipoViagem}
                 onChange={handleInputChange}
               >
-                <option value="fretamento_aeroporto">
+                <option value="FRETAMENTO_AEROPORTO">
                   Fretamento Aeroporto
                 </option>
-                <option value="ida_e_volta_mg">Viagem Ida e Volta - MG</option>
-                <option value="somente_ida_mg">Viagem Somente Ida - MG</option>
-                <option value="ida_e_volta_fora_mg">
+                <option value="IDA_E_VOLTA_MG">Viagem Ida e Volta - MG</option>
+                <option value="SOMENTE_IDA_MG">Viagem Somente Ida - MG</option>
+                <option value="IDA_E_VOLTA_FORA_MG">
                   Viagem Ida e Volta - Fora de MG
                 </option>
-                <option value="somente_ida_fora_mg">
+                <option value="SOMENTE_IDA_FORA_MG">
                   Viagem Somente Ida - Fora de MG
                 </option>
-                <option value="rota_colaboradores">
+                <option value="ROTA_COLABORADORES">
                   Rota de Colaboradores
                 </option>
               </Select>
