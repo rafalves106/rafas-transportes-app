@@ -62,15 +62,15 @@ public interface ViagemRepository extends JpaRepository<Viagem, Long> {
     @Query("""
         SELECT v FROM Viagem v
         WHERE
-            (v.motorista.id = :motoristaId OR :motoristaId IS NULL) -- Conflito com motorista principal da viagem OU com o ID do motorista do item da rota (se o motorista principal for nulo)
-            AND v.tipoViagem != 'ROTA_COLABORADORES' -- Exclui outras rotas por enquanto
+            (v.motorista.id = :motoristaId OR :motoristaId IS NULL)
+            AND v.tipoViagem != 'ROTA_COLABORADORES'
             AND v.startDate <= :endDate
             AND v.endDate >= :startDate
             AND (
                 (v.startTime <= :endTime AND v.endTime >= :startTime)
                 OR (v.startDate < :endDate AND v.endDate > :startDate)
             )
-            AND v.id != :viagemIdToExclude -- Exclui a própria viagem em caso de atualização
+            AND v.id != :viagemIdToExclude
         """)
     List<Viagem> findMotoristaConflitosByTime(
             Long motoristaId,
