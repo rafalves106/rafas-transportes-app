@@ -206,7 +206,7 @@ export function FormularioNovaViagem() {
         valor: String(viagem.valor || ""), // Garante que seja string para o input
         // tipoViagem não existe na entidade Viagem, então defina um padrão ou o que for relevante
         // ou mantenha o valor atual do estado se não for resetar
-        tipoViagem: dadosFormulario.tipoViagem || "ida_e_volta_mg", // Mantém o tipo de viagem atual ou defina um padrão
+        tipoViagem: viagem.tipoViagem, // Mantém o tipo de viagem atual ou defina um padrão
         startDate: viagem.startDate,
         startTime: viagem.startTime,
         startLocation: viagem.startLocation || "",
@@ -269,7 +269,6 @@ export function FormularioNovaViagem() {
       setMotoristaIdSelecionado("");
       setIsPrePopulatedFromBudget(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing, viagem, location.state]); // Dependências do useEffect
 
   // Efeito para autogerar descrições de percurso baseadas no tipo de viagem

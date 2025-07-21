@@ -105,6 +105,12 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
     }
   };
 
+  const mostraInfoFim = ![
+    "SOMENTE_IDA_MG",
+    "SOMENTE_IDA_FORA_MG",
+    "ROTA_COLABORADORES", // Adicione outros tipos de viagem que não tenham um "fim" definido
+  ].includes(viagem.tipoViagem);
+
   return (
     <CardContainer to={`/editar/${viagem.id}`}>
       <CardHeader>
@@ -122,10 +128,12 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
           Início: {formatarData(viagem.startDate)} às {viagem.startTime}{" "}
           {viagem.startLocation}
         </InfoText>
-        <InfoText>
-          Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
-          {viagem.endLocation}
-        </InfoText>
+        {mostraInfoFim && (
+          <InfoText>
+            Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
+            {viagem.endLocation}
+          </InfoText>
+        )}
       </InfoRow>
     </CardContainer>
   );
