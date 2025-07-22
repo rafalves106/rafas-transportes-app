@@ -1,22 +1,21 @@
-/**
- * @author falvesmac
- */
-
 package br.com.rafas.transportes.api.domain;
 
+import br.com.rafas.transportes.api.dto.DadosItemRotaColaborador; // Para o novo construtor
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter; // Adicionar @Setter para facilitar a atualização via DTO, ou métodos específicos de atualização.
+import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.ArrayList; // Importar ArrayList
+import java.util.List; // Importar List
 
 @Entity
-@Table(name = "itens_rota_colaboradores") // Nome da tabela no banco de dados
+@Table(name = "itens_rota_colaboradores")
 @Getter
-@Setter // Considerar adicionar para facilitar o mapeamento de DTO para entidade
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -26,34 +25,46 @@ public class ItemRotaColaborador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Referência à Viagem principal (muitos itens de rota para uma viagem)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "viagem_id", nullable = false)
     private Viagem viagem;
 
-    // O veículo específico para este item da rota
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "veiculo_id", nullable = false)
     private Veiculo veiculo;
 
-    // O motorista específico para este item da rota
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "motorista_id", nullable = false)
     private Motorista motorista;
 
-    // Horários específicos para este veículo/motorista na rota
-    @Column(nullable = false)
-    private LocalTime horarioInicio;
+    // --- REMOVIDOS OS CAMPOS HORARIOINICIO E HORARIOFIM DIRETOS ---
+    // Eles agora estarão na coleção 'horarios'
 
-    @Column(nullable = false)
-    private LocalTime horarioFim;
+    // --- NOVA RELAÇÃO ONE-TO-MANY PARA HORÁRIOS ---
+    // MappedBy aponta para o campo 'itemRotaColaborador' na entidade HorarioItemRota
+    // cascade = CascadeType.ALL: Operações serão propagadas
+    // orphanRemoval = true: Horários removidos da coleção serão deletados do banco
+    @OneToMany(mappedBy = "itemRotaColaborador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<HorarioItemRota> horarios = new ArrayList<>(); // Inicializar para evitar NullPointerException
 
-    // Construtor para facilitar a criação a partir de um DTO (que criaremos depois)
-    public ItemRotaColaborador(Viagem viagem, Veiculo veiculo, Motorista motorista, LocalTime horarioInicio, LocalTime horarioFim) {
+    // Construtor para facilitar a criação a partir de um DTO (que criaremos na próxima etapa)
+    // Este construtor será usado pelo serviço para criar o item de rota principal.
+    public ItemRotaColaborador(Viagem viagem, Veiculo veiculo, Motorista motorista) {
         this.viagem = viagem;
         this.veiculo = veiculo;
         this.motorista = motorista;
-        this.horarioInicio = horarioInicio;
-        this.horarioFim = horarioFim;
+        this.horarios = new ArrayList<>(); // Inicializa a lista de horários
+    }
+
+    // Método auxiliar para adicionar horários (útil no serviço)
+    public void adicionarHorario(HorarioItemRota horario) {
+        this.horarios.add(horario);
+        horario.setItemRotaColaborador(this); // Garante a bidirecionalidade
+    }
+
+    // Método auxiliar para remover horários
+    public void removerHorario(HorarioItemRota horario) {
+        this.horarios.remove(horario);
+        horario.setItemRotaColaborador(null); // Remove a referência
     }
 }

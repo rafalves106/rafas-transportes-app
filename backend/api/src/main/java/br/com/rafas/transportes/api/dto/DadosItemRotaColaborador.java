@@ -4,9 +4,8 @@
 
 package br.com.rafas.transportes.api.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalTime;
+import java.util.List; // Importar List
 
 public record DadosItemRotaColaborador(
         Long id, // Opcional, para caso de edição de itens existentes
@@ -14,8 +13,6 @@ public record DadosItemRotaColaborador(
         Long veiculoId,
         @NotNull
         Long motoristaId,
-        @NotNull
-        LocalTime horarioInicio,
-        @NotNull
-        LocalTime horarioFim
+        @NotNull // A lista de horários é obrigatória para cada item da rota
+        List<DadosHorarioItemRota> horarios // <-- NOVO CAMPO: Lista de horários
 ) {}
