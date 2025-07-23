@@ -76,11 +76,56 @@ const InfoTag = styled.span<{ status: Viagem["status"] }>`
   }};
 `;
 
-const RotaItemText = styled.p`
-  margin: 0;
-  color: #6c757d;
-  font-size: 0.85rem;
-  padding-left: 0.5rem;
+const InfoType = styled.span<{ tipo: Viagem["tipoViagem"] }>`
+  background-color: ${(props) => {
+    switch (props.tipo) {
+      case "FRETAMENTO_AEROPORTO":
+        return "#e6e0fa"; // Exemplo: cor para fretamento
+      case "IDA_E_VOLTA_MG":
+        return "#d1e7dd"; // Exemplo: cor para ida e volta MG
+      case "SOMENTE_IDA_MG":
+        return "#f8d7da"; // Exemplo: cor para somente ida MG
+      case "IDA_E_VOLTA_FORA_MG":
+        return "#fff3cd"; // Exemplo: cor para ida e volta fora MG
+      case "SOMENTE_IDA_FORA_MG":
+        return "#cfe2ff"; // Exemplo: cor para somente ida fora MG
+      case "ROTA_COLABORADORES":
+        return "#e2e3e5"; // Exemplo: cor para rota colaboradores
+      default:
+        return "#e9ecef";
+    }
+  }};
+  color: ${(props) => {
+    switch (props.tipo) {
+      case "FRETAMENTO_AEROPORTO":
+        return "#6f42c1";
+      case "IDA_E_VOLTA_MG":
+        return "#28a745";
+      case "SOMENTE_IDA_MG":
+        return "#dc3545";
+      case "IDA_E_VOLTA_FORA_MG":
+        return "#ffc107";
+      case "SOMENTE_IDA_FORA_MG":
+        return "#0d6efd";
+      case "ROTA_COLABORADORES":
+        return "#495057";
+      default:
+        return "#495057";
+    }
+  }};
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+`;
+
+const InfoPrice = styled.span<{ preco: Viagem["valor"] }>`
+  background-color: #e0f7fa;
+  color: #00bcd4;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
 `;
 
 interface CardDeViagemProps {
@@ -112,6 +157,30 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
     }
   };
 
+  const formatarTipoParaExibicao = (tipo: Viagem["tipoViagem"]) => {
+    switch (tipo) {
+      case "SOMENTE_IDA_FORA_MG":
+        return "Somente Ida";
+      case "IDA_E_VOLTA_FORA_MG":
+        return "Ida e Volta";
+      case "SOMENTE_IDA_MG":
+        return "Somente Ida";
+      case "IDA_E_VOLTA_MG":
+        return "Ida e Volta";
+      case "ROTA_COLABORADORES":
+        return "Rota Colaboradores";
+      default:
+        return tipo; // Retorna o próprio valor se for desconhecido
+    }
+  };
+
+  const formatarPrecoParaExibicao = (preco?: number) => {
+    if (preco === undefined || preco === null) {
+      return "R$ N/A";
+    }
+    return "R$ " + preco.toFixed(2).replace(".", ",");
+  };
+
   const mostraInfoFim = ![
     "SOMENTE_IDA_MG",
     "SOMENTE_IDA_FORA_MG",
@@ -125,37 +194,42 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
         <InfoTag status={viagem.status}>
           {formatarStatusParaExibicao(viagem.status)}
         </InfoTag>
+        <InfoType tipo={viagem.tipoViagem}>
+          {formatarTipoParaExibicao(viagem.tipoViagem)}
+        </InfoType>
+        <InfoPrice preco={viagem.valor}>
+          {formatarPrecoParaExibicao(viagem.valor)}
+        </InfoPrice>
       </CardHeader>
 
       {viagem.tipoViagem === "ROTA_COLABORADORES" ? (
         <>
-          {viagem.itensRota && viagem.itensRota.length > 0 ? (
-            viagem.itensRota.map((item, index) => (
-              <RotaItemText key={index}>
-                {item.veiculoInfo} | {item.motoristaNome} | {item.horarioInicio}{" "}
-                - {item.horarioFim}
-              </RotaItemText>
-            ))
-          ) : (
-            <RotaItemText>
-              Nenhum veículo/motorista definido para esta rota.
-            </RotaItemText>
-          )}
+          <InfoText>**Rota de Colaboradores**</InfoText>
+          {/* Informações de Período Geral da Rota */}
+          <InfoText>
+            Período: {formatarData(viagem.startDate || "")} às{" "}
+            {viagem.startTime || ""} - {formatarData(viagem.endDate || "")} às{" "}
+            {viagem.endTime || ""}
+          </InfoText>
+          <InfoText>
+            Locais: {viagem.startLocation || ""} - {viagem.endLocation || ""}
+          </InfoText>
         </>
       ) : (
         <>
-          <InfoText>Veículo: {viagem.veiculoInfo}</InfoText>
-          <InfoText>Motorista: {viagem.motoristaNome}</InfoText>
+          <InfoText>Veículo: {viagem.veiculoInfo || "N/A"}</InfoText>
+          <InfoText>Motorista: {viagem.motoristaNome || "N/A"}</InfoText>
 
           <InfoRow>
             <InfoText>
-              Início: {formatarData(viagem.startDate)} às {viagem.startTime}{" "}
-              {viagem.startLocation}
+              Início: {formatarData(viagem.startDate || "")} às{" "}
+              {viagem.startTime || ""} {viagem.startLocation || ""}
             </InfoText>
             {mostraInfoFim && (
               <InfoText>
-                Fim: {formatarData(viagem.endDate)} às {viagem.endTime}{" "}
-                {viagem.endLocation}
+                Fim: {formatarData(viagem.endDate || "")} às{" "}
+                {viagem.endTime || ""}
+                {viagem.endLocation || ""}
               </InfoText>
             )}
           </InfoRow>

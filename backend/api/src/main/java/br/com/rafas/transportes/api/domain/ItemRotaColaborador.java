@@ -1,6 +1,5 @@
 package br.com.rafas.transportes.api.domain;
 
-import br.com.rafas.transportes.api.dto.DadosItemRotaColaborador; // Para o novo construtor
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -8,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalTime;
 import java.util.ArrayList; // Importar ArrayList
 import java.util.List; // Importar List
 
@@ -37,34 +35,23 @@ public class ItemRotaColaborador {
     @JoinColumn(name = "motorista_id", nullable = false)
     private Motorista motorista;
 
-    // --- REMOVIDOS OS CAMPOS HORARIOINICIO E HORARIOFIM DIRETOS ---
-    // Eles agora estarão na coleção 'horarios'
-
-    // --- NOVA RELAÇÃO ONE-TO-MANY PARA HORÁRIOS ---
-    // MappedBy aponta para o campo 'itemRotaColaborador' na entidade HorarioItemRota
-    // cascade = CascadeType.ALL: Operações serão propagadas
-    // orphanRemoval = true: Horários removidos da coleção serão deletados do banco
     @OneToMany(mappedBy = "itemRotaColaborador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<HorarioItemRota> horarios = new ArrayList<>(); // Inicializar para evitar NullPointerException
+    private List<HorarioItemRota> horarios = new ArrayList<>();
 
-    // Construtor para facilitar a criação a partir de um DTO (que criaremos na próxima etapa)
-    // Este construtor será usado pelo serviço para criar o item de rota principal.
     public ItemRotaColaborador(Viagem viagem, Veiculo veiculo, Motorista motorista) {
         this.viagem = viagem;
         this.veiculo = veiculo;
         this.motorista = motorista;
-        this.horarios = new ArrayList<>(); // Inicializa a lista de horários
+        this.horarios = new ArrayList<>();
     }
 
-    // Método auxiliar para adicionar horários (útil no serviço)
     public void adicionarHorario(HorarioItemRota horario) {
         this.horarios.add(horario);
-        horario.setItemRotaColaborador(this); // Garante a bidirecionalidade
+        horario.setItemRotaColaborador(this);
     }
 
-    // Método auxiliar para remover horários
     public void removerHorario(HorarioItemRota horario) {
         this.horarios.remove(horario);
-        horario.setItemRotaColaborador(null); // Remove a referência
+        horario.setItemRotaColaborador(null);
     }
 }

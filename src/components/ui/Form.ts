@@ -59,3 +59,17 @@ export const ErrorMessage = styled.span`
   font-size: 0.8rem;
   font-weight: 500;
 `;
+
+export const SectionTitle = styled.h3`
+  font-size: 1rem;
+  color: #343a40;
+  font-weight: 600;
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+
+  @media (max-width: 768px) {
+    border: none;
+    padding: 0;
+  }
+`;

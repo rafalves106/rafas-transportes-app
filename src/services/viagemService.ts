@@ -1,4 +1,6 @@
 import api from "./api";
+import type { Driver } from "./motoristaService";
+import type { Vehicle } from "./veiculoService";
 
 export type TipoViagemEnum =
   | "FRETAMENTO_AEROPORTO"
@@ -8,75 +10,95 @@ export type TipoViagemEnum =
   | "SOMENTE_IDA_FORA_MG"
   | "ROTA_COLABORADORES";
 
+// Interface para os dados de cada Item da Rota (vindos do backend)
+export interface ItemRota {
+  id?: number;
+  veiculoId: number;
+  motoristaId: number;
+
+  veiculo?: Vehicle;
+  motorista?: Driver;
+
+  // CORREÇÃO AQUI: Horários são propriedades diretas, não um array
+  horarioInicio: string; // "HH:MM"
+  horarioFim: string; // "HH:MM"
+  // REMOVER: horarios: HorarioItemRota[];
+}
+
 // Reutilizando ItemRota, mas para envio, alguns campos como info/nome não são necessários
 // E o id pode ser opcional para atualização, mas para criação de novos itens é undefined
 export interface ItemRotaParaEnvio {
-  id?: number; // Pode vir se for um item existente sendo atualizado (mas para novos, será undefined)
+  id?: number;
   veiculoId: number;
   motoristaId: number;
+  // CORREÇÃO AQUI: Horários são propriedades diretas, não um array
   horarioInicio: string; // "HH:MM"
   horarioFim: string; // "HH:MM"
-}
-
-// Interface para os dados de cada Item da Rota (vindos do backend)
-export interface ItemRota {
-  id?: number; // Pode vir com ID se for um item existente
-  veiculoId: number;
-  veiculoInfo: string; // Ex: "Modelo (Placa)"
-  motoristaId: number;
-  motoristaNome: string; // Ex: "Nome do Motorista"
-  horarioInicio: string; // "HH:MM"
-  horarioFim: string; // "HH:MM"
+  // REMOVER: horarios: HorarioItemRota[];
 }
 
 // Interface para os dados de Viagem retornados pelo backend (DadosDetalhamentoViagem)
 export interface Viagem {
   id: number;
   title: string;
-  clientName: string;
-  telefone: string;
-  valor: number;
-  startLocation: string;
-  endLocation: string;
-  veiculoId?: number; // Tornar opcional, pois para ROTA_COLABORADORES pode ser nulo
-  veiculoInfo?: string; // Tornar opcional
-  motoristaId?: number; // Tornar opcional
-  motoristaNome?: string; // Tornar opcional
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
+  clientName?: string;
+  telefone?: string;
+  valor?: number;
   tipoViagem: TipoViagemEnum;
-  itensRota: ItemRota[];
+  startDate?: string;
+  startTime?: string;
+  startLocation?: string;
+  endDate?: string;
+  endTime?: string;
+  endLocation?: string;
+  status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
+
+  veiculoId?: number;
+  veiculoInfo?: string;
+  motoristaId?: number;
+  motoristaNome?: string;
+
+  veiculo?: Vehicle;
+  motorista?: Driver;
+  itensRota?: ItemRota[]; // Lista de itens da rota
 }
 
 // Interface para os dados de Cadastro de Viagem enviados ao backend (DadosCadastroViagem)
 // O status é obrigatório no cadastro, como definido no backend.
 export interface CadastroViagemData {
   title: string;
-  clientName: string;
-  telefone: string;
-  valor: number;
-  startLocation: string;
-  endLocation: string;
-  veiculoId?: number; // Tornar opcional, pois para ROTA_COLABORADORES é nulo
-  motoristaId?: number; // Tornar opcional
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
+  clientName?: string;
+  telefone?: string;
+  valor?: number;
   tipoViagem: TipoViagemEnum;
-  // ADICIONE ESTA PROPRIEDADE:
-  itensRota?: ItemRotaParaEnvio[]; // Torne opcional, pois só é preenchida para ROTA_COLABORADORES
+  startDate?: string;
+  startTime?: string;
+  startLocation?: string;
+  endDate?: string;
+  endTime?: string;
+  endLocation?: string;
+  status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
+  veiculoId?: number;
+  motoristaId?: number;
+  itensRota?: ItemRotaParaEnvio[]; // Use a interface de envio aqui
 }
 
-// Interface para os dados de Atualização de Viagem enviados ao backend (DadosAtualizacaoViagem)
-// Todos os campos são opcionais, exceto o ID da viagem a ser atualizada
-export interface UpdateViagemData
-  extends Partial<Omit<CadastroViagemData, "itensRota">> {
-  itensRota?: ItemRotaParaEnvio[]; // Inclua a lista de itens da rota para atualização
+export interface UpdateViagemData {
+  title?: string;
+  clientName?: string;
+  telefone?: string;
+  valor?: number;
+  tipoViagem?: TipoViagemEnum;
+  startDate?: string;
+  startTime?: string;
+  startLocation?: string;
+  endDate?: string;
+  endTime?: string;
+  endLocation?: string;
+  status?: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
+  veiculoId?: number;
+  motoristaId?: number;
+  itensRota?: ItemRotaParaEnvio[]; // Use a interface de envio aqui
 }
 
 const ROTA = "/viagens";
