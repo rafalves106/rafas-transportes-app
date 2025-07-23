@@ -1,3 +1,7 @@
+/**
+ * @author falvesmac
+ */
+
 package br.com.rafas.transportes.api.service;
 
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoManutencao;
@@ -38,44 +42,53 @@ public class ManutencaoService {
     var veiculo = veiculoRepository.findById(dados.veiculoId())
             .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado com o ID: " + dados.veiculoId()));
 
+    // --- Validação da Data (Agendada) ---
     if (dados.status().equalsIgnoreCase("Agendada") && dados.date() != null) {
       if (dados.date().isBefore(LocalDate.now())) {
         throw new ValidationException("Para manutenção 'Agendada', a data deve ser no presente ou futuro.");
       }
     }
 
+    // --- Validações e Lógica de KM para Cadastro ---
     if (dados.status().equalsIgnoreCase("Realizada")) {
+      // Garante que currentKm no DTO não é null e é positivo
       if (dados.currentKm() == null || dados.currentKm() <= 0) {
         throw new ValidationException("Para manutenção 'Realizada', a quilometragem atual é obrigatória e deve ser positiva.");
       }
+      // Garante que proximaKm (se informado) é válido e superior a currentKm
       if (dados.proximaKm() != null && dados.proximaKm() <= dados.currentKm()) {
         throw new ValidationException("A próxima quilometragem deve ser superior à quilometragem atual da manutenção.");
       }
 
+      // TRATAMENTO DE NULL: Se veiculo.getCurrentKm() for null, usa 0 para comparação
       Integer kmAtualVeiculo = veiculo.getCurrentKm() != null ? veiculo.getCurrentKm() : 0;
+      // Atualiza o currentKm do veículo se a manutenção for Realizada E o KM for maior
       if (dados.currentKm() > kmAtualVeiculo) {
         veiculo.setCurrentKm(dados.currentKm());
-        veiculoRepository.save(veiculo);
+        veiculoRepository.save(veiculo); // Salva a atualização do KM do veículo
       }
-    } else {
+    } else { // Se o status for "Agendada"
+      // Garante que currentKm e proximaKm não são informados para manutenção "Agendada"
       if (dados.currentKm() != null || dados.proximaKm() != null) {
         throw new ValidationException("Quilometragem atual e próxima quilometragem não devem ser informadas para manutenção 'Agendada'.");
       }
     }
 
+    // Cria e salva a manutenção principal
     var manutencao = new Manutencao(dados, veiculo);
     manutencaoRepository.save(manutencao);
 
+    // --- Lógica para criar uma NOVA Manutenção Agendada (se aplicável) ---
     if (dados.status().equalsIgnoreCase("Realizada") && dados.proximaKm() != null) {
       var dadosNovaManutencaoAgendada = new DadosCadastroManutencao(
               dados.veiculoId(),
               "Manutenção Agendada: " + dados.title(),
               dados.type(),
-              null,
+              null, // Data nula para agendada (será preenchida depois pelo usuário)
               BigDecimal.ZERO,
               "Agendada",
-              dados.proximaKm(),
-              null
+              dados.proximaKm(), // currentKm da nova agendada é a proximaKm da anterior
+              null // proximaKm da nova agendada é nulo
       );
       var manutencaoAgendada = new Manutencao(dadosNovaManutencaoAgendada, veiculo);
       manutencaoRepository.save(manutencaoAgendada);
@@ -89,20 +102,16 @@ public class ManutencaoService {
     var manutencao = manutencaoRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Manutenção não encontrada com o ID: " + id));
 
-    // CORREÇÃO: Atribua veiculoAtualizado UMA VEZ
-    final Veiculo veiculoAtualizado; // Declarado como final
-
+    // CORREÇÃO: Atribua veiculoAtualizado UMA VEZ para ser efetivamente final
+    final Veiculo veiculoAtualizado;
     if (dados.veiculoId() != null && !dados.veiculoId().equals(manutencao.getVeiculo().getId())) {
       veiculoAtualizado = veiculoRepository.findById(dados.veiculoId())
               .orElseThrow(() -> new EntityNotFoundException("Veículo para atualização não encontrado com o ID: " + dados.veiculoId()));
     } else {
       veiculoAtualizado = manutencao.getVeiculo();
     }
-    // Agora 'veiculoAtualizado' é efetivamente final
 
-    // ... (restante do código) ...
-
-    // --- NOVA VALIDAÇÃO CONDICIONAL PARA A DATA NA ATUALIZAÇÃO ---
+    // --- Validação Condicional da Data na Atualização ---
     LocalDate dataParaValidarAtualizacao = (dados.date() != null) ? dados.date() : manutencao.getDate();
     String statusParaValidar = (dados.status() != null) ? dados.status() : manutencao.getStatus();
 
@@ -111,14 +120,16 @@ public class ManutencaoService {
         throw new ValidationException("Para manutenção 'Agendada', a data deve ser no presente ou futuro.");
       }
     }
+    // Validação que impede marcar como 'Realizada' com data futura
+    if (statusParaValidar.equalsIgnoreCase("Realizada") && dataParaValidarAtualizacao.isAfter(LocalDate.now())) {
+      throw new ValidationException("Não é possível marcar uma manutenção como 'Realizada' com uma data futura.");
+    }
 
-    // --- Validações de KM para Atualização ---
+    // --- Validações e Lógica de KM para Atualização ---
+    // Usar uma nova variável para dados atualizados passados para a entidade, para não reatribuir o parâmetro 'dados'
+    DadosAtualizacaoManutencao dadosParaAtualizarNaEntidade = dados;
+
     if (statusParaValidar.equalsIgnoreCase("Realizada")) {
-      LocalDate dataManutencaoRealizada = (dados.date() != null) ? dados.date() : manutencao.getDate();
-      if (dataManutencaoRealizada.isAfter(LocalDate.now())) {
-        throw new ValidationException("Não é possível marcar uma manutenção como 'Realizada' com uma data futura.");
-      }
-
       Integer currentKmAtualizado = dados.currentKm() != null ? dados.currentKm() : manutencao.getCurrentKm();
       Integer proximaKmAtualizado = dados.proximaKm() != null ? dados.proximaKm() : manutencao.getProximaKm();
 
@@ -129,24 +140,33 @@ public class ManutencaoService {
         throw new ValidationException("A próxima quilometragem deve ser superior à quilometragem atual da manutenção.");
       }
 
+      // TRATAMENTO DE NULL: Se veiculoAtualizado.getCurrentKm() for null, usa 0
       Integer kmAtualVeiculoAtualizado = veiculoAtualizado.getCurrentKm() != null ? veiculoAtualizado.getCurrentKm() : 0;
       if (currentKmAtualizado > kmAtualVeiculoAtualizado) {
         veiculoAtualizado.setCurrentKm(currentKmAtualizado);
         veiculoRepository.save(veiculoAtualizado);
       }
-    } else {
-      DadosAtualizacaoManutencao dadosParaAtualizarNaEntidade = dados;
-      if (dados.status() != null && !dados.status().equalsIgnoreCase("Realizada")) {
+    } else { // Se o status não for "Realizada" (ex: "Agendada" ou outro)
+      // Ajusta o DTO que será passado para 'atualizarInformacoes' da entidade
+      // para garantir que KMs não sejam informadas/preservadas indevidamente.
+      // Se for Agendada, 'currentKm' (que é a KM Ideal) deve ser mantido, proximaKm zerado.
+      // Se for outro status, ambos zerados.
+      if (statusParaValidar.equalsIgnoreCase("Agendada")) {
         dadosParaAtualizarNaEntidade = new DadosAtualizacaoManutencao(
                 dados.veiculoId(), dados.title(), dados.type(), dados.date(), dados.cost(), dados.status(),
-                null, null
+                dados.currentKm(), null // Mantém currentKm (KM ideal), zera proximaKm
+        );
+      } else { // Status diferente de Agendada ou Realizada
+        dadosParaAtualizarNaEntidade = new DadosAtualizacaoManutencao(
+                dados.veiculoId(), dados.title(), dados.type(), dados.date(), dados.cost(), dados.status(),
+                null, null // Zera ambos
         );
       }
-      manutencao.atualizarInformacoes(dadosParaAtualizarNaEntidade, veiculoAtualizado);
     }
 
+    manutencao.atualizarInformacoes(dadosParaAtualizarNaEntidade, veiculoAtualizado);
 
-    // --- Lógica para criar ou atualizar uma NOVA Manutenção Agendada na ATUALIZAÇÃO ---
+    // --- Lógica para criar uma NOVA Manutenção Agendada na ATUALIZAÇÃO ---
     if (manutencao.getStatus().equalsIgnoreCase("Realizada") && manutencao.getProximaKm() != null) {
       var dadosNovaManutencaoAgendada = new DadosCadastroManutencao(
               manutencao.getVeiculo().getId(),
@@ -155,7 +175,7 @@ public class ManutencaoService {
               null,
               BigDecimal.ZERO,
               "Agendada",
-              manutencao.getProximaKm(),
+              manutencao.getProximaKm(), // currentKm da nova agendada é a proximaKm da atual
               null
       );
       var manutencaoAgendada = new Manutencao(dadosNovaManutencaoAgendada, veiculoAtualizado);
