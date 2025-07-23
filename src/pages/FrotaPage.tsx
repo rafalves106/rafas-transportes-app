@@ -10,6 +10,12 @@ import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
 import { ModalFooter } from "../components/ui/ModalFooter";
 
+import {
+  SearchNotFind,
+  SearchText,
+  SearchTextError,
+} from "../components/ui/Layout";
+
 export function FrotaPage() {
   const [veiculos, setVeiculos] = useState<Vehicle[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("Ativo");
@@ -180,11 +186,13 @@ export function FrotaPage() {
         onFiltroChange={setFiltroAtivo}
       />
       {loading ? (
-        <div>Carregando veículos...</div>
+        <SearchText>Carregando veículos...</SearchText>
       ) : error ? (
-        <div style={{ color: "red" }}>{error}</div>
+        <SearchTextError style={{ color: "red" }}>{error}</SearchTextError>
       ) : veiculosFiltrados.length === 0 ? (
-        <p>Nenhum veículo encontrado para este filtro ou busca.</p>
+        <SearchNotFind>
+          Nenhum veículo encontrado para este filtro ou busca.
+        </SearchNotFind>
       ) : (
         <ListaDeVeiculos veiculos={veiculosFiltrados} />
       )}

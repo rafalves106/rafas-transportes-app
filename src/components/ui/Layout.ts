@@ -5,10 +5,6 @@ export const ListaContainer = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   padding: 0 2rem;
-
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
 `;
 
 export const PaginacaoContainer = styled.div`
@@ -34,4 +30,28 @@ export const InputRow = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
+`;
+
+export const SearchText = styled.div`
+  padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
+`;
+
+export const SearchTextError = styled.div`
+  padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
+`;
+
+export const SearchNotFind = styled.p`
+  padding: 0 2rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
 `;

@@ -42,16 +42,15 @@ const FilterTabsContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 3rem;
-  padding-left: 2rem;
+  gap: 5rem;
   margin: 0.75rem 0;
+  padding: 0 2rem;
 
   @media (max-width: 768px) {
     flex-wrap: nowrap;
     justify-content: space-between;
     gap: 0;
-    padding-left: 0rem;
+    padding: 0 1rem;
   }
 `;
 

@@ -12,6 +12,11 @@ import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { ModalFooter } from "../components/ui/ModalFooter";
+import {
+  SearchNotFind,
+  SearchText,
+  SearchTextError,
+} from "../components/ui/Layout";
 
 const ViewContainer = styled.div``;
 
@@ -262,11 +267,13 @@ export function PlanejamentoPage() {
 
       <ViewContainer>
         {loading ? (
-          <div>Carregando viagens...</div>
+          <SearchText>Carregando viagens...</SearchText>
         ) : error ? (
-          <div style={{ color: "red" }}>{error}</div>
+          <SearchTextError style={{ color: "red" }}>{error}</SearchTextError>
         ) : viagensFiltradas.length === 0 && viewMode === "lista" ? (
-          <p>Nenhuma viagem encontrada para este filtro ou busca.</p>
+          <SearchNotFind>
+            Nenhuma viagem encontrada para este filtro ou busca.
+          </SearchNotFind>
         ) : viewMode === "lista" ? (
           <ListaDeViagens viagens={viagensFiltradas} />
         ) : (

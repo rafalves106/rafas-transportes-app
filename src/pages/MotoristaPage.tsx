@@ -11,6 +11,11 @@ import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
 import { ModalFooter } from "../components/ui/ModalFooter";
+import {
+  SearchNotFind,
+  SearchText,
+  SearchTextError,
+} from "../components/ui/Layout";
 
 export function MotoristaPage() {
   const [motoristas, setMotoristas] = useState<Driver[]>([]);
@@ -166,11 +171,13 @@ export function MotoristaPage() {
         onFiltroChange={setFiltroAtivo}
       />
       {loading ? (
-        <div>Carregando motoristas...</div>
+        <SearchText>Carregando motoristas...</SearchText>
       ) : error ? (
-        <div style={{ color: "red" }}>{error}</div>
+        <SearchTextError style={{ color: "red" }}>{error}</SearchTextError>
       ) : motoristasFiltrados.length === 0 ? (
-        <p>Nenhum motorista encontrado para este filtro ou busca.</p>
+        <SearchNotFind>
+          Nenhum motorista encontrado para este filtro ou busca.
+        </SearchNotFind>
       ) : (
         <ListaDeMotoristas motoristas={motoristasFiltrados} viagens={viagens} />
       )}

@@ -4,6 +4,11 @@ import { orcamentoService, type Orcamento } from "../services/orcamentoService";
 import { ListaDeOrcamentos } from "./Orcamentos/ListaDeOrcamentos";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
+import {
+  SearchNotFind,
+  SearchText,
+  SearchTextError,
+} from "../components/ui/Layout";
 
 const PageContainer = styled.div`
   padding: 0 2rem;
@@ -59,11 +64,11 @@ export function OrcamentosPage() {
   return (
     <PageContainer>
       {loading ? (
-        <div>Carregando orçamentos...</div>
+        <SearchText>Carregando orçamentos...</SearchText>
       ) : error ? (
-        <div style={{ color: "red" }}>{error}</div>
+        <SearchTextError style={{ color: "red" }}>{error}</SearchTextError>
       ) : orcamentos.length === 0 ? (
-        <p>Nenhum orçamento encontrado.</p>
+        <SearchNotFind>Nenhum orçamento encontrado.</SearchNotFind>
       ) : (
         <ListaDeOrcamentos orcamentos={orcamentos} />
       )}

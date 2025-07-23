@@ -14,6 +14,12 @@ import { veiculoService, type Vehicle } from "../services/veiculoService";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
 
+import {
+  SearchNotFind,
+  SearchText,
+  SearchTextError,
+} from "../components/ui/Layout";
+
 export function ManutencaoPage() {
   const { maintenanceId } = useParams();
   const outlet = useOutlet();
@@ -127,11 +133,13 @@ export function ManutencaoPage() {
       />
 
       {loading ? (
-        <div>Carregando manutenções...</div>
+        <SearchText>Carregando manutenções...</SearchText>
       ) : error ? (
-        <div style={{ color: "red" }}>{error}</div>
+        <SearchTextError style={{ color: "red" }}>{error}</SearchTextError>
       ) : manutencoesFiltradas.length === 0 ? (
-        <p>Nenhuma manutenção encontrada para este filtro ou busca.</p>
+        <SearchNotFind>
+          Nenhuma manutenção encontrada para este filtro ou busca.
+        </SearchNotFind>
       ) : (
         <ListaDeManutencoes
           manutencoes={manutencoesFiltradas}

@@ -28,6 +28,7 @@ export const Input = styled.input<{ hasError?: boolean }>`
     ${(props) => (props.hasError ? "var(--cor-remover)" : "var(--cor-bordas)")};
   background-color: transparent;
   border-radius: 6px;
+  margin-bottom: 1rem;
 
   @media (max-width: 768px) {
   }
@@ -41,6 +42,7 @@ export const Select = styled.select<{ hasError?: boolean }>`
     ${(props) => (props.hasError ? "var(--cor-remover)" : "var(--cor-bordas)")};
   border-radius: 6px;
   background-color: transparent;
+  margin-bottom: 1rem;
 `;
 
 export const Textarea = styled.textarea`
@@ -52,6 +54,7 @@ export const Textarea = styled.textarea`
   min-height: 3rem;
   resize: vertical;
   background-color: transparent;
+  margin-bottom: 1rem;
 `;
 
 export const ErrorMessage = styled.span`

@@ -39,11 +39,7 @@ const Backdrop = styled.div<{ isOpen: boolean }>`
 const AreaDaPagina = styled.main`
   flex: 1;
   overflow-y: auto;
-  padding: 0 2rem 2rem 2rem;
-
-  @media (max-width: 768px) {
-    padding: 0 1rem 1rem 1rem;
-  }
+  padding: 0;
 `;
 
 interface PageConfig {
