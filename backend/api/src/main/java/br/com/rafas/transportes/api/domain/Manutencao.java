@@ -35,7 +35,7 @@ public class Manutencao {
   @Column(nullable = false)
   private String type; // Assumindo que este campo é "Preventiva" ou "Corretiva"
 
-  @Column(nullable = false)
+  @Column
   private LocalDate date;
 
   @Column(nullable = false)
