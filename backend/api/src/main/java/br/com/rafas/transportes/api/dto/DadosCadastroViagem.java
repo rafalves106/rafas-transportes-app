@@ -27,18 +27,15 @@ public record DadosCadastroViagem(
 
         String endLocation, // Local de fim pode ser vazio
 
-        // --- Estes campos (veiculoId, motoristaId) agora são opcionais aqui ---
-        // A validação de obrigatoriedade será condicional no ViagemService,
-        // dependendo do tipoViagem (se for ou não ROTA_COLABORADORES).
+        // Estes campos (veiculoId, motoristaId, datas/horas) são opcionais no DTO
+        // Sua obrigatoriedade será validada condicionalmente no ViagemService
         Long veiculoId,
         Long motoristaId,
 
         LocalDate startDate,
-
         LocalTime startTime,
 
         LocalDate endDate,
-
         LocalTime endTime,
 
         @NotNull
@@ -47,8 +44,7 @@ public record DadosCadastroViagem(
         @NotNull
         TipoViagem tipoViagem,
 
-        // --- NOVO CAMPO: Lista de itens para rotas de colaboradores ---
-        // Esta lista só será preenchida se tipoViagem for ROTA_COLABORADORES
-        // Pode ser @Valid para validar os itens individualmente, e @NotNull se for obrigatória para rotas
+        // NOVO CAMPO: Lista de itens para rotas de colaboradores
+        @NotNull // A lista de itens da rota é obrigatória se o tipoViagem for ROTA_COLABORADORES
         List<DadosItemRotaColaborador> itensRota
 ) {}

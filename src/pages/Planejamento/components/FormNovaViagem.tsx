@@ -16,6 +16,7 @@ import {
   type CadastroViagemData,
   type UpdateViagemData,
   type TipoViagemEnum,
+  type HorarioItemRota,
 } from "../../../services/viagemService";
 import { veiculoService, type Vehicle } from "../../../services/veiculoService";
 import {
@@ -73,18 +74,17 @@ export interface ViagemFormState {
   telefone: string;
   valor: string;
   tipoViagem: TipoViagemEnum;
-  startDate: string; // Obrigatório no form (pode ser "" se ROTA_COLABORADORES)
-  startTime: string; // Obrigatório no form (pode ser "" se ROTA_COLABORADORES)
   startLocation: string; // Obrigatório no form
-  endDate: string; // Obrigatório no form (pode ser "" se ROTA_COLABORADORES)
-  endTime: string; // Obrigatório no form (pode ser "" se ROTA_COLABORADORES)
   endLocation: string; // Obrigatório no form
-  // 'rota' agora reflete que ItemRota tem horarioInicio e horarioFim diretos
+  startDate: string; // Manter como string vazia para ROTA_COLABORADORES
+  startTime: string; // Manter como string vazia para ROTA_COLABORADORES
+  endDate: string; // Manter como string vazia para ROTA_COLABORADORES
+  endTime: string; // Manter como string vazia para ROTA_COLABORADORES
+
   rota: {
     veiculoId: string;
     motoristaId: string;
-    horarioInicio: string; // Alterado para propriedade direta
-    horarioFim: string; // Alterado para propriedade direta
+    horarios: HorarioItemRota[]; // CADA ITEM DE ROTA TEM SUA LISTA DE HORÁRIOS COM DATAS
   }[];
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
 }
@@ -109,7 +109,7 @@ export function FormularioNovaViagem() {
     clientName: "",
     telefone: "",
     valor: "",
-    tipoViagem: "IDA_E_VOLTA_MG",
+    tipoViagem: "IDA_E_VOLTA_MG", // Valor padrão inicial
     startDate: "",
     startTime: "",
     startLocation: "",
@@ -120,11 +120,10 @@ export function FormularioNovaViagem() {
       {
         veiculoId: "",
         motoristaId: "",
-        horarioInicio: "", // Inicialização para campos diretos
-        horarioFim: "", // Inicialização para campos diretos
+        horarios: [{ dataInicio: "", inicio: "", dataFim: "", fim: "" }], // <-- CORREÇÃO: Inicialização com datas nos horários aninhados
       },
     ],
-    status: "AGENDADA",
+    status: "AGENDADA", // Status padrão para nova viagem
   });
 
   const [erros, setErros] = useState<{ [key: string]: string }>({});
@@ -153,21 +152,30 @@ export function FormularioNovaViagem() {
   // Efeito para preencher o formulário em modo edição ou com dados do orçamento
   useEffect(() => {
     if (isEditing && viagem) {
-      // Mapeamento para rotaParaFormulario, agora com horarioInicio/Fim diretos
+      // Modo Edição - Preenche com dados da viagem existente
       const rotaParaFormulario =
         viagem.tipoViagem === "ROTA_COLABORADORES" && viagem.itensRota
           ? viagem.itensRota.map((item) => ({
               veiculoId: String(item.veiculoId),
               motoristaId: String(item.motoristaId),
-              horarioInicio: item.horarioInicio || "", // Acessando diretamente (ItemRota.horarioInicio)
-              horarioFim: item.horarioFim || "", // Acessando diretamente (ItemRota.horarioFim)
+              // CORREÇÃO: Mapear a LISTA DE HORÁRIOS COMPLETA, incluindo dataInicio/dataFim
+              horarios:
+                item.horarios && item.horarios.length > 0
+                  ? item.horarios.map((h) => ({
+                      dataInicio: h.dataInicio || "",
+                      inicio: h.inicio || "",
+                      dataFim: h.dataFim || "",
+                      fim: h.fim || "",
+                    }))
+                  : [{ dataInicio: "", inicio: "", dataFim: "", fim: "" }], // Fallback se a lista estiver vazia
             }))
           : [
               {
                 veiculoId: "",
                 motoristaId: "",
-                horarioInicio: "",
-                horarioFim: "",
+                horarios: [
+                  { dataInicio: "", inicio: "", dataFim: "", fim: "" },
+                ],
               },
             ];
 
@@ -190,6 +198,7 @@ export function FormularioNovaViagem() {
       setMotoristaIdSelecionado(String(viagem.motoristaId || ""));
       setIsPrePopulatedFromBudget(false);
     } else if (location.state?.dadosDoOrcamento) {
+      // Preenchimento a partir de Orçamento
       const { dadosDoOrcamento } = location.state;
       setDadosFormulario({
         title: `Viagem de ${dadosDoOrcamento.nomeCliente} - ${dadosDoOrcamento.origem} para ${dadosDoOrcamento.destino}`,
@@ -199,13 +208,13 @@ export function FormularioNovaViagem() {
           ? String(dadosDoOrcamento.valorTotal.toFixed(2))
           : "",
         tipoViagem: dadosDoOrcamento.tipoViagemOrcamento || "IDA_E_VOLTA_MG",
-        startDate: "",
+        startDate: "", // Sempre limpo para o usuário preencher
         startTime: "",
         startLocation:
           dadosDoOrcamento.descricaoIdaOrcamento ||
           dadosDoOrcamento.origem ||
           "",
-        endDate: "",
+        endDate: "", // Sempre limpo para o usuário preencher
         endTime: "",
         endLocation:
           dadosDoOrcamento.descricaoVoltaOrcamento ||
@@ -214,9 +223,8 @@ export function FormularioNovaViagem() {
         rota: [
           {
             veiculoId: "",
-            horarioInicio: "",
-            horarioFim: "",
             motoristaId: "",
+            horarios: [{ dataInicio: "", inicio: "", dataFim: "", fim: "" }], // <-- CORREÇÃO: Inicialização com datas nos horários aninhados
           },
         ],
         status: "AGENDADA",
@@ -225,6 +233,7 @@ export function FormularioNovaViagem() {
       setMotoristaIdSelecionado("");
       setIsPrePopulatedFromBudget(true);
     } else {
+      // Modo Novo (limpa o formulário)
       setDadosFormulario({
         title: "",
         clientName: "",
@@ -240,9 +249,8 @@ export function FormularioNovaViagem() {
         rota: [
           {
             veiculoId: "",
-            horarioInicio: "",
-            horarioFim: "",
             motoristaId: "",
+            horarios: [{ dataInicio: "", inicio: "", dataFim: "", fim: "" }], // <-- CORREÇÃO: Inicialização com datas nos horários aninhados
           },
         ],
         status: "AGENDADA",
@@ -340,7 +348,11 @@ export function FormularioNovaViagem() {
       ...prev,
       rota: [
         ...prev.rota,
-        { veiculoId: "", motoristaId: "", horarioInicio: "", horarioFim: "" },
+        {
+          veiculoId: "",
+          motoristaId: "",
+          horarios: [{ dataInicio: "", inicio: "", dataFim: "", fim: "" }],
+        }, // Inicializacao com datas
       ],
     }));
   };
@@ -352,14 +364,47 @@ export function FormularioNovaViagem() {
     setDadosFormulario((prev) => ({ ...prev, rota: novaRota }));
   };
 
+  const adicionarHorario = (veiculoIndex: number) => {
+    setDadosFormulario((prev) => {
+      const novaRota = [...prev.rota];
+      novaRota[veiculoIndex].horarios.push({
+        dataInicio: "",
+        inicio: "",
+        dataFim: "",
+        fim: "",
+      });
+      return { ...prev, rota: novaRota };
+    });
+  };
+
+  const removerHorario = (veiculoIndex: number, horarioIndex: number) => {
+    setDadosFormulario((prev) => {
+      const novaRota = [...prev.rota];
+      novaRota[veiculoIndex].horarios = novaRota[veiculoIndex].horarios.filter(
+        (_, index) => index !== horarioIndex
+      );
+      // Garante que haja sempre ao menos um horário, para não quebrar a UI
+      if (novaRota[veiculoIndex].horarios.length === 0) {
+        novaRota[veiculoIndex].horarios.push({
+          dataInicio: "",
+          inicio: "",
+          dataFim: "",
+          fim: "",
+        });
+      }
+      return { ...prev, rota: novaRota };
+    });
+  };
+
   // Alteração para lidar com horarioInicio e horarioFim diretos
   const handleHorarioChange = (
     veiculoIndex: number,
-    field: "horarioInicio" | "horarioFim",
+    horarioIndex: number,
+    field: "dataInicio" | "inicio" | "dataFim" | "fim", // Novos fields
     value: string
   ) => {
     const novaRota = [...dadosFormulario.rota];
-    novaRota[veiculoIndex][field] = value;
+    novaRota[veiculoIndex].horarios[horarioIndex][field] = value;
     setDadosFormulario((prev) => ({ ...prev, rota: novaRota }));
   };
 
@@ -367,6 +412,7 @@ export function FormularioNovaViagem() {
   const validate = useCallback(() => {
     const novosErros: { [key: string]: string } = {};
 
+    // --- Validações de Campos Gerais da Viagem ---
     if (!dadosFormulario.title.trim()) {
       novosErros.title = "O título é obrigatório.";
     }
@@ -381,7 +427,7 @@ export function FormularioNovaViagem() {
     const isRota = dadosFormulario.tipoViagem === "ROTA_COLABORADORES";
 
     if (!isRota) {
-      // Validações para tipos de viagem que não são "rota_colaboradores"
+      // --- Validações para Tipos de Viagem que NÃO são "Rota de Colaboradores" ---
       if (!veiculoIdSelecionado) {
         novosErros.veiculoIdSelecionado = "Selecione um veículo.";
       }
@@ -404,6 +450,7 @@ export function FormularioNovaViagem() {
         }
       }
 
+      // Validação de horário de saída vs. retorno no mesmo dia
       if (
         dadosFormulario.startDate &&
         dadosFormulario.startTime &&
@@ -417,7 +464,8 @@ export function FormularioNovaViagem() {
         }
       }
     } else {
-      // Validações específicas para "rota_colaboradores"
+      // --- Validações específicas para "ROTA_COLABORADORES" ---
+      // Validações para as datas e horas gerais da rota
       if (!dadosFormulario.startDate) {
         novosErros.startDate = "A data de início da rota é obrigatória.";
       }
@@ -430,6 +478,7 @@ export function FormularioNovaViagem() {
       if (!dadosFormulario.endTime) {
         novosErros.endTime = "A hora de fim da rota é obrigatória.";
       }
+      // Validação de datas para que endDate não seja anterior a startDate para a rota geral
       if (dadosFormulario.startDate && dadosFormulario.endDate) {
         const start = new Date(dadosFormulario.startDate + "T00:00:00");
         const end = new Date(dadosFormulario.endDate + "T00:00:00");
@@ -438,6 +487,7 @@ export function FormularioNovaViagem() {
             "A data de fim da rota não pode ser anterior à data de início da rota.";
         }
       }
+      // Validação de horário de início vs. fim no mesmo dia para a rota geral
       if (
         dadosFormulario.startDate &&
         dadosFormulario.startTime &&
@@ -451,6 +501,7 @@ export function FormularioNovaViagem() {
         }
       }
 
+      // Validações para os itens da rota
       if (dadosFormulario.rota.length === 0) {
         novosErros.rota = "Adicione ao menos um veículo à rota.";
       } else {
@@ -465,25 +516,65 @@ export function FormularioNovaViagem() {
               `rota[${idx}].motoristaId`
             ] = `Selecione o motorista da rota ${idx + 1}.`;
           }
-          // Validação para campos diretos de horário
-          if (!itemRota.horarioInicio) {
+
+          // Validação para os horários aninhados de cada item da rota
+          if (itemRota.horarios.length === 0) {
             novosErros[
-              `rota[${idx}].horarioInicio`
-            ] = `Informe o horário de início do veículo ${idx + 1}.`;
-          }
-          if (!itemRota.horarioFim) {
-            novosErros[
-              `rota[${idx}].horarioFim`
-            ] = `Informe o horário de fim do veículo ${idx + 1}.`;
-          }
-          // CORREÇÃO NESTA LINHA:
-          if (
-            itemRota.horarioInicio &&
-            itemRota.horarioFim &&
-            itemRota.horarioInicio >= itemRota.horarioFim
-          ) {
-            novosErros[`rota[${idx}].horarioFim`] =
-              "A hora de fim não pode ser anterior ou igual à hora de início.";
+              `rota[${idx}].horarios`
+            ] = `Adicione ao menos um período de horário para o veículo ${
+              idx + 1
+            }.`;
+          } else {
+            itemRota.horarios.forEach((horario, hIdx) => {
+              if (!horario.dataInicio) {
+                novosErros[
+                  `rota[${idx}].horarios[${hIdx}].dataInicio`
+                ] = `Data de início do horário é obrigatória para o período ${
+                  hIdx + 1
+                } do veículo ${idx + 1}.`;
+              }
+              if (!horario.inicio) {
+                novosErros[
+                  `rota[${idx}].horarios[${hIdx}].inicio`
+                ] = `Hora de início do horário é obrigatória para o período ${
+                  hIdx + 1
+                } do veículo ${idx + 1}.`;
+              }
+              if (!horario.dataFim) {
+                novosErros[
+                  `rota[${idx}].horarios[${hIdx}].dataFim`
+                ] = `Data de fim do horário é obrigatória para o período ${
+                  hIdx + 1
+                } do veículo ${idx + 1}.`;
+              }
+              if (!horario.fim) {
+                novosErros[
+                  `rota[${idx}].horarios[${hIdx}].fim`
+                ] = `Hora de fim do horário é obrigatória para o período ${
+                  hIdx + 1
+                } do veículo ${idx + 1}.`;
+              }
+
+              // Validação de datas/horários dentro do próprio período do horário
+              if (
+                horario.dataInicio &&
+                horario.inicio &&
+                horario.dataFim &&
+                horario.fim
+              ) {
+                const startDateTime = new Date(
+                  `${horario.dataInicio}T${horario.inicio}:00`
+                );
+                const endDateTime = new Date(
+                  `${horario.dataFim}T${horario.fim}:00`
+                );
+
+                if (endDateTime <= startDateTime) {
+                  novosErros[`rota[${idx}].horarios[${hIdx}].fim`] =
+                    "A data/hora de fim do período deve ser posterior à data/hora de início.";
+                }
+              }
+            });
           }
         });
       }
@@ -537,8 +628,12 @@ export function FormularioNovaViagem() {
           id: undefined,
           veiculoId: parseInt(item.veiculoId),
           motoristaId: parseInt(item.motoristaId),
-          horarioInicio: item.horarioInicio, // Corrigido para campos diretos
-          horarioFim: item.horarioFim, // Corrigido para campos diretos
+          horarios: item.horarios.map((h) => ({
+            dataInicio: h.dataInicio, // ENVIAR DATAS E HORAS DO OBJETO HORÁRIO
+            inicio: h.inicio,
+            dataFim: h.dataFim,
+            fim: h.fim,
+          })),
         })),
         veiculoId: undefined,
         motoristaId: undefined,
@@ -688,12 +783,9 @@ export function FormularioNovaViagem() {
                 removerVeiculoRota={removerVeiculoRota}
                 handleRotaVeiculoChange={handleRotaVeiculoChange}
                 handleRotaMotoristaChange={handleRotaMotoristaChange}
-                handleHorarioChange={handleHorarioChange} // Passa a função genérica de handleHorarioChange
-                startDate={dadosFormulario.startDate}
-                startTime={dadosFormulario.startTime}
-                endDate={dadosFormulario.endDate}
-                endTime={dadosFormulario.endTime}
-                onInputChange={handleInputChange} // Passa o onInputChange para manipular os campos de data/hora da rota
+                handleHorarioChange={handleHorarioChange}
+                adicionarHorario={adicionarHorario}
+                removerHorario={removerHorario}
               />
             )}
 

@@ -160,34 +160,6 @@ export function PlanejamentoPage() {
       correspondeAoFiltro = viagem.status === filtroAtivo;
     }
 
-    // Lógica adicional para filtrar por "Em Andamento", "Próximas", "Realizadas"
-    // Isso pode ser uma categoria de filtro separada ou combinada com o status do enum
-    // Seu código original tinha a lógica "proximas", "em_andamento", "realizadas"
-    // Vamos ajustar para usar o status do enum, se houver um mapeamento claro.
-    // Se "AGENDADA" é "Próximas", "EM_CURSO" é "Em Andamento", "FINALIZADA" é "Realizadas".
-
-    // Reavaliando a lógica de filtro com os status do enum:
-    // O filtro "Em Serviço" na MotoristaPage é uma lógica, não um status direto.
-    // Aqui, seus `id`s de filtro são 'AGENDADA', 'EM_CURSO', 'FINALIZADA', 'CANCELADA'.
-    // O filtro original tinha `id: "proximas"`, `id: "em_andamento"`, etc.
-    // Se você quer manter essa lógica de "Próximas", "Em Andamento", "Realizadas",
-    // o `filtroAtivo` precisa ser um desses IDs customizados, e não o status do enum.
-    // Exemplo:
-    // const filtrosPlanejamento: Filtro[] = [
-    //   { id: "proximas", label: "Próximas" },
-    //   { id: "em_andamento", label: "Em Andamento" },
-    //   { id: "realizadas", label: "Realizadas" },
-    //   { id: "canceladas", label: "Canceladas" }, // Se tiver status CANCELADA no backend
-    //   { id: "todas", label: "Todas" },
-    // ];
-    //
-    // E então a lógica de filtragem seria:
-    // if (filtroAtivo === "todas") correspondeAoFiltro = true;
-    // else if (filtroAtivo === "em_andamento") correspondeAoFiltro = viagem.status === 'EM_CURSO' && hoje >= dataInicio && hoje <= dataFim; // Ou só viagem.status === 'EM_CURSO'
-    // else if (filtroAtivo === "proximas") correspondeAoFiltro = viagem.status === 'AGENDADA' && dataInicio > hoje; // Ou só viagem.status === 'AGENDADA'
-    // else if (filtroAtivo === "realizadas") correspondeAoFiltro = viagem.status === 'FINALIZADA' && dataFim < hoje; // Ou só viagem.status === 'FINALIZADA'
-    // else if (filtroAtivo === "canceladas") correspondeAoFiltro = viagem.status === 'CANCELADA';
-
     // Para o seu código atual com IDs "AGENDADA", "EM_CURSO", etc., a lógica é mais simples:
     const correspondeABusca = viagem.title
       .toLowerCase()

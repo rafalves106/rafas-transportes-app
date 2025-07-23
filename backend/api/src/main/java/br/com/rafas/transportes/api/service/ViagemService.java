@@ -1,6 +1,6 @@
 package br.com.rafas.transportes.api.service;
 
-import br.com.rafas.transportes.api.domain.HorarioItemRota; // Nova entidade para múltiplos horários
+import br.com.rafas.transportes.api.domain.HorarioItemRota; // Importar nova entidade HorarioItemRota
 import br.com.rafas.transportes.api.domain.ItemRotaColaborador;
 import br.com.rafas.transportes.api.domain.Motorista;
 import br.com.rafas.transportes.api.domain.Veiculo;
@@ -9,7 +9,7 @@ import br.com.rafas.transportes.api.domain.TipoViagem;
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoViagem;
 import br.com.rafas.transportes.api.dto.DadosCadastroViagem;
 import br.com.rafas.transportes.api.dto.DadosDetalhamentoViagem;
-import br.com.rafas.transportes.api.dto.DadosHorarioItemRota; // DTO para HorarioItemRota
+import br.com.rafas.transportes.api.dto.DadosHorarioItemRota;
 import br.com.rafas.transportes.api.dto.DadosItemRotaColaborador;
 import br.com.rafas.transportes.api.repository.MotoristaRepository;
 import br.com.rafas.transportes.api.repository.VeiculoRepository;
@@ -39,7 +39,7 @@ public class ViagemService {
 
     @Transactional
     public DadosDetalhamentoViagem cadastrar(DadosCadastroViagem dados) {
-        // --- Validações Condicionais para Veículo/Motorista e Datas/Horários ---
+        // --- Validações Condicionais para Veículo/Motorista e Datas/Horários da Viagem Principal ---
         if (dados.tipoViagem() != TipoViagem.ROTA_COLABORADORES) {
             // Para tipos de viagem que NÃO são ROTA_COLABORADORES, estes campos são obrigatórios
             if (dados.veiculoId() == null) {
@@ -70,19 +70,19 @@ public class ViagemService {
             if (dados.itensRota() == null || dados.itensRota().isEmpty()) {
                 throw new ValidationException("Para rotas de colaboradores, é necessário adicionar ao menos um veículo com motorista e horários.");
             }
-            // Validações para cada item e seus horários
+            // Validações para cada item da rota e seus horários aninhados
             for (DadosItemRotaColaborador itemDados : dados.itensRota()) {
                 if (itemDados.veiculoId() == null || itemDados.motoristaId() == null || itemDados.horarios() == null || itemDados.horarios().isEmpty()) {
                     throw new ValidationException("Todos os campos (veículo, motorista, e ao menos um horário) são obrigatórios para cada item da rota.");
                 }
                 for (DadosHorarioItemRota horarioDados : itemDados.horarios()) {
-                    if (horarioDados.inicio() == null || horarioDados.fim() == null) {
-                        throw new ValidationException("Horários de início e fim são obrigatórios para cada período do item da rota.");
+                    if (horarioDados.dataInicio() == null || horarioDados.inicio() == null || horarioDados.dataFim() == null || horarioDados.fim() == null) {
+                        throw new ValidationException("Datas e horários de início e fim são obrigatórios para cada período do item da rota.");
                     }
                 }
             }
-            // Para ROTA_COLABORADORES, startDate, startTime, endDate, endTime são obrigatórios
-            // para definir o 'período' da rota em si (agora vindo da UI)
+            // Para ROTA_COLABORADORES, startDate, startTime, endDate, endTime da VIAGEM PRINCIPAL
+            // são obrigatórios e virão da UI.
             if (dados.startDate() == null) {
                 throw new ValidationException("A data de início da rota é obrigatória.");
             }
@@ -152,7 +152,6 @@ public class ViagemService {
         viagemRepository.save(viagem); // Salva a viagem principal primeiro para obter o ID
 
         // --- Processa e salva os itens da rota de colaboradores (se for esse tipo de viagem) ---
-        // A validação de conflito para cada item da rota é feita AQUI, após a viagem principal ser salva.
         if (dados.tipoViagem() == TipoViagem.ROTA_COLABORADORES && dados.itensRota() != null) {
             Long viagemIdParaExcluir = viagem.getId();
 
@@ -163,46 +162,45 @@ public class ViagemService {
                         .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado para o item da rota com ID: " + itemDados.motoristaId()));
 
                 // Cria o ItemRotaColaborador
-                var itemRota = new ItemRotaColaborador(viagem, veiculoItem, motoristaItem); // Novo construtor sem horários diretos
+                var itemRota = new ItemRotaColaborador(viagem, veiculoItem, motoristaItem);
 
                 // Adiciona e salva os horários para este ItemRotaColaborador
                 for (DadosHorarioItemRota horarioDados : itemDados.horarios()) {
                     // Validação de conflito para CADA HORÁRIO de CADA ITEM DA ROTA
-                    // Usa as datas da viagem principal e o horário específico do item.
+                    // Usa as DATAS E HORAS específicas do HORÁRIO do item.
                     List<Viagem> conflitosVeiculoItem = viagemRepository.findVeiculoConflitosByTime(
                             veiculoItem.getId(),
-                            dados.startDate(), // Data de início da viagem principal
+                            horarioDados.dataInicio(), // USAR DATA DE INÍCIO DO HORÁRIO
                             horarioDados.inicio(), // Horário de início DO HORÁRIO
-                            dados.endDate(),   // Data de fim da viagem principal
+                            horarioDados.dataFim(),    // USAR DATA DE FIM DO HORÁRIO
                             horarioDados.fim(),    // Horário de fim DO HORÁRIO
                             viagemIdParaExcluir
                     );
                     if (!conflitosVeiculoItem.isEmpty()) {
                         throw new ValidationException(
-                                "Conflito de agendamento: O veículo '" + veiculoItem.getModel() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ") já está ocupado em outra viagem no período."
+                                "Conflito de agendamento: O veículo '" + veiculoItem.getModel() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ", data " + horarioDados.dataInicio() + " a " + horarioDados.dataFim() + ") já está ocupado em outra viagem no período."
                         );
                     }
 
                     List<Viagem> conflitosMotoristaItem = viagemRepository.findMotoristaConflitosByTime(
                             motoristaItem.getId(),
-                            dados.startDate(),
+                            horarioDados.dataInicio(), // USAR DATA DE INÍCIO DO HORÁRIO
                             horarioDados.inicio(),
-                            dados.endDate(),
+                            horarioDados.dataFim(),    // USAR DATA DE FIM DO HORÁRIO
                             horarioDados.fim(),
                             viagemIdParaExcluir
                     );
                     if (!conflitosMotoristaItem.isEmpty()) {
                         throw new ValidationException(
-                                "Conflito de agendamento: O motorista '" + motoristaItem.getNome() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ") já está ocupado em outra viagem no período."
+                                "Conflito de agendamento: O motorista '" + motoristaItem.getNome() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ", data " + horarioDados.dataInicio() + " a " + horarioDados.dataFim() + ") já está ocupado em outra viagem no período."
                         );
                     }
 
-                    var horario = new HorarioItemRota(horarioDados.inicio(), horarioDados.fim());
+                    var horario = new HorarioItemRota(horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
                     itemRota.adicionarHorario(horario); // Adiciona à lista de horários do item de rota
                 }
                 viagem.adicionarItemRota(itemRota); // Adiciona ItemRotaColaborador à lista da Viagem
             }
-            // O save da viagem principal já foi feito. Com CascadeType.ALL, os itensRota e seus horários serão persistidos.
         }
 
         return new DadosDetalhamentoViagem(viagem);
@@ -230,14 +228,14 @@ public class ViagemService {
             if (dados.veiculoId() != null) {
                 veiculoAtualizado = veiculoRepository.findById(dados.veiculoId())
                         .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado com o ID: " + dados.veiculoId()));
-            } else if (viagem.getVeiculo() != null) { // Se não foi alterado, mantém o existente
+            } else if (viagem.getVeiculo() != null) {
                 veiculoAtualizado = viagem.getVeiculo();
             }
 
             if (dados.motoristaId() != null) {
                 motoristaAtualizado = motoristaRepository.findById(dados.motoristaId())
                         .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado com o ID: " + dados.motoristaId()));
-            } else if (viagem.getMotorista() != null) { // Se não foi alterado, mantém o existente
+            } else if (viagem.getMotorista() != null) {
                 motoristaAtualizado = viagem.getMotorista();
             }
         }
@@ -259,7 +257,7 @@ public class ViagemService {
                         horaInicioValidar,
                         dataFimValidar,
                         horaFimValidar,
-                        id // Exclui a própria viagem da checagem
+                        id
                 );
                 if (!conflitosVeiculo.isEmpty()) {
                     throw new ValidationException("Conflito de agendamento: O veículo principal já estará em outra viagem neste período após a atualização.");
@@ -274,7 +272,7 @@ public class ViagemService {
                         horaInicioValidar,
                         dataFimValidar,
                         horaFimValidar,
-                        id // Exclui a própria viagem da checagem
+                        id
                 );
                 if (!conflitosMotorista.isEmpty()) {
                     throw new ValidationException("Conflito de agendamento: O motorista principal já estará em outra viagem neste período após a atualização.");
@@ -287,7 +285,6 @@ public class ViagemService {
 
         // --- Processa e atualiza os itens da rota de colaboradores (se for esse tipo de viagem) ---
         if (tipoViagemValidar == TipoViagem.ROTA_COLABORADORES) {
-            // Limpa os itens existentes (orphanRemoval = true deleta do DB)
             viagem.getItensRota().clear();
 
             if (dados.itensRota() != null && !dados.itensRota().isEmpty()) {
@@ -297,8 +294,8 @@ public class ViagemService {
                         throw new ValidationException("Todos os campos (veículo, motorista, e ao menos um horário) são obrigatórios para cada item da rota.");
                     }
                     for (DadosHorarioItemRota horarioDados : itemDados.horarios()) {
-                        if (horarioDados.inicio() == null || horarioDados.fim() == null) {
-                            throw new ValidationException("Horários de início e fim são obrigatórios para cada período do item da rota.");
+                        if (horarioDados.dataInicio() == null || horarioDados.inicio() == null || horarioDados.dataFim() == null || horarioDados.fim() == null) {
+                            throw new ValidationException("Datas e horários de início e fim são obrigatórios para cada período do item da rota.");
                         }
                     }
 
@@ -307,48 +304,46 @@ public class ViagemService {
                     var motoristaItem = motoristaRepository.findById(itemDados.motoristaId())
                             .orElseThrow(() -> new EntityNotFoundException("Motorista não encontrado para o item da rota com ID: " + itemDados.motoristaId()));
 
-                    // Cria o ItemRotaColaborador para atualização
-                    var itemRota = new ItemRotaColaborador(viagem, veiculoItem, motoristaItem); // Reutiliza construtor
-                    viagem.adicionarItemRota(itemRota); // Adiciona à coleção da viagem
+                    var itemRota = new ItemRotaColaborador(viagem, veiculoItem, motoristaItem);
+                    viagem.adicionarItemRota(itemRota);
 
                     // Adiciona e salva os horários para este ItemRotaColaborador
                     for (DadosHorarioItemRota horarioDados : itemDados.horarios()) {
                         // **VALIDAÇÃO DE CONFLITO PARA CADA HORÁRIO DE CADA ITEM DA ROTA (ATUALIZAÇÃO)**
                         List<Viagem> conflitosVeiculoItem = viagemRepository.findVeiculoConflitosByTime(
                                 veiculoItem.getId(),
-                                dataInicioValidar, // Usa as datas da viagem principal
+                                horarioDados.dataInicio(), // USAR DATA DE INÍCIO DO HORÁRIO
                                 horarioDados.inicio(),
-                                dataFimValidar,    // Usa as datas da viagem principal
+                                horarioDados.dataFim(),    // USAR DATA DE FIM DO HORÁRIO
                                 horarioDados.fim(),
-                                id // Passa o ID da viagem atual para excluir da checagem
+                                id
                         );
                         if (!conflitosVeiculoItem.isEmpty()) {
                             throw new ValidationException(
-                                    "Conflito de agendamento: O veículo '" + veiculoItem.getModel() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ") já está ocupado em outra viagem no período."
+                                    "Conflito de agendamento: O veículo '" + veiculoItem.getModel() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ", data " + horarioDados.dataInicio() + " a " + horarioDados.dataFim() + ") já está ocupado em outra viagem no período."
                             );
                         }
 
                         List<Viagem> conflitosMotoristaItem = viagemRepository.findMotoristaConflitosByTime(
                                 motoristaItem.getId(),
-                                dataInicioValidar,
+                                horarioDados.dataInicio(), // USAR DATA DE INÍCIO DO HORÁRIO
                                 horarioDados.inicio(),
-                                dataFimValidar,
+                                horarioDados.dataFim(),    // USAR DATA DE FIM DO HORÁRIO
                                 horarioDados.fim(),
-                                id // Passa o ID da viagem atual para excluir da checagem
+                                id
                         );
                         if (!conflitosMotoristaItem.isEmpty()) {
                             throw new ValidationException(
-                                    "Conflito de agendamento: O motorista '" + motoristaItem.getNome() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ") já está ocupado em outra viagem no período."
+                                    "Conflito de agendamento: O motorista '" + motoristaItem.getNome() + "' (item da rota, horário " + horarioDados.inicio() + "-" + horarioDados.fim() + ", data " + horarioDados.dataInicio() + " a " + horarioDados.dataFim() + ") já está ocupado em outra viagem no período."
                             );
                         }
 
-                        var horario = new HorarioItemRota(horarioDados.inicio(), horarioDados.fim());
-                        itemRota.adicionarHorario(horario); // Adiciona à lista de horários do item de rota
+                        var horario = new HorarioItemRota(horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
+                        itemRota.adicionarHorario(horario);
                     }
                 }
             }
         } else if (tipoViagemValidar != TipoViagem.ROTA_COLABORADORES && !viagem.getItensRota().isEmpty()) {
-            // Se o tipo de viagem mudou DE ROTA_COLABORADORES para outro tipo, limpar os itens da rota
             viagem.getItensRota().clear();
         }
 

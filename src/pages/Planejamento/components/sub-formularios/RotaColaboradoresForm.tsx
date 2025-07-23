@@ -12,13 +12,12 @@ import {
 import { InputRow } from "../../../../components/ui/Layout";
 import { type Vehicle } from "../../../../services/veiculoService";
 import { type Driver } from "../../../../services/motoristaService";
-
+import { type HorarioItemRota } from "../../../../services/viagemService";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 `;
-
 const RotaVeiculoBloco = styled.div`
   border-left: 3px solid #dee2e6;
   padding-left: 1rem;
@@ -27,27 +26,22 @@ const RotaVeiculoBloco = styled.div`
   flex-direction: column;
   gap: 1rem;
 `;
-
 const RotaHorarioContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 `;
-
 const LabelContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
-
-// Tipo para um item individual da rota dentro do estado do formulário pai
 interface ItemRotaFormState {
   veiculoId: string;
   motoristaId: string;
-  horarioInicio: string; // Direto, não um array
-  horarioFim: string; // Direto, não um array
+  horarios: HorarioItemRota[];
 }
-
 interface RotaColaboradoresFormProps {
   rota: ItemRotaFormState[];
   listaVeiculos: Vehicle[];
@@ -63,21 +57,15 @@ interface RotaColaboradoresFormProps {
     index: number,
     e: React.ChangeEvent<HTMLSelectElement>
   ) => void;
-  // handleHorarioChange precisa ser ajustado para manipular campos diretos
   handleHorarioChange: (
     veiculoIndex: number,
-    field: "horarioInicio" | "horarioFim", // Agora o 'field' é direto
+    horarioIndex: number,
+    field: "dataInicio" | "inicio" | "dataFim" | "fim",
     value: string
   ) => void;
-
-  // Campos de período geral da rota, passados para cá
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  adicionarHorario: (veiculoIndex: number) => void;
+  removerHorario: (veiculoIndex: number, horarioIndex: number) => void;
 }
-
 export function RotaColaboradoresForm({
   rota,
   listaVeiculos,
@@ -87,75 +75,17 @@ export function RotaColaboradoresForm({
   removerVeiculoRota,
   handleRotaVeiculoChange,
   handleRotaMotoristaChange,
-  handleHorarioChange, // Função de manipulação de horário para campos diretos
-  startDate,
-  startTime,
-  endDate,
-  endTime,
-  onInputChange,
+  handleHorarioChange,
+  adicionarHorario,
+  removerHorario,
 }: RotaColaboradoresFormProps) {
   return (
     <Container>
-      {/* Período da Rota */}
-      <SectionTitle>Período da Rota</SectionTitle>
-      <InputRow>
-        <InputGroup>
-          <Label htmlFor="startDate">Data de Início da Rota</Label>
-          <Input
-            id="startDate"
-            name="startDate"
-            type="date"
-            value={startDate}
-            onChange={onInputChange}
-            hasError={!!erros.startDate}
-          />
-          {erros.startDate && <ErrorMessage>{erros.startDate}</ErrorMessage>}
-        </InputGroup>
-        <InputGroup>
-          <Label htmlFor="startTime">Hora de Início da Rota</Label>
-          <Input
-            id="startTime"
-            name="startTime"
-            type="time"
-            value={startTime}
-            onChange={onInputChange}
-            hasError={!!erros.startTime}
-          />
-          {erros.startTime && <ErrorMessage>{erros.startTime}</ErrorMessage>}
-        </InputGroup>
-      </InputRow>
-      <InputRow>
-        <InputGroup>
-          <Label htmlFor="endDate">Data de Fim da Rota</Label>
-          <Input
-            id="endDate"
-            name="endDate"
-            type="date"
-            value={endDate}
-            onChange={onInputChange}
-            hasError={!!erros.endDate}
-          />
-          {erros.endDate && <ErrorMessage>{erros.endDate}</ErrorMessage>}
-        </InputGroup>
-        <InputGroup>
-          <Label htmlFor="endTime">Hora de Fim da Rota</Label>
-          <Input
-            id="endTime"
-            name="endTime"
-            type="time"
-            value={endTime}
-            onChange={onInputChange}
-            hasError={!!erros.endTime}
-          />
-          {erros.endTime && <ErrorMessage>{erros.endTime}</ErrorMessage>}
-        </InputGroup>
-      </InputRow>
-
-      {/* Veículos e Horários da Rota */}
-      <SectionTitle style={{ marginTop: "1.5rem" }}>
+      {}
+      {}
+      <SectionTitle style={{ marginTop: "0rem" }}>
         Veículos e Horários da Rota
       </SectionTitle>
-
       {rota.map((itemRota, veiculoIndex) => (
         <RotaVeiculoBloco key={veiculoIndex}>
           <LabelContainer>
@@ -171,6 +101,7 @@ export function RotaColaboradoresForm({
             )}
           </LabelContainer>
           <InputRow>
+            {}
             <InputGroup>
               <Label htmlFor={`veiculo-rota-${veiculoIndex}`}>Veículo</Label>
               <Select
@@ -192,7 +123,7 @@ export function RotaColaboradoresForm({
                 </ErrorMessage>
               )}
             </InputGroup>
-
+            {}
             <InputGroup>
               <Label htmlFor={`motorista-rota-${veiculoIndex}`}>
                 Motorista
@@ -217,61 +148,173 @@ export function RotaColaboradoresForm({
               )}
             </InputGroup>
           </InputRow>
-          <Label>Horário do Veículo</Label>{" "}
-          {/* Corrigido para "Horário" (singular) */}
-          <RotaHorarioContainer>
-            <InputGroup>
-              <Label
-                htmlFor={`inicio-${veiculoIndex}`} // Remover horarioIndex, pois é um par único
-              >
-                Início
-              </Label>
-              <Input
-                id={`inicio-${veiculoIndex}`}
-                type="time"
-                name="horarioInicio" // Nome do campo
-                value={itemRota.horarioInicio} // Acessa diretamente
-                onChange={(e) =>
-                  handleHorarioChange(
-                    veiculoIndex,
-                    "horarioInicio",
-                    e.target.value
-                  )
-                }
-                hasError={!!erros[`rota[${veiculoIndex}].horarioInicio`]}
-              />
-              {erros[`rota[${veiculoIndex}].horarioInicio`] && (
-                <ErrorMessage>
-                  {erros[`rota[${veiculoIndex}].horarioInicio`]}
-                </ErrorMessage>
+          {}
+          <Label>Períodos de Horário do Item</Label>
+          {itemRota.horarios.map((horario, horarioIndex) => (
+            <RotaHorarioContainer key={horarioIndex}>
+              {}
+              <InputGroup>
+                <Label htmlFor={`data-inicio-${veiculoIndex}-${horarioIndex}`}>
+                  Data Início
+                </Label>
+                <Input
+                  id={`data-inicio-${veiculoIndex}-${horarioIndex}`}
+                  type="date"
+                  value={horario.dataInicio || ""}
+                  onChange={(e) =>
+                    handleHorarioChange(
+                      veiculoIndex,
+                      horarioIndex,
+                      "dataInicio",
+                      e.target.value
+                    )
+                  }
+                  hasError={
+                    !!erros[
+                      `rota[${veiculoIndex}].horarios[${horarioIndex}].dataInicio`
+                    ]
+                  }
+                />
+                {erros[
+                  `rota[${veiculoIndex}].horarios[${horarioIndex}].dataInicio`
+                ] && (
+                  <ErrorMessage>
+                    {
+                      erros[
+                        `rota[${veiculoIndex}].horarios[${horarioIndex}].dataInicio`
+                      ]
+                    }
+                  </ErrorMessage>
+                )}
+              </InputGroup>
+              {}
+              <InputGroup>
+                <Label htmlFor={`hora-inicio-${veiculoIndex}-${horarioIndex}`}>
+                  Hora Início
+                </Label>
+                <Input
+                  id={`hora-inicio-${veiculoIndex}-${horarioIndex}`}
+                  type="time"
+                  value={horario.inicio || ""}
+                  onChange={(e) =>
+                    handleHorarioChange(
+                      veiculoIndex,
+                      horarioIndex,
+                      "inicio",
+                      e.target.value
+                    )
+                  }
+                  hasError={
+                    !!erros[
+                      `rota[${veiculoIndex}].horarios[${horarioIndex}].inicio`
+                    ]
+                  }
+                />
+                {erros[
+                  `rota[${veiculoIndex}].horarios[${horarioIndex}].inicio`
+                ] && (
+                  <ErrorMessage>
+                    {
+                      erros[
+                        `rota[${veiculoIndex}].horarios[${horarioIndex}].inicio`
+                      ]
+                    }
+                  </ErrorMessage>
+                )}
+              </InputGroup>
+              {}
+              <InputGroup>
+                <Label htmlFor={`data-fim-${veiculoIndex}-${horarioIndex}`}>
+                  Data Fim
+                </Label>
+                <Input
+                  id={`data-fim-${veiculoIndex}-${horarioIndex}`}
+                  type="date"
+                  value={horario.dataFim || ""}
+                  onChange={(e) =>
+                    handleHorarioChange(
+                      veiculoIndex,
+                      horarioIndex,
+                      "dataFim",
+                      e.target.value
+                    )
+                  }
+                  hasError={
+                    !!erros[
+                      `rota[${veiculoIndex}].horarios[${horarioIndex}].dataFim`
+                    ]
+                  }
+                />
+                {erros[
+                  `rota[${veiculoIndex}].horarios[${horarioIndex}].dataFim`
+                ] && (
+                  <ErrorMessage>
+                    {
+                      erros[
+                        `rota[${veiculoIndex}].horarios[${horarioIndex}].dataFim`
+                      ]
+                    }
+                  </ErrorMessage>
+                )}
+              </InputGroup>
+              {}
+              <InputGroup>
+                <Label htmlFor={`hora-fim-${veiculoIndex}-${horarioIndex}`}>
+                  Hora Fim
+                </Label>
+                <Input
+                  id={`hora-fim-${veiculoIndex}-${horarioIndex}`}
+                  type="time"
+                  value={horario.fim || ""}
+                  onChange={(e) =>
+                    handleHorarioChange(
+                      veiculoIndex,
+                      horarioIndex,
+                      "fim",
+                      e.target.value
+                    )
+                  }
+                  hasError={
+                    !!erros[
+                      `rota[${veiculoIndex}].horarios[${horarioIndex}].fim`
+                    ]
+                  }
+                />
+                {erros[
+                  `rota[${veiculoIndex}].horarios[${horarioIndex}].fim`
+                ] && (
+                  <ErrorMessage>
+                    {
+                      erros[
+                        `rota[${veiculoIndex}].horarios[${horarioIndex}].fim`
+                      ]
+                    }
+                  </ErrorMessage>
+                )}
+              </InputGroup>
+              {horarioIndex > 0 && (
+                <Button
+                  variant="danger"
+                  type="button"
+                  onClick={() => removerHorario(veiculoIndex, horarioIndex)}
+                >
+                  &times;
+                </Button>
               )}
-            </InputGroup>
-            <InputGroup>
-              <Label htmlFor={`fim-${veiculoIndex}`}>Fim</Label>
-              <Input
-                id={`fim-${veiculoIndex}`}
-                type="time"
-                name="horarioFim" // Nome do campo
-                value={itemRota.horarioFim} // Acessa diretamente
-                onChange={(e) =>
-                  handleHorarioChange(
-                    veiculoIndex,
-                    "horarioFim",
-                    e.target.value
-                  )
-                }
-                hasError={!!erros[`rota[${veiculoIndex}].horarioFim`]}
-              />
-              {erros[`rota[${veiculoIndex}].horarioFim`] && (
-                <ErrorMessage>
-                  {erros[`rota[${veiculoIndex}].horarioFim`]}
-                </ErrorMessage>
-              )}
-            </InputGroup>
-            {/* REMOVER botão de remover horário, pois só tem um par */}
-            {/* REMOVER erro de horarios[] */}
-          </RotaHorarioContainer>
-          {/* REMOVER botão "+ Adicionar Horário" */}
+            </RotaHorarioContainer>
+          ))}
+          {erros[`rota[${veiculoIndex}].horarios`] && (
+            <ErrorMessage>
+              {erros[`rota[${veiculoIndex}].horarios`]}
+            </ErrorMessage>
+          )}
+          <Button
+            variant="primary"
+            type="button"
+            onClick={() => adicionarHorario(veiculoIndex)}
+          >
+            + Adicionar Período
+          </Button>
         </RotaVeiculoBloco>
       ))}
       {erros.rota && <ErrorMessage>{erros.rota}</ErrorMessage>}
@@ -281,7 +324,7 @@ export function RotaColaboradoresForm({
         onClick={adicionarVeiculoRota}
         style={{ marginTop: "1rem" }}
       >
-        + Adicionar Veículo à Rota
+        + Adicionar Van e Motorista
       </Button>
     </Container>
   );

@@ -1,23 +1,18 @@
-/**
- * @author falvesmac
- */
-
 package br.com.rafas.transportes.api.dto;
 
+import br.com.rafas.transportes.api.domain.HorarioItemRota;
 import br.com.rafas.transportes.api.domain.ItemRotaColaborador;
-import br.com.rafas.transportes.api.domain.HorarioItemRota; // Importar HorarioItemRota
-import java.time.LocalTime;
-import java.util.List; // Importar List
-import java.util.stream.Collectors; // Importar Collectors
+import java.time.LocalTime; // Pode ser removido, pois LocalTime está em DadosHorarioItemRota
+import java.util.List;
+import java.util.stream.Collectors;
 
 public record DadosDetalhamentoItemRotaColaborador(
         Long id,
         Long veiculoId,
-        String veiculoInfo, // Ex: "Modelo (Placa)"
+        String veiculoInfo,
         Long motoristaId,
-        String motoristaNome, // Ex: "Nome do Motorista"
-        // REMOVER: LocalTime horarioInicio, LocalTime horarioFim,
-        List<DadosHorarioItemRota> horarios // <-- NOVO CAMPO: Lista de horários
+        String motoristaNome,
+        List<DadosHorarioItemRota> horarios // <-- LISTA DE DTOS DE HORÁRIO
 ) {
     public DadosDetalhamentoItemRotaColaborador(ItemRotaColaborador item) {
         this(
@@ -26,9 +21,8 @@ public record DadosDetalhamentoItemRotaColaborador(
                 item.getVeiculo() != null ? item.getVeiculo().getModel() + " (" + item.getVeiculo().getPlate() + ")" : "Veículo não informado",
                 item.getMotorista() != null ? item.getMotorista().getId() : null,
                 item.getMotorista() != null ? item.getMotorista().getNome() : "Motorista não definido",
-                // REMOVER: item.getHorarioInicio(), item.getHorarioFim()
                 item.getHorarios().stream() // Mapear a lista de horários
-                        .map(DadosHorarioItemRota::new)
+                        .map(DadosHorarioItemRota::new) // Usar o construtor do DTO
                         .collect(Collectors.toList())
         );
     }

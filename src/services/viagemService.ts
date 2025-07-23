@@ -10,19 +10,21 @@ export type TipoViagemEnum =
   | "SOMENTE_IDA_FORA_MG"
   | "ROTA_COLABORADORES";
 
+export interface HorarioItemRota {
+  dataInicio: string; // "YYYY-MM-DD"
+  inicio: string; // "HH:MM"
+  dataFim: string; // "YYYY-MM-DD"
+  fim: string; // "HH:MM"
+}
+
 // Interface para os dados de cada Item da Rota (vindos do backend)
 export interface ItemRota {
   id?: number;
   veiculoId: number;
   motoristaId: number;
-
   veiculo?: Vehicle;
   motorista?: Driver;
-
-  // CORREÇÃO AQUI: Horários são propriedades diretas, não um array
-  horarioInicio: string; // "HH:MM"
-  horarioFim: string; // "HH:MM"
-  // REMOVER: horarios: HorarioItemRota[];
+  horarios: HorarioItemRota[]; // Agora é uma lista de HorarioItemRota
 }
 
 // Reutilizando ItemRota, mas para envio, alguns campos como info/nome não são necessários
@@ -31,10 +33,7 @@ export interface ItemRotaParaEnvio {
   id?: number;
   veiculoId: number;
   motoristaId: number;
-  // CORREÇÃO AQUI: Horários são propriedades diretas, não um array
-  horarioInicio: string; // "HH:MM"
-  horarioFim: string; // "HH:MM"
-  // REMOVER: horarios: HorarioItemRota[];
+  horarios: HorarioItemRota[]; // Para envio também será uma lista
 }
 
 // Interface para os dados de Viagem retornados pelo backend (DadosDetalhamentoViagem)
@@ -60,7 +59,7 @@ export interface Viagem {
 
   veiculo?: Vehicle;
   motorista?: Driver;
-  itensRota?: ItemRota[]; // Lista de itens da rota
+  itensRota?: ItemRota[]; // Lista de itens da rota (ItemRota tem horários diretos)
 }
 
 // Interface para os dados de Cadastro de Viagem enviados ao backend (DadosCadastroViagem)

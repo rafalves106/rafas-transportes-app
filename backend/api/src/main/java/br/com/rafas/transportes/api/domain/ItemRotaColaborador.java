@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList; // Importar ArrayList
-import java.util.List; // Importar List
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "itens_rota_colaboradores")
