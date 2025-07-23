@@ -80,18 +80,31 @@ export function PlanejamentoPage() {
 
       // Ordena as viagens para exibição (útil para listas e calendário)
       const dadosOrdenados = data.sort((a, b) => {
-        const dataInicioA = new Date(a.startDate);
-        const dataInicioB = new Date(b.startDate);
+        const dataInicioA = new Date(a.startDate || "");
+        const dataInicioB = new Date(b.startDate || "");
 
-        // Prioriza ordenar por data de início
-        if (dataInicioA.getTime() !== dataInicioB.getTime()) {
-          return dataInicioA.getTime() - dataInicioB.getTime();
+        const timeA = dataInicioA.getTime();
+        const timeB = dataInicioB.getTime();
+
+        if (timeA !== timeB) {
+          if (isNaN(timeA)) return 1;
+          if (isNaN(timeB)) return -1;
+          return timeA - timeB;
         }
 
-        // Se a data de início for a mesma, ordena pela data de fim
-        const dataFimA = new Date(a.endDate);
-        const dataFimB = new Date(b.endDate);
-        return dataFimA.getTime() - dataFimB.getTime();
+        const dataFimA = new Date(a.endDate || "");
+        const dataFimB = new Date(b.endDate || "");
+
+        const timeFimA = dataFimA.getTime();
+        const timeFimB = dataFimB.getTime();
+
+        if (timeFimA !== timeFimB) {
+          if (isNaN(timeFimA)) return 1;
+          if (isNaN(timeFimB)) return -1;
+          return timeFimA - timeFimB;
+        }
+
+        return (a.title || "").localeCompare(b.title || "");
       });
 
       setViagens(dadosOrdenados);
