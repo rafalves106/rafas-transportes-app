@@ -32,7 +32,6 @@ public interface ViagemRepository extends JpaRepository<Viagem, Long> {
             SELECT v FROM Viagem v
             WHERE
                 (v.veiculo.id = :veiculoId OR :veiculoId IS NULL)
-                -- REMOVIDO: AND v.tipoViagem != 'ROTA_COLABORADORES'
                 AND v.startDate <= :endDate
                 AND v.endDate >= :startDate
                 AND (
@@ -53,7 +52,6 @@ public interface ViagemRepository extends JpaRepository<Viagem, Long> {
         SELECT v FROM Viagem v
         WHERE
             (v.motorista.id = :motoristaId OR :motoristaId IS NULL)
-            -- REMOVIDO: AND v.tipoViagem != 'ROTA_COLABORADORES'
             AND v.startDate <= :endDate
             AND v.endDate >= :startDate
             AND (
