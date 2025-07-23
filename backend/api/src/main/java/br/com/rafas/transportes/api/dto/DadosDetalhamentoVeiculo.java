@@ -7,14 +7,16 @@ public record DadosDetalhamentoVeiculo(
         Long id,
         String model,
         String plate,
-        StatusVeiculo status
+        StatusVeiculo status,
+        Integer currentKm // NOVO CAMPO: Quilometragem atual
 ) {
     public DadosDetalhamentoVeiculo(Veiculo veiculo) {
         this(
                 veiculo.getId(),
                 veiculo.getModel(),
                 veiculo.getPlate(),
-                veiculo.getStatus()
+                veiculo.getStatus(),
+                veiculo.getCurrentKm() // Atribui o novo campo
         );
     }
 }

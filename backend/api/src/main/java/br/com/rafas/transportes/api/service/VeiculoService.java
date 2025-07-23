@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Import adicionado para o @Transactional
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -28,22 +29,31 @@ public class VeiculoService {
     @Autowired
     private ViagemRepository viagemRepository;
 
+    @Transactional // Adicionar @Transactional para operações de escrita
     public Veiculo cadastrar(DadosCadastroVeiculo dados) {
         if (repository.existsByPlate(dados.plate())) {
             throw new ValidationException("Placa já cadastrada no sistema.");
         }
         var veiculo = new Veiculo(dados);
+        // NOVO: Define a quilometragem inicial (0 ou null, dependendo da sua regra)
+        // Se DadosCadastroVeiculo fosse ter currentKm, seria dados.currentKm()
+        veiculo.setCurrentKm(0); // Assumindo 0 km para um veículo novo
+
         repository.save(veiculo);
         return veiculo;
     }
 
+    @Transactional // Adicionar @Transactional para operações de escrita
     public Veiculo atualizar(Long id, DadosAtualizacaoVeiculo dados) {
         var veiculo = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
+        // O método 'atualizarInformacoes' da entidade Veiculo já foi atualizado para lidar com currentKm.
         veiculo.atualizarInformacoes(dados);
+        // Não é necessário chamar save aqui, pois a entidade está no contexto de persistência da transação
         return veiculo;
     }
 
+    @Transactional // Adicionar @Transactional para operações de escrita
     public void excluir(Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("Veículo não encontrado");

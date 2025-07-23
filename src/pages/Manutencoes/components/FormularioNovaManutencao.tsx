@@ -14,12 +14,21 @@ import {
   Select,
   Input,
   ErrorMessage,
+  Label,
 } from "../../../components/ui/Form";
 
 import { InputRow } from "../../../components/ui/Layout";
 
-type FormState = Omit<Maintenance, "id" | "veiculoDescricao"> & {
-  proximaKm?: string;
+// Tipo para o status, para evitar erro de string genérica
+type MaintenanceStatus = "Agendada" | "Realizada"; // Definido aqui
+
+// Extender FormState
+type FormState = Omit<
+  Maintenance,
+  "id" | "veiculoDescricao" | "currentKm" | "proximaKm"
+> & {
+  currentKm: string;
+  proximaKm: string;
 };
 
 interface FormContextType {
@@ -35,6 +44,10 @@ export function FormularioNovaManutencao() {
   const [listaDeVeiculos, setListaDeVeiculos] = useState<Vehicle[]>([]);
   const isEditing = !!maintenanceId;
 
+  const [veiculoSelecionadoKmAtual, setVeiculoSelecionadoKmAtual] = useState<
+    number | null
+  >(null);
+
   const [dados, setDados] = useState<FormState>({
     title: "",
     veiculoId: 0,
@@ -42,6 +55,7 @@ export function FormularioNovaManutencao() {
     date: "",
     cost: 0,
     status: "Agendada",
+    currentKm: "",
     proximaKm: "",
   });
 
@@ -50,25 +64,15 @@ export function FormularioNovaManutencao() {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        console.log("Passo 1: Buscando veículos da API...");
-
         const todosOsVeiculos = await veiculoService.listar();
-        console.log("Passo 2: Veículos recebidos da API:", todosOsVeiculos);
-
         const veiculosAtivos = todosOsVeiculos.filter(
           (v) => v.status.toUpperCase() === "ATIVO"
         );
-        console.log(
-          "Passo 3: Veículos após o filtro de 'Ativo':",
-          veiculosAtivos
-        );
-
         setListaDeVeiculos(veiculosAtivos);
       } catch (error) {
         console.error("ERRO CRÍTICO AO BUSCAR VEÍCULOS:", error);
       }
     };
-
     fetchVehicles();
   }, []);
 
@@ -81,17 +85,55 @@ export function FormularioNovaManutencao() {
         date: manutencao.date,
         cost: manutencao.cost,
         status: manutencao.status,
-        proximaKm: "",
+        currentKm:
+          manutencao.currentKm !== undefined
+            ? String(manutencao.currentKm)
+            : "",
+        proximaKm:
+          manutencao.proximaKm !== undefined
+            ? String(manutencao.proximaKm)
+            : "",
       };
       setDados(dadosDoFormulario);
     }
   }, [maintenanceId, isEditing, manutencao]);
 
+  useEffect(() => {
+    const veiculoEncontrado = listaDeVeiculos.find(
+      (v) => v.id === dados.veiculoId
+    );
+    if (veiculoEncontrado) {
+      setVeiculoSelecionadoKmAtual(veiculoEncontrado.currentKm || null);
+    } else {
+      setVeiculoSelecionadoKmAtual(null);
+    }
+  }, [dados.veiculoId, listaDeVeiculos]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setDados((prev) => ({ ...prev, [name]: value }));
+
+    // Casting condicional para garantir o tipo correto para 'status' e 'type'
+    if (name === "status") {
+      setDados((prev) => ({ ...prev, [name]: value as MaintenanceStatus }));
+    } else if (name === "type") {
+      setDados((prev) => ({
+        ...prev,
+        [name]: value as "Preventiva" | "Corretiva",
+      }));
+    } else if (
+      name === "veiculoId" ||
+      name === "cost" ||
+      name === "currentKm" ||
+      name === "proximaKm"
+    ) {
+      setDados((prev) => ({ ...prev, [name]: value })); // Estes já são strings ou números que o TypeScript inferirá
+    } else {
+      // Para os outros campos (string, como title, date, etc.)
+      setDados((prev) => ({ ...prev, [name]: value }));
+    }
+
     if (erros[name]) {
       setErros((prevErros) => ({ ...prevErros, [name]: "" }));
     }
@@ -103,7 +145,32 @@ export function FormularioNovaManutencao() {
     if (!dados.veiculoId || dados.veiculoId === 0)
       novosErros.veiculoId = "É obrigatório selecionar um veículo.";
     if (!dados.date) novosErros.date = "A data é obrigatória.";
-    if (dados.cost <= 0) novosErros.cost = "O custo deve ser maior que zero.";
+    const costNum = parseFloat(String(dados.cost));
+    if (isNaN(costNum) || costNum <= 0)
+      novosErros.cost = "O custo deve ser um número positivo.";
+
+    const currentKmNum = parseFloat(String(dados.currentKm));
+    const proximaKmNum = parseFloat(String(dados.proximaKm));
+
+    if (dados.currentKm && (isNaN(currentKmNum) || currentKmNum <= 0)) {
+      novosErros.currentKm =
+        "A quilometragem atual deve ser um número positivo.";
+    }
+
+    if (dados.proximaKm && (isNaN(proximaKmNum) || proximaKmNum <= 0)) {
+      novosErros.proximaKm =
+        "A próxima quilometragem deve ser um número positivo.";
+    }
+
+    if (dados.currentKm && dados.proximaKm && dados.status === "Realizada") {
+      if (isNaN(currentKmNum) || isNaN(proximaKmNum)) {
+        // Erro já pego acima, não sobrescrever
+      } else if (proximaKmNum <= currentKmNum) {
+        novosErros.proximaKm =
+          "A próxima KM deve ser superior à KM atual da manutenção.";
+      }
+    }
+
     return novosErros;
   };
 
@@ -112,6 +179,7 @@ export function FormularioNovaManutencao() {
     const errosDeValidacao = validate();
     if (Object.keys(errosDeValidacao).length > 0) {
       setErros(errosDeValidacao);
+      alert("Por favor, corrija os erros no formulário.");
       return;
     }
     setErros({});
@@ -122,7 +190,13 @@ export function FormularioNovaManutencao() {
       type: dados.type,
       date: dados.date,
       cost: parseFloat(String(dados.cost)),
-      status: dados.status,
+      status: dados.status as MaintenanceStatus,
+      currentKm: dados.currentKm
+        ? parseInt(String(dados.currentKm), 10)
+        : undefined,
+      proximaKm: dados.proximaKm
+        ? parseInt(String(dados.proximaKm), 10)
+        : undefined,
     };
 
     try {
@@ -134,6 +208,33 @@ export function FormularioNovaManutencao() {
 
       alert("Operação realizada com sucesso!");
       onSuccess();
+
+      if (dados.status === "Realizada" && dados.proximaKm) {
+        const proximaKmNum = parseFloat(String(dados.proximaKm));
+        if (!isNaN(proximaKmNum) && proximaKmNum > 0) {
+          const dadosNovaManutencaoAgendada = {
+            title: `Manutenção Agendada - ${dados.title}`,
+            veiculoId: dadosParaApi.veiculoId,
+            type: dados.type,
+            date: "",
+            cost: 0,
+            status: "Agendada" as MaintenanceStatus,
+            currentKm: proximaKmNum,
+            proximaKm: undefined,
+          };
+
+          try {
+            await manutencaoService.adicionar(dadosNovaManutencaoAgendada);
+            alert("Nova manutenção agendada criada com sucesso!");
+          } catch (error) {
+            console.error("Erro ao criar nova manutenção agendada:", error);
+            alert(
+              "Erro ao criar nova manutenção agendada: " +
+                (error as Error).message
+            );
+          }
+        }
+      }
     } catch (error) {
       const errorMsg = (error as Error).message;
 
@@ -231,16 +332,50 @@ export function FormularioNovaManutencao() {
         </InputGroup>
       </InputRow>
 
-      <InputGroup>
-        <Input
-          id="proximaKm"
-          name="proximaKm"
-          type="number"
-          placeholder="(Opcional) Próxima Manutenção (km)"
-          value={dados.proximaKm}
-          onChange={handleInputChange}
-        />
-      </InputGroup>
+      {dados.status === "Realizada" && (
+        <>
+          {veiculoSelecionadoKmAtual !== null && (
+            <InputGroup>
+              <Label>KM Atual do Veículo</Label>
+              <Input
+                id="veiculoKmAtual"
+                name="veiculoKmAtual"
+                type="text"
+                value={`${veiculoSelecionadoKmAtual} km`}
+                disabled
+              />
+            </InputGroup>
+          )}
+
+          <InputGroup>
+            <Input
+              id="currentKm"
+              name="currentKm"
+              type="number"
+              placeholder="KM da Manutenção Realizada"
+              value={dados.currentKm}
+              onChange={handleInputChange}
+              hasError={!!erros.currentKm}
+            />
+            {erros.currentKm && <ErrorMessage>{erros.currentKm}</ErrorMessage>}
+          </InputGroup>
+        </>
+      )}
+
+      {dados.status === "Realizada" && (
+        <InputGroup>
+          <Input
+            id="proximaKm"
+            name="proximaKm"
+            type="number"
+            placeholder="(Opcional) Próxima Manutenção (km)"
+            value={dados.proximaKm}
+            onChange={handleInputChange}
+            hasError={!!erros.proximaKm}
+          />
+          {erros.proximaKm && <ErrorMessage>{erros.proximaKm}</ErrorMessage>}
+        </InputGroup>
+      )}
 
       <InputGroup>
         <Select
@@ -253,6 +388,8 @@ export function FormularioNovaManutencao() {
           <option value="Realizada">Realizada</option>
         </Select>
       </InputGroup>
+
+      <Button type="submit">Salvar Manutenção</Button>
 
       {isEditing && (
         <Button variant="danger" type="button" onClick={handleExcluir}>

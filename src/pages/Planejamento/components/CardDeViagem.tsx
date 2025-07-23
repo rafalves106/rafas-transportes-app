@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import type { Viagem } from "../../../services/viagemService";
 
-import { CardHeader, CardTitle } from "../../../components/ui/Card";
+import { CardTitle } from "../../../components/ui/Card";
 
 const CardContainer = styled(Link)`
   background-color: white;
@@ -21,12 +21,6 @@ const CardContainer = styled(Link)`
     transform: translateY(-4px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
-`;
-
-const InfoRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 `;
 
 const InfoText = styled.p`
@@ -189,18 +183,26 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
 
   return (
     <CardContainer to={`/editar/${viagem.id}`}>
-      <CardHeader>
+      <div>
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <InfoTag status={viagem.status}>
+            {formatarStatusParaExibicao(viagem.status)}
+          </InfoTag>
+          <InfoType tipo={viagem.tipoViagem}>
+            {formatarTipoParaExibicao(viagem.tipoViagem)}
+          </InfoType>
+          <InfoPrice preco={viagem.valor}>
+            {formatarPrecoParaExibicao(viagem.valor)}
+          </InfoPrice>
+        </div>
         <CardTitle>{viagem.title}</CardTitle>
-        <InfoTag status={viagem.status}>
-          {formatarStatusParaExibicao(viagem.status)}
-        </InfoTag>
-        <InfoType tipo={viagem.tipoViagem}>
-          {formatarTipoParaExibicao(viagem.tipoViagem)}
-        </InfoType>
-        <InfoPrice preco={viagem.valor}>
-          {formatarPrecoParaExibicao(viagem.valor)}
-        </InfoPrice>
-      </CardHeader>
+      </div>
 
       {viagem.tipoViagem === "ROTA_COLABORADORES" ? (
         <>
@@ -219,20 +221,17 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
         <>
           <InfoText>Veículo: {viagem.veiculoInfo || "N/A"}</InfoText>
           <InfoText>Motorista: {viagem.motoristaNome || "N/A"}</InfoText>
-
-          <InfoRow>
+          <InfoText>
+            Início: {formatarData(viagem.startDate || "")} às{" "}
+            {viagem.startTime || ""} {viagem.startLocation || ""}
+          </InfoText>
+          {mostraInfoFim && (
             <InfoText>
-              Início: {formatarData(viagem.startDate || "")} às{" "}
-              {viagem.startTime || ""} {viagem.startLocation || ""}
+              Fim: {formatarData(viagem.endDate || "")} às{" "}
+              {viagem.endTime || ""}
+              {viagem.endLocation || ""}
             </InfoText>
-            {mostraInfoFim && (
-              <InfoText>
-                Fim: {formatarData(viagem.endDate || "")} às{" "}
-                {viagem.endTime || ""}
-                {viagem.endLocation || ""}
-              </InfoText>
-            )}
-          </InfoRow>
+          )}
         </>
       )}
     </CardContainer>

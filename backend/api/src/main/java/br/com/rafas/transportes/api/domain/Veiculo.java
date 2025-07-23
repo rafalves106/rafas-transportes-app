@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor // Manter ou atualizar se você adicionar campos ao construtor
 @EqualsAndHashCode(of = "id")
 public class Veiculo {
 
@@ -23,10 +23,18 @@ public class Veiculo {
     @Enumerated(EnumType.STRING)
     private StatusVeiculo status;
 
+    // NOVO CAMPO: Quilometragem atual do veículo
+    // Usamos Integer porque geralmente não tem casas decimais e pode ser null se não informado
+    @Column(name = "current_km") // Nome da coluna no banco de dados
+    private Integer currentKm;
+
     public Veiculo(DadosCadastroVeiculo dados) {
         this.model = dados.model();
         this.plate = dados.plate();
         this.status = StatusVeiculo.ATIVO;
+        // O currentKm inicial pode ser 0 ou null, dependendo da regra de negócio.
+        // Se DadosCadastroVeiculo incluir currentKm, atribua-o aqui.
+        this.currentKm = 0; // Valor inicial padrão
     }
 
     public void desativar() {
@@ -42,6 +50,10 @@ public class Veiculo {
         }
         if (dados.status() != null) {
             this.status = dados.status();
+        }
+        // NOVO: Atualiza a quilometragem atual se fornecida
+        if (dados.currentKm() != null) {
+            this.currentKm = dados.currentKm();
         }
     }
 }

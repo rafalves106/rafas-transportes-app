@@ -5,6 +5,7 @@ import br.com.rafas.transportes.api.domain.StatusVeiculo;
 public record DadosAtualizacaoVeiculo(
         String model,
         String plate,
-        StatusVeiculo status
+        StatusVeiculo status,
+        Integer currentKm // NOVO CAMPO: Quilometragem atual
 ) {
 }

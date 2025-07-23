@@ -8,9 +8,10 @@ export interface Vehicle {
   color: string;
   renavam: string;
   status: string;
+  currentKm: number; // ADICIONAR ESTE CAMPO
 }
 
-export type CadastroVehicleData = Omit<Vehicle, "id" | "status">;
+export type CadastroVehicleData = Omit<Vehicle, "id" | "status" | "currentKm">; // Adicionado 'currentKm' à omissão
 
 export type UpdateVehicleData = Partial<Omit<Vehicle, "id" | "plate">>;
 
