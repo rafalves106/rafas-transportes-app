@@ -196,8 +196,7 @@ public class ViagemService {
                         );
                     }
 
-                    var horario = new HorarioItemRota(horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
-                    itemRota.adicionarHorario(horario); // Adiciona à lista de horários do item de rota
+                    var horario = new HorarioItemRota(itemRota, horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
                 }
                 viagem.adicionarItemRota(itemRota); // Adiciona ItemRotaColaborador à lista da Viagem
             }
@@ -338,8 +337,7 @@ public class ViagemService {
                             );
                         }
 
-                        var horario = new HorarioItemRota(horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
-                        itemRota.adicionarHorario(horario);
+                        var horario = new HorarioItemRota(itemRota, horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
                     }
                 }
             }
