@@ -21,8 +21,6 @@ public record DadosCadastroManutencao(
         @NotBlank
         String type, // Ex: "Preventiva", "Corretiva"
 
-        @NotNull
-        @FutureOrPresent // Data deve ser no presente ou futuro para agendamentos
         LocalDate date,
 
         @NotNull
@@ -30,15 +28,10 @@ public record DadosCadastroManutencao(
         BigDecimal cost,
 
         @NotBlank
-        String status, // Ex: "Agendada", "Realizada"
+        String status,
 
-        // NOVOS CAMPOS:
-        // KM da manutenção realizada (se o status for "Realizada")
-        // Não é @NotNull aqui, pois pode ser nulo para manutenções "Agendadas"
         Integer currentKm,
 
-        // KM para a próxima manutenção agendada (se a manutenção for "Realizada" e tiver uma próxima)
-        // Não é @NotNull aqui, pois é opcional
         Integer proximaKm
 ) {
 }

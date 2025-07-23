@@ -15,7 +15,6 @@ public record DadosAtualizacaoManutencao(
 
         String title,
         String type,
-        @FutureOrPresent
         LocalDate date,
         BigDecimal cost,
         String status,

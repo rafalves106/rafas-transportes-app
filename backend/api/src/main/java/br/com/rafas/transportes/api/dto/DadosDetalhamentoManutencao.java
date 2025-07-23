@@ -17,9 +17,8 @@ public record DadosDetalhamentoManutencao(
         String status,
         Long veiculoId,
         String veiculoDescricao,
-        // NOVOS CAMPOS:
-        Integer currentKm, // KM da manutenção realizada
-        Integer proximaKm  // KM para a próxima manutenção agendada
+        Integer currentKm,
+        Integer proximaKm
 ) {
     public DadosDetalhamentoManutencao(Manutencao manutencao) {
         this(
@@ -31,7 +30,6 @@ public record DadosDetalhamentoManutencao(
                 manutencao.getStatus(),
                 manutencao.getVeiculo().getId(),
                 manutencao.getVeiculo().getModel() + " - " + manutencao.getVeiculo().getPlate(),
-                // Atribui os novos campos do construtor
                 manutencao.getCurrentKm(), // Obtém o KM atual da manutenção
                 manutencao.getProximaKm()  // Obtém o próximo KM agendado
         );
