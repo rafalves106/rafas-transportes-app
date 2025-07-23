@@ -1,11 +1,10 @@
 package br.com.rafas.transportes.api.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor; // Mantenha esta anotação se quiser o construtor com TODOS os campos
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.NoArgsConstructor; // Mantenha esta!
+import lombok.Setter; // Mantenha esta!
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -14,8 +13,9 @@ import java.time.LocalTime;
 @Table(name = "horarios_itens_rota")
 @Getter
 @Setter
-@NoArgsConstructor // Para JPA
+@NoArgsConstructor // O Hibernate/JPA usa este construtor padrão
 @EqualsAndHashCode(of = "id")
+// Remova @AllArgsConstructor se ele estiver gerando um construtor que não é usado
 public class HorarioItemRota {
 
   @Id
@@ -35,13 +35,4 @@ public class HorarioItemRota {
   @Column(nullable = false)
   private LocalTime fim;
 
-  // Adicione ou modifique este construtor para incluir 'itemRotaColaborador'
-  // Este é o construtor que você deveria chamar do serviço
-  public HorarioItemRota(ItemRotaColaborador itemRotaColaborador, LocalDate dataInicio, LocalTime inicio, LocalDate dataFim, LocalTime fim) {
-    this.itemRotaColaborador = itemRotaColaborador; // ATENÇÃO AQUI!
-    this.dataInicio = dataInicio;
-    this.inicio = inicio;
-    this.dataFim = dataFim;
-    this.fim = fim;
-  }
 }

@@ -196,7 +196,15 @@ public class ViagemService {
                         );
                     }
 
-                    var horario = new HorarioItemRota(itemRota, horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
+                    var horario = new HorarioItemRota(); // Use o construtor padrão
+                    horario.setDataInicio(horarioDados.dataInicio());
+                    horario.setInicio(horarioDados.inicio());
+                    horario.setDataFim(horarioDados.dataFim());
+                    horario.setFim(horarioDados.fim());
+                    // Adicione a linha que define o relacionamento bidirecional explícito
+                    horario.setItemRotaColaborador(itemRota); // ESSENCIAL!
+
+                    itemRota.adicionarHorario(horario);
                 }
                 viagem.adicionarItemRota(itemRota); // Adiciona ItemRotaColaborador à lista da Viagem
             }
@@ -337,7 +345,15 @@ public class ViagemService {
                             );
                         }
 
-                        var horario = new HorarioItemRota(itemRota, horarioDados.dataInicio(), horarioDados.inicio(), horarioDados.dataFim(), horarioDados.fim());
+                        var horario = new HorarioItemRota(); // Use o construtor padrão
+                        horario.setDataInicio(horarioDados.dataInicio());
+                        horario.setInicio(horarioDados.inicio());
+                        horario.setDataFim(horarioDados.dataFim());
+                        horario.setFim(horarioDados.fim());
+                        // Adicione a linha que define o relacionamento bidirecional explícito
+                        horario.setItemRotaColaborador(itemRota); // ESSENCIAL!
+
+                        itemRota.adicionarHorario(horario);
                     }
                 }
             }
