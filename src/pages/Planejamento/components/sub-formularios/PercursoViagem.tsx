@@ -10,13 +10,11 @@ import {
 } from "../../../../components/ui/Form";
 import { InputRow } from "../../../../components/ui/Layout";
 import { type TipoViagemEnum } from "../../../../services/viagemService";
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 `;
-
 interface PercursoViagemProps {
   startDate: string;
   startTime: string;
@@ -24,13 +22,12 @@ interface PercursoViagemProps {
   endDate: string;
   endTime: string;
   endLocation: string;
-  tipoViagem: TipoViagemEnum; // Para a lógica de mostraInfoFim
+  tipoViagem: TipoViagemEnum;
   erros: { [key: string]: string };
   onInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
 }
-
 export function PercursoViagem({
   startDate,
   startTime,
@@ -49,20 +46,14 @@ export function PercursoViagem({
     "SOMENTE_IDA_FORA_MG",
     "FRETAMENTO_AEROPORTO",
   ].includes(tipoViagem);
-
   const mostraPercursoVolta = [
     "IDA_E_VOLTA_MG",
     "IDA_E_VOLTA_FORA_MG",
     "FRETAMENTO_AEROPORTO",
   ].includes(tipoViagem);
-
-  // Este componente só será renderizado se !isRota for true no pai.
-  // Então, mostraPercursoIda e mostraPercursoVolta serão usados para controlar
-  // a exibição dentro deste componente.
-
   return (
     <Container>
-      {mostraPercursoIda && ( // Envolve todo o percurso de ida
+      {mostraPercursoIda && (
         <>
           <SectionTitle>Percurso de Ida</SectionTitle>
           <InputRow>
@@ -107,8 +98,7 @@ export function PercursoViagem({
           </InputGroup>
         </>
       )}
-
-      {mostraPercursoVolta && ( // Envolve todo o percurso de volta
+      {mostraPercursoVolta && (
         <>
           <SectionTitle>Percurso de Volta</SectionTitle>
           <InputRow>

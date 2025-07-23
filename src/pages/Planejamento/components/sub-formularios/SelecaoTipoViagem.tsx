@@ -43,7 +43,6 @@ export function SelecaoTipoViagem({
           <option value="SOMENTE_IDA_FORA_MG">
             Viagem Somente Ida - Fora de MG
           </option>
-          <option value="ROTA_COLABORADORES">Rota de Colaboradores</option>
         </Select>
       </InputGroup>
     </Container>

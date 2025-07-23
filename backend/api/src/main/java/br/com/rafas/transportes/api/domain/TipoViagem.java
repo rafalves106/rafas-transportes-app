@@ -5,6 +5,5 @@ public enum TipoViagem {
     IDA_E_VOLTA_MG,
     SOMENTE_IDA_MG,
     IDA_E_VOLTA_FORA_MG,
-    SOMENTE_IDA_FORA_MG,
-    ROTA_COLABORADORES
+    SOMENTE_IDA_FORA_MG
 }
