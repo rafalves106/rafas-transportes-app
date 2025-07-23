@@ -465,41 +465,7 @@ export function FormularioNovaViagem() {
       }
     } else {
       // --- Validações específicas para "ROTA_COLABORADORES" ---
-      // Validações para as datas e horas gerais da rota
-      if (!dadosFormulario.startDate) {
-        novosErros.startDate = "A data de início da rota é obrigatória.";
-      }
-      if (!dadosFormulario.startTime) {
-        novosErros.startTime = "A hora de início da rota é obrigatória.";
-      }
-      if (!dadosFormulario.endDate) {
-        novosErros.endDate = "A data de fim da rota é obrigatória.";
-      }
-      if (!dadosFormulario.endTime) {
-        novosErros.endTime = "A hora de fim da rota é obrigatória.";
-      }
-      // Validação de datas para que endDate não seja anterior a startDate para a rota geral
-      if (dadosFormulario.startDate && dadosFormulario.endDate) {
-        const start = new Date(dadosFormulario.startDate + "T00:00:00");
-        const end = new Date(dadosFormulario.endDate + "T00:00:00");
-        if (end < start) {
-          novosErros.endDate =
-            "A data de fim da rota não pode ser anterior à data de início da rota.";
-        }
-      }
-      // Validação de horário de início vs. fim no mesmo dia para a rota geral
-      if (
-        dadosFormulario.startDate &&
-        dadosFormulario.startTime &&
-        dadosFormulario.endDate &&
-        dadosFormulario.endTime &&
-        dadosFormulario.startDate === dadosFormulario.endDate
-      ) {
-        if (dadosFormulario.startTime >= dadosFormulario.endTime) {
-          novosErros.endTime =
-            "A hora de fim da rota deve ser posterior à hora de início da rota no mesmo dia.";
-        }
-      }
+      // NÃO VALIDAMOS MAIS startDate, startTime, endDate, endTime AQUI DIRETAMENTE
 
       // Validações para os itens da rota
       if (dadosFormulario.rota.length === 0) {
@@ -611,6 +577,50 @@ export function FormularioNovaViagem() {
     let dadosParaApi: CadastroViagemData | UpdateViagemData;
 
     if (dadosFormulario.tipoViagem === "ROTA_COLABORADORES") {
+      // --- LÓGICA PARA ENCONTRAR A DATA/HORA MAIS CEDO E MAIS TARDIA ---
+      let overallStartDate = "";
+      let overallStartTime = "";
+      let overallEndDate = "";
+      let overallEndTime = "";
+
+      const allHorarios = dadosFormulario.rota.flatMap((item) => item.horarios);
+
+      if (allHorarios.length > 0) {
+        // Inicializa com o primeiro horário para comparação
+        let minDateTime = new Date(
+          `${allHorarios[0].dataInicio}T${allHorarios[0].inicio}:00`
+        );
+        let maxDateTime = new Date(
+          `${allHorarios[0].dataFim}T${allHorarios[0].fim}:00`
+        );
+
+        allHorarios.forEach((h) => {
+          const currentStart = new Date(`${h.dataInicio}T${h.inicio}:00`);
+          const currentEnd = new Date(`${h.dataFim}T${h.fim}:00`);
+
+          if (currentStart < minDateTime) {
+            minDateTime = currentStart;
+          }
+          if (currentEnd > maxDateTime) {
+            maxDateTime = currentEnd;
+          }
+        });
+
+        // Formata as datas/horas encontradas para o formato "YYYY-MM-DD" e "HH:MM"
+        overallStartDate = minDateTime.toISOString().split("T")[0];
+        overallStartTime = minDateTime
+          .toTimeString()
+          .split(" ")[0]
+          .substring(0, 5); // HH:MM
+
+        overallEndDate = maxDateTime.toISOString().split("T")[0];
+        overallEndTime = maxDateTime
+          .toTimeString()
+          .split(" ")[0]
+          .substring(0, 5); // HH:MM
+      }
+      // --- FIM DA LÓGICA DE CÁLCULO DE DATAS/HORAS GERAIS ---
+
       dadosParaApi = {
         title: dadosFormulario.title.trim(),
         clientName: dadosFormulario.clientName.trim(),
@@ -618,10 +628,11 @@ export function FormularioNovaViagem() {
         valor: parseFloat(dadosFormulario.valor || "0"),
         startLocation: dadosFormulario.startLocation.trim(),
         endLocation: dadosFormulario.endLocation.trim(),
-        startDate: dadosFormulario.startDate,
-        startTime: dadosFormulario.startTime,
-        endDate: dadosFormulario.endDate,
-        endTime: dadosFormulario.endTime,
+        // AGORA POPULAMOS ESTES CAMPOS COM OS VALORES CALCULADOS
+        startDate: overallStartDate,
+        startTime: overallStartTime,
+        endDate: overallEndDate,
+        endTime: overallEndTime,
         status: dadosFormulario.status,
         tipoViagem: dadosFormulario.tipoViagem,
         itensRota: dadosFormulario.rota.map((item) => ({
@@ -629,7 +640,7 @@ export function FormularioNovaViagem() {
           veiculoId: parseInt(item.veiculoId),
           motoristaId: parseInt(item.motoristaId),
           horarios: item.horarios.map((h) => ({
-            dataInicio: h.dataInicio, // ENVIAR DATAS E HORAS DO OBJETO HORÁRIO
+            dataInicio: h.dataInicio,
             inicio: h.inicio,
             dataFim: h.dataFim,
             fim: h.fim,
