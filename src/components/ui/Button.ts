@@ -6,6 +6,7 @@ const baseButtonStyles = css`
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 0rem;
+  min-width: 10rem;
   height: 2.5rem;
   border-radius: 6px;
   cursor: pointer;
