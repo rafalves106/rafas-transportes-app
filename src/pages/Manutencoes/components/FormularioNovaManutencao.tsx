@@ -201,8 +201,14 @@ export function FormularioNovaManutencao() {
     if (!dados.date) novosErros.date = "A data é obrigatória.";
 
     const costNum = parseFloat(String(dados.cost));
-    if (isNaN(costNum) || costNum <= 0)
-      novosErros.cost = "O custo deve ser um número positivo.";
+    if (dados.status === "Realizada") {
+      if (isNaN(costNum) || costNum <= 0)
+        novosErros.cost = "O custo deve ser um número positivo.";
+    } else {
+      if (dados.cost && isNaN(costNum)) {
+        novosErros.cost = "O custo, se informado, deve ser um número.";
+      }
+    }
 
     const kmManutencaoNum = parseFloat(String(dados.kmManutencao));
     const proximaKmNum = parseFloat(String(dados.proximaKm));
@@ -220,8 +226,8 @@ export function FormularioNovaManutencao() {
         novosErros.proximaKm = "A próxima KM deve ser um número positivo.";
       }
       if (dados.kmManutencao && dados.proximaKm) {
+        // eslint-disable-next-line no-empty
         if (isNaN(kmManutencaoNum) || isNaN(proximaKmNum)) {
-          // Erro já pego nas validações acima
         } else if (proximaKmNum <= kmManutencaoNum) {
           novosErros.proximaKm =
             "A próxima KM deve ser superior à KM da manutenção realizada.";
@@ -282,6 +288,7 @@ export function FormularioNovaManutencao() {
       onSuccess();
     } catch (error) {
       const errorMsg = (error as Error).message;
+
       console.log("MENSAGEM DE ERRO RECEBIDA DO BACKEND:", errorMsg);
 
       if (
@@ -395,7 +402,7 @@ export function FormularioNovaManutencao() {
           <Input
             id="kmManutencao"
             name="kmManutencao"
-            type="number"
+            type="text"
             placeholder="KM Ideal para Troca"
             value={dados.kmManutencao}
             onChange={handleInputChange}
@@ -426,7 +433,7 @@ export function FormularioNovaManutencao() {
             <Input
               id="kmManutencao"
               name="kmManutencao"
-              type="number"
+              type="text"
               placeholder="KM da Manutenção Realizada"
               value={dados.kmManutencao}
               onChange={handleInputChange}
@@ -444,7 +451,7 @@ export function FormularioNovaManutencao() {
           <Input
             id="proximaKm"
             name="proximaKm"
-            type="number"
+            type="text"
             placeholder="(Opcional) Próxima Manutenção (km)"
             value={dados.proximaKm}
             onChange={handleInputChange}
