@@ -28,7 +28,7 @@ const OnDutyText = styled.p`
 `;
 
 const CardContainer = styled(Link)`
-  background-color: white;
+  background-color: var(--color-cardBackground);
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);

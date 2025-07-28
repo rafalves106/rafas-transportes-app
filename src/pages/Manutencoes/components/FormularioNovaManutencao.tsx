@@ -281,9 +281,10 @@ export function FormularioNovaManutencao() {
       date: dados.date,
       cost: parseFloat(String(dados.cost)),
       status: dados.status as MaintenanceStatus,
-      currentKm: dados.kmManutencao
-        ? parseInt(String(dados.kmManutencao), 10)
-        : undefined,
+      currentKm:
+        dados.status === "Realizada" && dados.kmManutencao
+          ? parseInt(String(dados.kmManutencao), 10)
+          : undefined,
       proximaKm:
         dados.status === "Realizada" && dados.proximaKm
           ? parseInt(String(dados.proximaKm), 10)
@@ -312,7 +313,10 @@ export function FormularioNovaManutencao() {
           backendErrorMessage.toLowerCase().includes("data") ||
           backendErrorMessage.toLowerCase().includes("date"))
       ) {
-        setErros((prevErros) => ({ ...prevErros, date: backendErrorMessage }));
+        setErros((prevErros) => ({
+          ...prevErros,
+          kmManutencao: backendErrorMessage,
+        }));
       } else {
         alert(backendErrorMessage);
       }
