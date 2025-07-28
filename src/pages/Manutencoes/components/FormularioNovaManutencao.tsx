@@ -110,18 +110,18 @@ export function FormularioNovaManutencao() {
   useEffect(() => {
     if (isEditing && manutencao) {
       const dadosDoFormulario: FormState = {
-        title: manutencao.title,
-        veiculoId: manutencao.veiculoId,
+        title: manutencao.title || "",
+        veiculoId: manutencao.veiculoId || 0,
         type: manutencao.type,
         date: manutencao.date || "",
-        cost: String(manutencao.cost),
+        cost: String(manutencao.cost || ""),
         status: manutencao.status,
         kmManutencao:
-          manutencao.currentKm !== undefined
+          manutencao.currentKm !== undefined && manutencao.currentKm !== null
             ? String(manutencao.currentKm)
             : "",
         proximaKm:
-          manutencao.proximaKm !== undefined
+          manutencao.proximaKm !== undefined && manutencao.proximaKm !== null
             ? String(manutencao.proximaKm)
             : "",
       };
@@ -216,8 +216,8 @@ export function FormularioNovaManutencao() {
       if (isNaN(costNum) || costNum <= 0)
         novosErros.cost = "O custo deve ser um número positivo.";
     } else {
-      if (dados.cost && isNaN(costNum)) {
-        novosErros.cost = "O custo, se informado, deve ser um número.";
+      if (dados.cost.trim() !== "" && isNaN(costNum)) {
+        novosErros.cost = "O custo, se informado, deve ser um número válido.";
       }
     }
 

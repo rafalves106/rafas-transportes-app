@@ -38,6 +38,9 @@ public class ManutencaoService {
     if (dados.status().equalsIgnoreCase("Realizada") && (dados.cost() == null || dados.cost().compareTo(BigDecimal.ZERO) <= 0)) {
       throw new ValidationException("Para manutenção 'Realizada', o custo é obrigatório e deve ser positivo.");
     }
+    if (dados.status().equalsIgnoreCase("Realizada") && dados.date() != null && dados.date().isAfter(LocalDate.now())) {
+      throw new ValidationException("Não é possível marcar uma manutenção como 'Realizada' com uma data futura.");
+    }
     if (dados.status().equalsIgnoreCase("Realizada")) {
       if (dados.currentKm() == null || dados.currentKm() <= 0) {
         throw new ValidationException("Para manutenção 'Realizada', a quilometragem atual é obrigatória e deve ser positiva.");
