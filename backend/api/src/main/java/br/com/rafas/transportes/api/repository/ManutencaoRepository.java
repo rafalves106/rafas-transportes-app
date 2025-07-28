@@ -4,6 +4,7 @@ import br.com.rafas.transportes.api.domain.Manutencao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface ManutencaoRepository extends JpaRepository<Manutencao, Long> {
 
     boolean existsByVeiculoIdAndTitleAndTypeAndStatusAndCurrentKm(
             Long veiculoId, String title, String type, String status, Integer currentKm);
+
+    Optional<Manutencao> findByParentMaintenanceIdAndStatus(Long parentMaintenanceId, String status);
 }
