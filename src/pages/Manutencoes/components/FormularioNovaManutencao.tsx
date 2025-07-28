@@ -281,10 +281,9 @@ export function FormularioNovaManutencao() {
       date: dados.date,
       cost: parseFloat(String(dados.cost)),
       status: dados.status as MaintenanceStatus,
-      currentKm:
-        dados.status === "Realizada" && dados.kmManutencao
-          ? parseInt(String(dados.kmManutencao), 10)
-          : undefined,
+      currentKm: dados.kmManutencao
+        ? parseInt(String(dados.kmManutencao), 10)
+        : undefined,
       proximaKm:
         dados.status === "Realizada" && dados.proximaKm
           ? parseInt(String(dados.proximaKm), 10)
