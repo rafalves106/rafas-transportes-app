@@ -27,7 +27,7 @@ public class ManutencaoService {
             .map(DadosDetalhamentoManutencao::new)
             .toList();
   }
-  
+
   @Transactional
   public DadosDetalhamentoManutencao cadastrar(DadosCadastroManutencao dados) {
     var veiculo = veiculoRepository.findById(dados.veiculoId())
@@ -136,7 +136,7 @@ public class ManutencaoService {
       if (currentKmAtualParaValidar == null || currentKmAtualParaValidar <= 0) {
         throw new ValidationException("A KM ideal para a troca é obrigatória para manutenção agendada e deve ser positiva.");
       }
-      if (proximaKmAtualParaValidar != null) {
+      if (dados.proximaKm() != null) {
         throw new ValidationException("Próxima quilometragem não deve ser informada para manutenção 'Agendada'.");
       }
       if (custoAtualParaValidar != null && custoAtualParaValidar.compareTo(BigDecimal.ZERO) < 0) {
@@ -144,31 +144,41 @@ public class ManutencaoService {
       }
 
       dadosParaAtualizarNaEntidade = new DadosAtualizacaoManutencao(
-              dados.veiculoId(), dados.title(), dados.type(), dados.date(), dados.cost(), dados.status(),
-              null, null
-      );
-    } else {
-      dadosParaAtualizarNaEntidade = new DadosAtualizacaoManutencao(
-              dados.veiculoId(), dados.title(), dados.type(), dados.date(), dados.cost(), dados.status(),
-              null, null
+              dados.veiculoId(),
+              dados.title(),
+              dados.type(),
+              dados.date(),
+              dados.cost(),
+              dados.status(),
+              (dados.currentKm() != null ? dados.currentKm() : currentKmAtualParaValidar),
+              null
       );
     }
 
-
     manutencao.atualizarInformacoes(dadosParaAtualizarNaEntidade, veiculoAtualizado);
     if (manutencao.getStatus().equalsIgnoreCase("Realizada") && manutencao.getProximaKm() != null) {
-      var dadosNovaManutencaoAgendada = new DadosCadastroManutencao(
+      boolean manutencaoAgendadaJaExiste = manutencaoRepository.existsByVeiculoIdAndTitleAndTypeAndStatusAndCurrentKm(
               manutencao.getVeiculo().getId(),
               "Manutenção Agendada: " + manutencao.getTitle(),
               manutencao.getType(),
-              null,
-              manutencao.getCost(),
               "Agendada",
-              manutencao.getProximaKm(),
-              null
+              manutencao.getProximaKm()
       );
-      var manutencaoAgendada = new Manutencao(dadosNovaManutencaoAgendada, veiculoAtualizado);
-      manutencaoRepository.save(manutencaoAgendada);
+
+      if (!manutencaoAgendadaJaExiste) {
+        var dadosNovaManutencaoAgendada = new DadosCadastroManutencao(
+                manutencao.getVeiculo().getId(),
+                "Manutenção Agendada: " + manutencao.getTitle(),
+                manutencao.getType(),
+                null,
+                manutencao.getCost(),
+                "Agendada",
+                manutencao.getProximaKm(),
+                null
+        );
+        var manutencaoAgendada = new Manutencao(dadosNovaManutencaoAgendada, veiculoAtualizado);
+        manutencaoRepository.save(manutencaoAgendada);
+      }
     }
     return new DadosDetalhamentoManutencao(manutencao);
   }

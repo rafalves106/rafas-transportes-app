@@ -306,18 +306,37 @@ export function FormularioNovaManutencao() {
 
       console.log("MENSAGEM DE ERRO RECEBIDA DO BACKEND:", backendErrorMessage);
 
-      if (
-        backendErrorMessage &&
-        (backendErrorMessage.toLowerCase().includes("data futura") ||
-          backendErrorMessage.toLowerCase().includes("data") ||
-          backendErrorMessage.toLowerCase().includes("date"))
-      ) {
-        setErros((prevErros) => ({
-          ...prevErros,
-          kmManutencao: backendErrorMessage,
-        }));
+      if (backendErrorMessage) {
+        if (
+          backendErrorMessage.toLowerCase().includes("data futura") ||
+          backendErrorMessage.toLowerCase().includes("data é obrigatória") ||
+          backendErrorMessage
+            .toLowerCase()
+            .includes("data deve ser no presente ou futuro")
+        ) {
+          setErros((prevErros) => ({
+            ...prevErros,
+            date: backendErrorMessage,
+          }));
+        } else if (
+          backendErrorMessage.toLowerCase().includes("km ideal") ||
+          backendErrorMessage.toLowerCase().includes("quilometragem atual") ||
+          backendErrorMessage.toLowerCase().includes("próxima quilometragem")
+        ) {
+          setErros((prevErros) => ({
+            ...prevErros,
+            kmManutencao: backendErrorMessage,
+          }));
+        } else if (backendErrorMessage.toLowerCase().includes("custo")) {
+          setErros((prevErros) => ({
+            ...prevErros,
+            cost: backendErrorMessage,
+          }));
+        } else {
+          alert(backendErrorMessage);
+        }
       } else {
-        alert(backendErrorMessage);
+        alert("Ocorreu um erro desconhecido. Por favor, tente novamente.");
       }
     }
   };

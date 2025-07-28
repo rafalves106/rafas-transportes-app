@@ -12,4 +12,7 @@ public interface ManutencaoRepository extends JpaRepository<Manutencao, Long> {
 
     @Query("select m from Manutencao m where m.veiculo.id = :veiculoId")
     List<Manutencao> findByVeiculoId(Long veiculoId);
+
+    boolean existsByVeiculoIdAndTitleAndTypeAndStatusAndCurrentKm(
+            Long veiculoId, String title, String type, String status, Integer currentKm);
 }
