@@ -35,6 +35,9 @@ public class ManutencaoService {
         throw new ValidationException("Para manutenção 'Agendada', a data deve ser no presente ou futuro.");
       }
     }
+    if (dados.status().equalsIgnoreCase("Realizada") && (dados.cost() == null || dados.cost().compareTo(BigDecimal.ZERO) <= 0)) {
+      throw new ValidationException("Para manutenção 'Realizada', o custo é obrigatório e deve ser positivo.");
+    }
     if (dados.status().equalsIgnoreCase("Realizada")) {
       if (dados.currentKm() == null || dados.currentKm() <= 0) {
         throw new ValidationException("Para manutenção 'Realizada', a quilometragem atual é obrigatória e deve ser positiva.");
@@ -60,7 +63,7 @@ public class ManutencaoService {
               "Manutenção Agendada: " + dados.title(),
               dados.type(),
               null,
-              BigDecimal.ZERO,
+              dados.cost(),
               "Agendada",
               dados.proximaKm(),
               null
@@ -83,12 +86,15 @@ public class ManutencaoService {
     }
     LocalDate dataParaValidarAtualizacao = (dados.date() != null) ? dados.date() : manutencao.getDate();
     String statusParaValidar = (dados.status() != null) ? dados.status() : manutencao.getStatus();
+    if (statusParaValidar.equalsIgnoreCase("Realizada") && (dados.cost() == null || dados.cost().compareTo(BigDecimal.ZERO) <= 0)) {
+      throw new ValidationException("Para manutenção 'Realizada', o custo é obrigatório e deve ser positivo.");
+    }
     if (statusParaValidar.equalsIgnoreCase("Agendada") && dataParaValidarAtualizacao != null) {
       if (dataParaValidarAtualizacao.isBefore(LocalDate.now())) {
         throw new ValidationException("Para manutenção 'Agendada', a data deve ser no presente ou futuro.");
       }
     }
-    if (statusParaValidar.equalsIgnoreCase("Realizada") && dataParaValidarAtualizacao.isAfter(LocalDate.now())) {
+    if (statusParaValidar.equalsIgnoreCase("Realizada") && dataParaValidarAtualizacao != null && dataParaValidarAtualizacao.isAfter(LocalDate.now())) {
       throw new ValidationException("Não é possível marcar uma manutenção como 'Realizada' com uma data futura.");
     }
     DadosAtualizacaoManutencao dadosParaAtualizarNaEntidade = dados;
@@ -110,7 +116,7 @@ public class ManutencaoService {
       if (statusParaValidar.equalsIgnoreCase("Agendada")) {
         dadosParaAtualizarNaEntidade = new DadosAtualizacaoManutencao(
                 dados.veiculoId(), dados.title(), dados.type(), dados.date(), dados.cost(), dados.status(),
-                dados.currentKm(), null
+                null, null
         );
       } else {
         dadosParaAtualizarNaEntidade = new DadosAtualizacaoManutencao(
@@ -126,7 +132,7 @@ public class ManutencaoService {
               "Manutenção Agendada: " + manutencao.getTitle(),
               manutencao.getType(),
               null,
-              BigDecimal.ZERO,
+              manutencao.getCost(),
               "Agendada",
               manutencao.getProximaKm(),
               null

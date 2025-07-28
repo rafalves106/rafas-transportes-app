@@ -113,7 +113,7 @@ export function FormularioNovaManutencao() {
         title: manutencao.title,
         veiculoId: manutencao.veiculoId,
         type: manutencao.type,
-        date: manutencao.date,
+        date: manutencao.date || "",
         cost: String(manutencao.cost),
         status: manutencao.status,
         kmManutencao:
@@ -198,7 +198,18 @@ export function FormularioNovaManutencao() {
     if (!dados.title.trim()) novosErros.title = "O título é obrigatório.";
     if (!dados.veiculoId || dados.veiculoId === 0)
       novosErros.veiculoId = "É obrigatório selecionar um veículo.";
-    if (!dados.date) novosErros.date = "A data é obrigatória.";
+
+    if (dados.status === "Realizada" && !dados.date) {
+      novosErros.date = "A data é obrigatória para manutenções realizadas.";
+    } else if (dados.status === "Agendada" && dados.date) {
+      const inputDate = new Date(dados.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (inputDate < today) {
+        novosErros.date =
+          "Para manutenção 'Agendada', a data deve ser no presente ou futuro.";
+      }
+    }
 
     const costNum = parseFloat(String(dados.cost));
     if (dados.status === "Realizada") {

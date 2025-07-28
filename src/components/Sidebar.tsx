@@ -139,8 +139,8 @@ const LogoutButton = styled.a`
 const ThemeToggleButton = styled(Button)`
   width: 100%;
   margin-top: 1rem;
-  background-color: var(--color-secondary);
-  color: var(--color-infoText);
+  background-color: var(--color-primary);
+  color: var(--color-title);
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
   &:hover {

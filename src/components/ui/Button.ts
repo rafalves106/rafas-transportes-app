@@ -32,13 +32,13 @@ const baseButtonStyles = css`
 
 const primaryStyles = css`
   background-color: var(--color-primary);
-  color: var(--color-infoText);
+  color: var(--color-title);
   border-color: var(--color-primary);
 `;
 
 const secondaryStyles = css`
   background-color: var(--color-infoText);
-  color: #555;
+  color: var(--color-title);
   border-color: var(--color-border);
 
   &:hover {
