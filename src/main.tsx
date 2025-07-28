@@ -6,6 +6,8 @@ import ReactDOM from "react-dom/client";
 
 import { GlobalStyle } from "./styles/GlobalStyle";
 
+import { ThemeProvider } from "./styles/ThemeProvider.tsx";
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { LoginPage } from "./pages/Login/LoginPage.tsx";
@@ -110,7 +112,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
-      <GlobalStyle /> <RouterProvider router={router} />
+      <ThemeProvider>
+        <GlobalStyle /> <RouterProvider router={router} />
+      </ThemeProvider>
     </AuthProvider>
   </React.StrictMode>
 );

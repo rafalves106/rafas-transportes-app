@@ -40,7 +40,7 @@ const FormSection = styled.div`
     margin-top: 1rem;
     gap: 1rem;
     padding: 1rem 0;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid var(--color-border);
   }
 `;
 interface FormContextType {

@@ -32,12 +32,12 @@ const MonthDisplay = styled.h3`
   width: 200px;
   text-align: center;
   font-weight: 600;
-  color: var(--cor-titulos);
+  color: var(--color-title);
 `;
 
 const NavButton = styled.button`
   background: transparent;
-  border: 1px solid var(--cor-bordas);
+  border: 1px solid var(--color-border);
   border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -46,10 +46,16 @@ const NavButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--cor-secundaria);
+  color: var(--color-secondary);
 
   &:hover {
-    background-color: var(--cor-de-fundo-cards);
+    background-color: var(--color-cardBackground);
+  }
+`;
+
+const Select = styled.select`
+  @media (max-width: 768px) {
+    display: none;
   }
 `;
 
@@ -61,12 +67,9 @@ export function PlanejamentoPage() {
   const { isLoggedIn } = useAuth();
 
   const [viagens, setViagens] = useState<Viagem[]>([]);
-  // Filtro padrão para "Próximas" (assumindo que "Próximas" é um status ou lógica de filtro)
-  // No seu backend, os status são AGENDADA, EM_CURSO, FINALIZADA, CANCELADA.
-  // Vamos ajustar os filtros para refletir isso e adicionar um filtro "Todas" se desejar.
-  const [filtroAtivo, setFiltroAtivo] = useState("AGENDADA"); // Novo padrão alinhado ao enum
+  const [filtroAtivo, setFiltroAtivo] = useState("AGENDADA");
   const [termoBusca, setTermoBusca] = useState("");
-  const [viewMode, setViewMode] = useState("lista"); // 'lista' ou 'mes'
+  const [viewMode, setViewMode] = useState("lista");
   const [displayedMonth, setDisplayedMonth] = useState(new Date());
 
   const [loading, setLoading] = useState(true);
@@ -83,7 +86,6 @@ export function PlanejamentoPage() {
     try {
       const data = await viagemService.listar();
 
-      // Ordena as viagens para exibição (útil para listas e calendário)
       const dadosOrdenados = data.sort((a, b) => {
         const dataInicioA = new Date(a.startDate || "");
         const dataInicioB = new Date(b.startDate || "");
@@ -137,35 +139,31 @@ export function PlanejamentoPage() {
     } finally {
       setLoading(false);
     }
-  }, [isLoggedIn]); // `isLoggedIn` como dependência para recarregar quando o status de login mudar
+  }, [isLoggedIn]);
 
   useEffect(() => {
     carregarViagens();
-  }, [carregarViagens]); // `carregarViagens` como dependência do `useEffect`
+  }, [carregarViagens]);
 
-  // Definição dos filtros de status da viagem (IDs devem corresponder aos ENUMS do backend)
   const filtrosPlanejamento: Filtro[] = [
     { id: "AGENDADA", label: "Agendadas" },
     { id: "EM_CURSO", label: "Em Andamento" },
     { id: "FINALIZADA", label: "Finalizadas" },
     { id: "CANCELADA", label: "Canceladas" },
-    { id: "TODAS", label: "Todas" }, // Adiciona uma opção para ver todas as viagens
+    { id: "TODAS", label: "Todas" },
   ];
 
-  // Lógica de filtragem das viagens
   const viagensFiltradas = viagens.filter((viagem: Viagem) => {
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas a data
+    hoje.setHours(0, 0, 0, 0);
 
     let correspondeAoFiltro = false;
-    // Lógica para filtrar por status do enum
     if (filtroAtivo === "TODAS") {
-      correspondeAoFiltro = true; // Se o filtro for 'Todas', todas as viagens correspondem
+      correspondeAoFiltro = true;
     } else {
       correspondeAoFiltro = viagem.status === filtroAtivo;
     }
 
-    // Para o seu código atual com IDs "AGENDADA", "EM_CURSO", etc., a lógica é mais simples:
     const correspondeABusca = viagem.title
       .toLowerCase()
       .includes(termoBusca.toLowerCase());
@@ -174,20 +172,18 @@ export function PlanejamentoPage() {
   });
 
   const handleSuccess = () => {
-    carregarViagens(); // Recarrega a lista após sucesso
-    navigate("/"); // Volta para a página principal de planejamento
+    carregarViagens();
+    navigate("/");
   };
 
   const handleExcluir = async (id: number) => {
     if (window.confirm("Tem certeza que deseja excluir esta viagem?")) {
       try {
         await viagemService.excluir(id);
-        // Atualiza o estado para remover a viagem excluída sem recarregar tudo
         setViagens((viagensAtuais) => viagensAtuais.filter((v) => v.id !== id));
         alert("Viagem excluída com sucesso.");
-        navigate("/"); // Volta para a página principal
+        navigate("/");
       } catch (err) {
-        // Tratamento de erro detalhado para exclusão
         let errorMessage = "Ocorreu um erro ao excluir a viagem.";
         if (axios.isAxiosError(err)) {
           if (err.response) {
@@ -206,7 +202,6 @@ export function PlanejamentoPage() {
     }
   };
 
-  // Encontra a viagem para editar se o tripId estiver na URL
   const viagemParaEditar = tripId
     ? viagens.find((v) => v.id === parseInt(tripId))
     : undefined;
@@ -217,34 +212,30 @@ export function PlanejamentoPage() {
         termoBusca={termoBusca}
         onTermoBuscaChange={(e) => {
           setTermoBusca(e.target.value);
-          setViewMode("lista"); // Volta para a visualização em lista ao pesquisar
+          setViewMode("lista");
         }}
-        // Os filtros de status só aparecem no modo lista
         filtros={viewMode === "lista" ? filtrosPlanejamento : []}
         filtroAtivo={filtroAtivo}
         onFiltroChange={setFiltroAtivo}
       >
-        {/* Dropdown para alternar entre visualização em lista e calendário */}
         <>
-          <select
+          <Select
             value={viewMode}
             onChange={(e) => {
               setViewMode(e.target.value);
-              // Quando muda para calendário, resetar busca e filtro de status, se desejar
               setTermoBusca("");
               setFiltroAtivo("AGENDADA");
             }}
             style={{
               padding: "0.5rem",
-              border: "1px solid #ccc",
+              border: "1px solid var(--color-border)",
               borderRadius: "6px",
             }}
           >
             <option value="lista">Visualizar Viagens</option>
             <option value="mes">Visualizar por Mês</option>
-          </select>
+          </Select>
 
-          {/* Navegador de meses no modo calendário */}
           {viewMode === "mes" && (
             <MonthNavigator>
               <NavButton
@@ -277,19 +268,15 @@ export function PlanejamentoPage() {
         ) : viewMode === "lista" ? (
           <ListaDeViagens viagens={viagensFiltradas} />
         ) : (
-          // No modo calendário, as viagens passadas são todas, não apenas as filtradas por status/busca
-          // Isso porque o calendário exibe todos os eventos do mês, e o filtro de busca não se aplica diretamente
           <CalendarioMensal mesExibido={displayedMonth} viagens={viagens} />
         )}
       </ViewContainer>
 
-      {/* Modal de Nova/Editar Viagem */}
       {outlet && (
         <ModalGlobal
           title={isEditing ? "Editar Viagem" : "Nova Viagem"}
           onClose={() => navigate("/")}
         >
-          {/* O Outlet renderiza o FormularioNovaViagem aqui */}
           <Outlet
             context={{
               onSuccess: handleSuccess,
@@ -297,7 +284,6 @@ export function PlanejamentoPage() {
               viagem: viagemParaEditar,
             }}
           />
-          {/* Footer do Modal com botões de Ação */}
           <ModalFooter>
             <Button
               variant="secondary"

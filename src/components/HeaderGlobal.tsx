@@ -30,7 +30,7 @@ const HambuguerButton = styled.button`
     display: block;
     width: 25px;
     height: 3px;
-    background-color: var(--cor-titulos);
+    background-color: var(--color-title);
     margin: 5px 0;
   }
 `;
@@ -61,7 +61,7 @@ const AppIconContainer = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  background-color: var(--cor-primaria);
+  background-color: var(--color-primary);
   padding: 0.25rem;
   border-radius: 10px;
   height: 2.5rem;
@@ -72,7 +72,7 @@ const AppTitle = styled.h2`
   font-size: 2.5rem;
   margin: 0;
   font-weight: 600;
-  color: var(--cor-titulos);
+  color: var(--color-title);
 
   @media (max-width: 768px) {
     font-size: 2rem;
@@ -95,7 +95,8 @@ const AppSwitcherContainer = styled.div`
 
 const AppSwitcherButton = styled.button`
   background-color: transparent;
-  border: 1px solid #ccc;
+  color: var(--color-title);
+  border: 1px solid var(--color-border);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
@@ -108,25 +109,25 @@ const AppSwitcherDropdown = styled.div`
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  background-color: white;
+  background-color: var(--color-background);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 0.5rem;
   width: 200px;
   z-index: 10;
-  border: 1px solid #eee;
+  border: 1px solid var(--color-border);
 `;
 
 const DropdownLink = styled(NavLink)`
   display: block;
   padding: 0.75rem 1rem;
   text-decoration: none;
-  color: #333;
+  color: var(--color-text);
   border-radius: 6px;
 
   &.active,
   &:hover {
-    background-color: #f1f3f5;
+    background-color: var(--color-background);
   }
 `;
 

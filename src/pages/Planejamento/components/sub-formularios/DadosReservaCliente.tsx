@@ -8,11 +8,10 @@ import {
   SectionTitle,
 } from "../../../../components/ui/Form";
 
-// Styled Components (se necessário algum estilo específico para este componente)
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; // Espaçamento entre os InputGroups
+  gap: 1.5rem;
 `;
 
 interface DadosReservaClienteProps {

@@ -12,7 +12,7 @@ const FormSectionSideContainer = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   padding: 1rem 1.5rem 1rem 0;
-  border-right: 1px solid #e9ecef;
+  border-right: 1px solid var(--color-border);
   max-height: calc(90vh - 180px);
   overflow-y: auto;
   @media (max-width: 768px) {

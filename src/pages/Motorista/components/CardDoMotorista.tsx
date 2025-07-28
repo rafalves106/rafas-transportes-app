@@ -9,7 +9,7 @@ import type { Viagem } from "../../../services/viagemService";
 const OnDutyContainer = styled.div`
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -17,7 +17,7 @@ const OnDutyContainer = styled.div`
 
 const OnDutyTitle = styled.strong`
   font-size: 0.8rem;
-  color: var(--cor-primaria);
+  color: var(--color-primary);
   text-transform: uppercase;
 `;
 

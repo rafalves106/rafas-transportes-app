@@ -11,24 +11,10 @@ export const GlobalStyle = createGlobalStyle`
         outline: none;
         font-family: 'Poppins', sans-serif;
     }
-
-    :root {
-        --cor-primaria: #62BDFF;
-        --cor-secundaria: #16527D;
-        --cor-de-fundo: #F5FBFF;
-        --cor-de-fundo-cards: #E8F3FB;
-        --cor-de-fundo-cards-ativo: rgb(175, 222, 255);
-        --cor-titulos: #000;
-        --cor-titulos-secundaria: #929FA9;
-        --cor-textos: #333333;
-        --cor-textos-infos: #E8F3FB;
-        --cor-bordas: #D6E0E8;
-        --cor-remover: #d9534f;
-    } 
     
     body {
-        background-color: var(--cor-de-fundo);
-        color: var(--cor-titulos);
+        background-color: var(--color-background);
+        color: var(--color-title);
     }
 
     ::-webkit-scrollbar {

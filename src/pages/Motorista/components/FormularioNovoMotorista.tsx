@@ -172,7 +172,7 @@ export function FormularioNovoMotorista() {
           variant="danger"
           type="button"
           onClick={handleExcluir}
-          style={{ marginTop: "1rem" }}
+          style={{ marginTop: "1rem", marginBottom: "1.5rem" }}
         >
           Excluir Motorista
         </Button>

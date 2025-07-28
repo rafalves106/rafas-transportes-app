@@ -25,31 +25,28 @@ const CardContainer = styled(Link)`
 
 const InfoText = styled.p`
   margin: 0;
-  color: #495057;
+  color: var(--color-infoText);
   font-size: 0.9rem;
   font-weight: 500;
 `;
 
-// Adaptação para exibir o status do enum (em maiúsculas) de forma legível
 const InfoTag = styled.span<{ status: Viagem["status"] }>`
-  // <--- ADICIONE A TIPAGEM AQUI
-  background-color: #e9ecef;
-  color: #495057;
+  background-color: var(--color-background);
+  color: var(--color-secondaryTitle);
   font-size: 0.8rem;
   font-weight: 600;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
-  /* Agora você pode usar props.status aqui se quiser estilos condicionais, por exemplo: */
   background-color: ${(props) => {
     switch (props.status) {
       case "AGENDADA":
-        return "#e0f7fa"; // Light blue
+        return "#e0f7fa";
       case "EM_CURSO":
-        return "#fff3cd"; // Light yellow
+        return "#fff3cd";
       case "FINALIZADA":
-        return "#d1e7dd"; // Light green
+        return "#d1e7dd";
       case "CANCELADA":
-        return "#f8d7da"; // Light red
+        return "#f8d7da";
       default:
         return "#e9ecef";
     }
@@ -74,17 +71,15 @@ const InfoType = styled.span<{ tipo: Viagem["tipoViagem"] }>`
   background-color: ${(props) => {
     switch (props.tipo) {
       case "FRETAMENTO_AEROPORTO":
-        return "#e6e0fa"; // Exemplo: cor para fretamento
+        return "#e6e0fa";
       case "IDA_E_VOLTA_MG":
-        return "#d1e7dd"; // Exemplo: cor para ida e volta MG
+        return "#d1e7dd";
       case "SOMENTE_IDA_MG":
-        return "#f8d7da"; // Exemplo: cor para somente ida MG
+        return "#f8d7da";
       case "IDA_E_VOLTA_FORA_MG":
-        return "#fff3cd"; // Exemplo: cor para ida e volta fora MG
+        return "#fff3cd";
       case "SOMENTE_IDA_FORA_MG":
-        return "#cfe2ff"; // Exemplo: cor para somente ida fora MG
-      case "ROTA_COLABORADORES":
-        return "#e2e3e5"; // Exemplo: cor para rota colaboradores
+        return "#cfe2ff";
       default:
         return "#e9ecef";
     }
@@ -101,8 +96,6 @@ const InfoType = styled.span<{ tipo: Viagem["tipoViagem"] }>`
         return "#ffc107";
       case "SOMENTE_IDA_FORA_MG":
         return "#0d6efd";
-      case "ROTA_COLABORADORES":
-        return "#495057";
       default:
         return "#495057";
     }
@@ -114,7 +107,7 @@ const InfoType = styled.span<{ tipo: Viagem["tipoViagem"] }>`
 `;
 
 const InfoPrice = styled.span<{ preco: Viagem["valor"] }>`
-  background-color: #e0f7fa;
+  background-color: var(--color-background);
   color: #00bcd4;
   font-size: 0.8rem;
   font-weight: 600;
@@ -135,7 +128,6 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
     }
   };
 
-  // Função para formatar o status do enum para exibição amigável
   const formatarStatusParaExibicao = (status: Viagem["status"]) => {
     switch (status) {
       case "AGENDADA":
@@ -147,7 +139,7 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
       case "CANCELADA":
         return "Cancelada";
       default:
-        return status; // Retorna o próprio valor se for desconhecido
+        return status;
     }
   };
 
@@ -164,7 +156,7 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
       case "ROTA_COLABORADORES":
         return "Rota Colaboradores";
       default:
-        return tipo; // Retorna o próprio valor se for desconhecido
+        return tipo;
     }
   };
 
@@ -178,7 +170,7 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
   const mostraInfoFim = ![
     "SOMENTE_IDA_MG",
     "SOMENTE_IDA_FORA_MG",
-    "ROTA_COLABORADORES", // Adicione outros tipos de viagem que não tenham um "fim" definido
+    "ROTA_COLABORADORES",
   ].includes(viagem.tipoViagem);
 
   return (
@@ -207,7 +199,6 @@ export function CardDeViagem({ viagem }: CardDeViagemProps) {
       {viagem.tipoViagem === "ROTA_COLABORADORES" ? (
         <>
           <InfoText>**Rota de Colaboradores**</InfoText>
-          {/* Informações de Período Geral da Rota */}
           <InfoText>
             Período: {formatarData(viagem.startDate || "")} às{" "}
             {viagem.startTime || ""} - {formatarData(viagem.endDate || "")} às{" "}

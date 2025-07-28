@@ -23,7 +23,7 @@ const Backdrop = styled.div`
 
 const ModalContainer = styled.div`
   position: relative;
-  background: var(--cor-de-fundo);
+  background: var(--color-background);
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 90%;
@@ -40,7 +40,7 @@ const ModalContainer = styled.div`
 const ModalHeader = styled.header`
   margin: 0 1.5rem;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--cor-bordas);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;

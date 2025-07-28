@@ -19,21 +19,18 @@ import {
 
 import { InputRow } from "../../../components/ui/Layout";
 
-// NOVO IMPORT: O seu novo componente AutocompleteInput
-import { AutocompleteInput } from "../components/AutocompleteInput"; // Ajuste o caminho se for diferente
+import { AutocompleteInput } from "../components/AutocompleteInput";
 
-// Tipo para o status
 type MaintenanceStatus = "Agendada" | "Realizada";
 
-// Extender FormState para lidar com veiculoId e os KMs como string (para input)
 type FormState = Omit<
   Maintenance,
   "id" | "veiculoDescricao" | "veiculoId" | "currentKm" | "proximaKm" | "cost"
 > & {
-  veiculoId: number | string; // Para o valor do select
-  kmManutencao: string; // Este campo servirá tanto para 'KM Realizada' quanto para 'KM Ideal para Troca'
-  proximaKm: string; // Próxima KM para agendamento (somente se status for Realizada)
-  cost: string; // Para o input de custo (agora tipo text)
+  veiculoId: number | string;
+  kmManutencao: string;
+  proximaKm: string;
+  cost: string;
 };
 
 interface FormContextType {
@@ -42,7 +39,6 @@ interface FormContextType {
   manutencao?: Maintenance;
 }
 
-// Lista de títulos comuns de manutenção para vans
 const commonMaintenanceTitles = [
   "Troca de Óleo e Filtro de Óleo",
   "Troca de Filtro de Ar do Motor",
@@ -96,7 +92,6 @@ export function FormularioNovaManutencao() {
 
   const [erros, setErros] = useState<{ [key: string]: string }>({});
 
-  // Efeito para carregar as listas de veículos
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
@@ -112,7 +107,6 @@ export function FormularioNovaManutencao() {
     fetchVehicles();
   }, []);
 
-  // Efeito para preencher o formulário em modo edição
   useEffect(() => {
     if (isEditing && manutencao) {
       const dadosDoFormulario: FormState = {
@@ -135,7 +129,6 @@ export function FormularioNovaManutencao() {
     }
   }, [maintenanceId, isEditing, manutencao]);
 
-  // Efeito para atualizar o KM atual do veículo selecionado (vindo da API)
   useEffect(() => {
     const veiculoEncontrado = listaDeVeiculos.find(
       (v) => v.id === dados.veiculoId
@@ -147,7 +140,6 @@ export function FormularioNovaManutencao() {
     }
   }, [dados.veiculoId, listaDeVeiculos]);
 
-  // Efeito para auto-preenchimento do KM da Manutenção (apenas se Realizada)
   useEffect(() => {
     if (
       dados.status === "Realizada" &&
@@ -169,11 +161,10 @@ export function FormularioNovaManutencao() {
   ]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> // Recebe o evento completo
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
-    // A lógica de autocomplete para 'title' agora está no AutocompleteInput
     if (name === "veiculoId") {
       setDados((prev) => ({ ...prev, [name]: parseInt(value, 10) || 0 }));
     } else if (name === "cost") {
@@ -194,7 +185,6 @@ export function FormularioNovaManutencao() {
         [name]: value as "Preventiva" | "Corretiva",
       }));
     } else {
-      // Para title, date, etc.
       setDados((prev) => ({ ...prev, [name]: value }));
     }
 
@@ -217,7 +207,6 @@ export function FormularioNovaManutencao() {
     const kmManutencaoNum = parseFloat(String(dados.kmManutencao));
     const proximaKmNum = parseFloat(String(dados.proximaKm));
 
-    // Validação da KM baseada no status
     if (dados.status === "Realizada") {
       if (
         !dados.kmManutencao ||
@@ -296,7 +285,7 @@ export function FormularioNovaManutencao() {
         const proximaKmNum = parseFloat(String(dados.proximaKm));
         if (!isNaN(proximaKmNum) && proximaKmNum > 0) {
           const dadosNovaManutencaoAgendada = {
-            title: `Manutenção Agendada - ${dados.title}`,
+            title: `${dados.title}`,
             veiculoId: dadosParaApi.veiculoId,
             type: dados.type,
             date: "",
@@ -351,8 +340,8 @@ export function FormularioNovaManutencao() {
           label="Título da Manutenção"
           placeholder="Título da Manutenção"
           value={dados.title}
-          onChange={handleInputChange} // Passa o handleInputChange existente
-          suggestionsList={commonMaintenanceTitles} // Passa a lista de sugestões
+          onChange={handleInputChange}
+          suggestionsList={commonMaintenanceTitles}
           hasError={!!erros.title}
           errorMessage={erros.title}
         />
@@ -429,7 +418,6 @@ export function FormularioNovaManutencao() {
         </InputGroup>
       </InputRow>
 
-      {/* Campo de Quilometragem - Condicional com base no Status */}
       {dados.status === "Agendada" && (
         <InputGroup>
           <Input
@@ -495,7 +483,12 @@ export function FormularioNovaManutencao() {
       )}
 
       {isEditing && (
-        <Button variant="danger" type="button" onClick={handleExcluir}>
+        <Button
+          style={{ marginBottom: "1.5rem" }}
+          variant="danger"
+          type="button"
+          onClick={handleExcluir}
+        >
           Excluir Manutenção
         </Button>
       )}

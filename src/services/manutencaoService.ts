@@ -9,18 +9,18 @@ export interface Maintenance {
   date: string;
   cost: number;
   status: "Agendada" | "Realizada";
-  currentKm?: number; // ADICIONAR ESTE CAMPO
-  proximaKm?: number; // ADICIONAR ESTE CAMPO
+  currentKm?: number;
+  proximaKm?: number;
 }
 
 export type CreateMaintenanceData = Omit<
   Maintenance,
   "id" | "veiculoDescricao"
->; // Agora inclui currentKm e proximaKm como opcionais
+>;
 
 export type UpdateMaintenanceData = Partial<
   Omit<Maintenance, "id" | "veiculoId" | "veiculoDescricao">
->; // Agora pode atualizar currentKm e proximaKm
+>;
 
 const ROTA = "/manutencoes";
 

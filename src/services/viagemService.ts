@@ -11,32 +11,28 @@ export type TipoViagemEnum =
   | "ROTA_COLABORADORES";
 
 export interface HorarioItemRota {
-  dataInicio: string; // "YYYY-MM-DD"
-  inicio: string; // "HH:MM"
-  dataFim: string; // "YYYY-MM-DD"
-  fim: string; // "HH:MM"
+  dataInicio: string;
+  inicio: string;
+  dataFim: string;
+  fim: string;
 }
 
-// Interface para os dados de cada Item da Rota (vindos do backend)
 export interface ItemRota {
   id?: number;
   veiculoId: number;
   motoristaId: number;
   veiculo?: Vehicle;
   motorista?: Driver;
-  horarios: HorarioItemRota[]; // Agora é uma lista de HorarioItemRota
+  horarios: HorarioItemRota[];
 }
 
-// Reutilizando ItemRota, mas para envio, alguns campos como info/nome não são necessários
-// E o id pode ser opcional para atualização, mas para criação de novos itens é undefined
 export interface ItemRotaParaEnvio {
   id?: number;
   veiculoId: number;
   motoristaId: number;
-  horarios: HorarioItemRota[]; // Para envio também será uma lista
+  horarios: HorarioItemRota[];
 }
 
-// Interface para os dados de Viagem retornados pelo backend (DadosDetalhamentoViagem)
 export interface Viagem {
   id: number;
   title: string;
@@ -59,11 +55,9 @@ export interface Viagem {
 
   veiculo?: Vehicle;
   motorista?: Driver;
-  itensRota?: ItemRota[]; // Lista de itens da rota (ItemRota tem horários diretos)
+  itensRota?: ItemRota[];
 }
 
-// Interface para os dados de Cadastro de Viagem enviados ao backend (DadosCadastroViagem)
-// O status é obrigatório no cadastro, como definido no backend.
 export interface CadastroViagemData {
   title: string;
   clientName?: string;
@@ -79,7 +73,7 @@ export interface CadastroViagemData {
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
   veiculoId?: number;
   motoristaId?: number;
-  itensRota?: ItemRotaParaEnvio[]; // Use a interface de envio aqui
+  itensRota?: ItemRotaParaEnvio[];
 }
 
 export interface UpdateViagemData {
@@ -97,7 +91,7 @@ export interface UpdateViagemData {
   status?: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
   veiculoId?: number;
   motoristaId?: number;
-  itensRota?: ItemRotaParaEnvio[]; // Use a interface de envio aqui
+  itensRota?: ItemRotaParaEnvio[];
 }
 
 const ROTA = "/viagens";

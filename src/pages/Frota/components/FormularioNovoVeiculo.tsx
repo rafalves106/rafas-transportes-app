@@ -23,8 +23,6 @@ export function FormularioNovoVeiculo() {
     useOutletContext<FormContextType>();
   const isEditing = !!vehicleId;
 
-  // A tipagem do estado agora permite que currentKm seja string para o input
-  // e será convertido para number antes de ser enviado para a API/estado interno Vehicle
   const [dados, setDados] = useState<
     Omit<Vehicle, "id" | "currentKm"> & { currentKm: string | number }
   >({
@@ -34,7 +32,7 @@ export function FormularioNovoVeiculo() {
     ano: "",
     color: "",
     renavam: "",
-    currentKm: "", // Inicializa como string vazia
+    currentKm: "",
   });
 
   const handleInputChange = (
@@ -42,12 +40,10 @@ export function FormularioNovoVeiculo() {
   ) => {
     const { name, value } = e.target;
 
-    // NOVO: Lógica de conversão para currentKm
     if (name === "currentKm") {
-      // Armazena como string no estado, mas garante que seja um número válido ou vazio
       setDados((prev) => ({
         ...prev,
-        [name]: value, // Armazena a string do input
+        [name]: value,
       }));
     } else {
       setDados((prev) => ({ ...prev, [name]: value }));
@@ -63,7 +59,7 @@ export function FormularioNovoVeiculo() {
         ano: veiculo.ano,
         color: veiculo.color,
         renavam: veiculo.renavam,
-        currentKm: String(veiculo.currentKm || 0), // Converte para string para o input type="text"
+        currentKm: String(veiculo.currentKm || 0),
       });
     }
   }, [vehicleId, isEditing, veiculo]);
@@ -71,7 +67,6 @@ export function FormularioNovoVeiculo() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Converte currentKm para number antes de passar para onAdicionar/onEditar
     const dadosParaEnvio = {
       ...dados,
       currentKm:
@@ -79,7 +74,7 @@ export function FormularioNovoVeiculo() {
           ? parseInt(dados.currentKm, 10) || 0
           : typeof dados.currentKm === "number"
           ? dados.currentKm
-          : 0, // Se já for number, usa, senão 0
+          : 0,
     };
 
     if (isEditing) {
@@ -118,16 +113,13 @@ export function FormularioNovoVeiculo() {
         value={dados.plate}
         onChange={handleInputChange}
       />
-      {/* NOVO CAMPO: Quilometragem Atual */}
       <Input
         name="currentKm"
-        type="text" // ALTERADO: agora é type="text"
+        type="text"
         placeholder="Quilometragem Atual:"
         value={dados.currentKm}
         onChange={handleInputChange}
       />
-      {/* Certifique-se de ter inputs para 'ano', 'color', 'renavam' se eles são parte da interface Vehicle */}
-      {/* Exemplo: */}
       <Input
         name="ano"
         placeholder="Ano:"
@@ -154,7 +146,12 @@ export function FormularioNovoVeiculo() {
         <option value="Em Manutenção">Em Manutenção</option>
       </Select>
       {isEditing && (
-        <Button variant="danger" type="button" onClick={handleExcluir}>
+        <Button
+          style={{ marginBottom: "1.5rem" }}
+          variant="danger"
+          type="button"
+          onClick={handleExcluir}
+        >
           Excluir Veículo
         </Button>
       )}

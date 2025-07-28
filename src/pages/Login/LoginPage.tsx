@@ -20,11 +20,11 @@ const LoginContainer = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--cor-secundaria);
+  background-color: var(--color-secondary);
 `;
 
 const LoginForm = styled.form`
-  background-color: var(--cor-de-fundo-cards);
+  background-color: var(--color-cardBackground);
   padding: 2.5rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

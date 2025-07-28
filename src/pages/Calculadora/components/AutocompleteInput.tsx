@@ -10,7 +10,7 @@ const AutocompleteContainer = styled.div`
 const SuggestionsList = styled.ul`
   position: absolute;
   background-color: white;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   list-style: none;
   padding: 0.25rem;
@@ -27,7 +27,7 @@ const SuggestionItem = styled.li`
   cursor: pointer;
   border-radius: 4px;
   &:hover {
-    background-color: #f1f3f5;
+    background-color: var(--color-background);
   }
 `;
 

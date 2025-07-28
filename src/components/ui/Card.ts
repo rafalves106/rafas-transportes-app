@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { styled } from "styled-components";
 
 export const CardContainer = styled.div`
-  background-color: white;
+  background-color: var(--color-cardBackground);
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -20,12 +20,12 @@ export const CardHeader = styled.div`
 export const CardTitle = styled.h3`
   margin: 0;
   font-size: 0.9rem;
-  color: var(--cor-titulos);
+  color: var(--color-title);
 `;
 
 export const DetailsLink = styled(Link)`
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
-  color: var(--cor-secundaria);
+  color: var(--color-secondary);
 `;

@@ -24,11 +24,11 @@ const TopBarContainer = styled.div`
   align-items: center;
   padding: 0.25rem 2rem;
   margin: 0.75rem 0;
-  border-top: 1px solid var(--cor-bordas);
-  border-bottom: 1px solid var(--cor-bordas);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 
   @media (max-width: 768px) {
-    padding: 0.25rem;
+    padding: 0.25rem 1rem;
   }
 `;
 
@@ -46,10 +46,15 @@ const FilterTabsContainer = styled.div`
   margin: 0.75rem 0;
   padding: 0 2rem;
 
+  button {
+    min-width: fit-content;
+  }
+
   @media (max-width: 768px) {
-    flex-wrap: nowrap;
+    width: fit-content;
+    overflow-x: auto;
     justify-content: space-between;
-    gap: 0;
+    gap: 1rem;
     padding: 0 1rem;
   }
 `;
@@ -60,7 +65,7 @@ const ImgInput = styled.img`
 `;
 
 const SearchInput = styled.input`
-  color: var(--cor-titulos-secundaria);
+  color: var(--color-secondaryTitle);
   padding: 0.75rem 0.5rem;
   font-weight: 500;
   background-color: transparent;

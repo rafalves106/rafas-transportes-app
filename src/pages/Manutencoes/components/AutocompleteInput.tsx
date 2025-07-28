@@ -5,14 +5,12 @@ import {
   Label,
   InputGroup,
   ErrorMessage,
-} from "../../../components/ui/Form"; // Ajuste o caminho conforme sua estrutura UI
+} from "../../../components/ui/Form";
 
-// Estilos para o autocomplete
 const AutocompleteContainer = styled.div`
   position: relative;
   width: 100%;
-  /* NOVO: Min-height para garantir que o container ocupe o espaço */
-  min-height: 40px; /* Ajuste este valor se seu Input tiver altura diferente */
+  min-height: 40px;
   overflow: visible;
 `;
 
@@ -20,15 +18,14 @@ const SuggestionsList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--color-background);
   max-height: 150px;
   overflow-y: auto;
   position: absolute;
   z-index: 1000;
   width: 100%;
-  /* NOVO: 'top' agora pode ser 100% (diretamente abaixo do input) */
   top: 100%;
   left: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -38,7 +35,7 @@ const SuggestionItem = styled.li`
   padding: 0.5rem 1rem;
   cursor: pointer;
   &:hover {
-    background-color: #e9ecef;
+    background-color: var(--color-background);
   }
 `;
 

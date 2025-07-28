@@ -14,7 +14,7 @@ import { AutocompleteInput } from "./AutocompleteInput";
 
 const BotaoRemover = styled.button`
   background-color: transparent;
-  color: var(--cor-remover);
+  color: var(--color-alert);
   border: none;
   font-size: 1.5rem;
   cursor: pointer;

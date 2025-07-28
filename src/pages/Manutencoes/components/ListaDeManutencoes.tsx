@@ -9,14 +9,17 @@ import type { Vehicle } from "../../../services/veiculoService";
 
 const MaintenanceCard = styled(Link)`
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   padding: 1rem;
-  background-color: white;
+  background-color: var(--color-cardBackground);
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   margin-bottom: 0.5rem;
   text-decoration: none;
-  color: inherit;
+  color: var(--color-title);
+  margin-top: 1rem;
+  gap: 1rem;
 `;
 
 interface ListaDeManutencoesProps {
@@ -52,11 +55,22 @@ export function ListaDeManutencoes({
                 to={`/manutencoes/editar/${manutencao.id}`}
               >
                 <span>{manutencao.title}</span>
-                <span>
-                  {new Date(manutencao.date + "T00:00").toLocaleDateString(
-                    "pt-BR"
-                  )}
-                </span>
+                {manutencao.status === "Agendada" && (
+                  <span>Realizar manutenção com: {manutencao.currentKm}Km</span>
+                )}
+
+                {manutencao.status === "Realizada" && manutencao.date && (
+                  <>
+                    <span>
+                      Manutenção realizada com: {manutencao.currentKm}Km
+                    </span>
+                    <span>
+                      {new Date(manutencao.date + "T00:00").toLocaleDateString(
+                        "pt-BR"
+                      )}
+                    </span>
+                  </>
+                )}
               </MaintenanceCard>
             ))}
           </GroupContainer>

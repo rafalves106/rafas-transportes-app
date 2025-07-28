@@ -20,11 +20,11 @@ const Container = styled.div`
 
 const ModalFooter = styled.footer`
   padding: 1rem 1.5rem;
-  border-top: 1px solid var(--cor-bordas);
+  border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  background-color: #f8f9fa;
+  background-color: var(--color-background);
 `;
 
 const TemplateSection = styled.div`
@@ -43,11 +43,11 @@ const StyledTextarea = styled(UI_Textarea)`
   width: 100%;
   min-height: 8rem;
   padding: 0.75rem;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   font-size: 0.8rem;
   resize: vertical;
-  background-color: #f8f9fa;
+  background-color: var(--color-background);
 `;
 
 const FormSectionInModal = styled.div`

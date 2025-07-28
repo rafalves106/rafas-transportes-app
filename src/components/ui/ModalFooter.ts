@@ -2,7 +2,7 @@ import { styled } from "styled-components";
 
 export const ModalFooter = styled.footer`
   padding: 1.5rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: flex-start;
   gap: 1rem;

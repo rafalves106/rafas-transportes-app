@@ -5,12 +5,12 @@
 
 .app-container aside {
   width: 220px;
-  background-color: #ffffff;
+  background-color: var(--color-background);
   padding: 1.5rem;
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid var(--color-border);
 }
 
 .app-container main {
   flex: 1;
-  background-color: #f8f9fa;
+  background-color: var(--color-background);
 }

@@ -36,12 +36,12 @@ const ModalBox = styled.div`
 const ModalTitle = styled.h2`
   margin-top: 0;
   margin-bottom: 1rem;
-  color: #343a40;
+  color: var(--color-secondaryTitle);
 `;
 
 const ModalMessage = styled.p`
   margin-bottom: 2rem;
-  color: #495057;
+  color: var(--color-infoText);
   font-size: 1rem;
 `;
 

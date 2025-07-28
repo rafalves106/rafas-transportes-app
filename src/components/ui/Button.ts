@@ -31,30 +31,30 @@ const baseButtonStyles = css`
 `;
 
 const primaryStyles = css`
-  background-color: var(--cor-primaria);
-  color: white;
-  border-color: var(--cor-primaria);
+  background-color: var(--color-primary);
+  color: var(--color-infoText);
+  border-color: var(--color-primary);
 `;
 
 const secondaryStyles = css`
-  background-color: white;
+  background-color: var(--color-infoText);
   color: #555;
-  border-color: #ccc;
+  border-color: var(--color-border);
 
   &:hover {
     filter: none;
-    background-color: #f8f9fa;
+    background-color: var(--color-background);
   }
 `;
 
 const dangerStyles = css`
   background-color: transparent;
-  color: var(--cor-remover);
-  border-color: var(--cor-remover);
+  color: var(--color-alert);
+  border-color: var(--color-alert);
 
   &:hover {
     filter: none;
-    background-color: var(--cor-remover);
+    background-color: var(--color-alert);
     color: white;
   }
 `;
@@ -67,11 +67,11 @@ const filterStyles = css<{ isActive?: boolean }>`
   font-size: 16px;
   font-weight: 600;
   color: ${({ isActive }) =>
-    isActive ? "var(--cor-titulos)" : "var(--cor-titulos-secundaria)"};
+    isActive ? "var(--color-title)" : "var(--color-secondaryTitle)"};
 
   &:hover {
     filter: none;
-    color: var(--cor-titulos);
+    color: var(--color-title);
   }
 `;
 

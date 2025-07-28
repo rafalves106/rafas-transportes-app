@@ -75,19 +75,19 @@ const PageContainer = styled.div`
 `;
 
 const ParametrosSection = styled.div`
-  background-color: white;
+  background-color: var(--color-background);
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--cor-bordas);
+  border: 1px solid var(--color-border);
 `;
 
 const FormSection = styled.div`
-  background-color: white;
+  background-color: var(--color-background);
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--cor-bordas);
+  border: 1px solid var(--color-border);
   overflow-y: auto;
   grid-column: 1 / span 2;
 `;
@@ -95,15 +95,15 @@ const FormSection = styled.div`
 const ResultadoTitulo = styled.h3`
   margin-top: 0;
   margin-bottom: 1rem;
-  color: var(--cor-titulos);
+  color: var(--color-title);
 `;
 
 const ResultadoSection = styled.div`
-  background-color: white;
+  background-color: var(--color-background);
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--cor-bordas);
+  border: 1px solid var(--color-border);
 `;
 
 export function CalculadoraPage() {

@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/Button";
 const InfoText = styled.p`
   margin: 0.25rem 0;
   font-size: 0.9rem;
-  color: #495057;
+  color: var(--color-infoText);
 `;
 
 const TotalText = styled.strong`
