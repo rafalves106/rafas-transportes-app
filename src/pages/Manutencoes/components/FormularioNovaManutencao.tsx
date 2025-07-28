@@ -280,36 +280,8 @@ export function FormularioNovaManutencao() {
 
       alert("Operação realizada com sucesso!");
       onSuccess();
-
-      if (dados.status === "Realizada" && dados.proximaKm) {
-        const proximaKmNum = parseFloat(String(dados.proximaKm));
-        if (!isNaN(proximaKmNum) && proximaKmNum > 0) {
-          const dadosNovaManutencaoAgendada = {
-            title: `${dados.title}`,
-            veiculoId: dadosParaApi.veiculoId,
-            type: dados.type,
-            date: "",
-            cost: 0,
-            status: "Agendada" as MaintenanceStatus,
-            currentKm: proximaKmNum,
-            proximaKm: undefined,
-          };
-
-          try {
-            await manutencaoService.adicionar(dadosNovaManutencaoAgendada);
-            alert("Nova manutenção agendada criada com sucesso!");
-          } catch (error) {
-            console.error("Erro ao criar nova manutenção agendada:", error);
-            alert(
-              "Erro ao criar nova manutenção agendada: " +
-                (error as Error).message
-            );
-          }
-        }
-      }
     } catch (error) {
       const errorMsg = (error as Error).message;
-
       console.log("MENSAGEM DE ERRO RECEBIDA DO BACKEND:", errorMsg);
 
       if (
