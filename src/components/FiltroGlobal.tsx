@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import React from "react";
-import loupe from "../../src/assets/Loupe.png";
+import SearchIcon from "../assets/searchIcon.svg?react";
+import { useTheme } from "../styles/ThemeProvider";
 
 import { Button } from "./ui/Button";
 
@@ -26,6 +27,11 @@ const TopBarContainer = styled.div`
   margin: 0.75rem 0;
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 
   @media (max-width: 768px) {
     padding: 0.25rem 1rem;
@@ -59,11 +65,6 @@ const FilterTabsContainer = styled.div`
   }
 `;
 
-const ImgInput = styled.img`
-  width: 14px;
-  height: 14px;
-`;
-
 const SearchInput = styled.input`
   color: var(--color-secondaryTitle);
   padding: 0.75rem 0.5rem;
@@ -86,11 +87,13 @@ export function FiltroGlobal({
   onFiltroChange,
   children,
 }: FiltroGlobalProps) {
+  const { theme } = useTheme();
+
   return (
     <>
       <TopBarContainer>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <ImgInput src={loupe}></ImgInput>
+          <SearchIcon stroke={theme.colors.primary} />
           <SearchInput
             type="text"
             placeholder="Pesquisar viagem"

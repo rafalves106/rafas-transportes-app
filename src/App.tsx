@@ -2,7 +2,13 @@ import { Outlet, useLocation, useNavigate, matchPath } from "react-router-dom";
 import styled from "styled-components";
 import { Sidebar } from "./components/Sidebar";
 import { HeaderGlobal } from "./components/HeaderGlobal";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import PlanningIcon from "@/assets/planningIcon.svg?react";
+import MaintenanceIcon from "@/assets/maintenanceIcon.svg?react";
+import VehiclesIcon from "@/assets/vehiclesIcon.svg?react";
+import DriversIcon from "@/assets/driversIcon.svg?react";
+import CalculatorIcon from "@/assets/calculatorIcon.svg?react";
+import BudgetIcon from "@/assets/budgetIcon.svg?react";
 
 const AppContainer = styled.div`
   display: flex;
@@ -43,7 +49,7 @@ const AreaDaPagina = styled.main`
 `;
 
 interface PageConfig {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   novoLabel: string;
   novoPath: string;
@@ -52,56 +58,56 @@ interface PageConfig {
 
 const pageConfig: { [key: string]: PageConfig } = {
   "/": {
-    icon: "📅",
+    icon: <PlanningIcon />,
     title: "Planejamento",
     novoLabel: "Nova Viagem",
     novoPath: "/novo",
     showActionButton: true,
   },
   "/novo": {
-    icon: "📅",
+    icon: <PlanningIcon />,
     title: "Planejamento",
     novoLabel: "Nova Viagem",
     novoPath: "/novo",
     showActionButton: true,
   },
   "/editar/:tripId": {
-    icon: "📅",
+    icon: <PlanningIcon />,
     title: "Planejamento",
     novoLabel: "Nova Viagem",
     novoPath: "/novo",
     showActionButton: true,
   },
   "/manutencoes": {
-    icon: "🔧",
+    icon: <MaintenanceIcon />,
     title: "Manutenções",
     novoLabel: "Nova Manutenção",
     novoPath: "/manutencoes/novo",
     showActionButton: true,
   },
   "/frota": {
-    icon: "🚚",
+    icon: <VehiclesIcon />,
     title: "Frota",
     novoLabel: "Novo Veículo",
     novoPath: "/frota/novo",
     showActionButton: true,
   },
   "/motoristas": {
-    icon: "👨‍✈️",
+    icon: <DriversIcon />,
     title: "Motoristas",
     novoLabel: "Novo Motorista",
     novoPath: "/motoristas/novo",
     showActionButton: true,
   },
   "/calculadora": {
-    icon: "🧮",
+    icon: <CalculatorIcon />,
     title: "Calculadora",
     novoLabel: "",
     novoPath: "",
     showActionButton: false,
   },
   "/orcamentos": {
-    icon: "📄",
+    icon: <BudgetIcon />,
     title: "Orçamentos",
     novoLabel: "Novo Orçamento",
     novoPath: "/orcamentos/novo",

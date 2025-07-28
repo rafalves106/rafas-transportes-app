@@ -9,7 +9,7 @@ const AutocompleteContainer = styled.div`
 
 const SuggestionsList = styled.ul`
   position: absolute;
-  background-color: white;
+  background-color: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: 6px;
   list-style: none;

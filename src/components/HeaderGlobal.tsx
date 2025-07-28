@@ -60,12 +60,16 @@ const AppIconContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
   background-color: var(--color-primary);
   padding: 0.25rem;
   border-radius: 10px;
   height: 2.5rem;
   width: 2.5rem;
+
+  svg {
+    width: 1.5rem;
+    height: auto;
+  }
 `;
 
 const AppTitle = styled.h2`

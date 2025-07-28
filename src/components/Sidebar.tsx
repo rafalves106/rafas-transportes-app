@@ -1,13 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import logo from "../../src/assets/logo.webp";
-import plannningIcon from "../assets/planningIcon.svg";
-import maintenanceIcon from "../assets/maintenanceIcon.svg";
-import vehiclesIcon from "../assets/vehiclesIcon.svg";
-import driversIcon from "../assets/driversIcon.svg";
-import calculatorIcon from "../assets/calculatorIcon.svg";
-import budgetIcon from "../assets/budgetIcon.svg";
-import exitIcon from "../assets/exitIcon.svg";
+import PlanningIcon from "../assets/planningIcon.svg?react";
+import MaintenanceIcon from "../assets/maintenanceIcon.svg?react";
+import VehiclesIcon from "../assets/vehiclesIcon.svg?react";
+import DriversIcon from "../assets/driversIcon.svg?react";
+import CalculatorIcon from "../assets/calculatorIcon.svg?react";
+import BudgetIcon from "../assets/budgetIcon.svg?react";
+import ExitIcon from "../assets/exitIcon.svg?react";
 import { Button } from "./ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../styles/ThemeProvider";
@@ -87,8 +87,8 @@ const StyledNavLink = styled(NavLink)`
   font-weight: 400;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
-  img {
-    width: auto;
+  svg {
+    width: 0.9rem;
     height: 0.9rem;
   }
 
@@ -126,7 +126,7 @@ const LogoutButton = styled.a`
   width: 100%;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
-  img {
+  svg {
     width: 16px;
     height: auto;
   }
@@ -156,7 +156,7 @@ export function Sidebar({
 }: SidebarProps) {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  const { toggleTheme, currentThemeName } = useTheme();
+  const { toggleTheme, currentThemeName, theme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -180,29 +180,26 @@ export function Sidebar({
 
         <NavList>
           <StyledNavLink to="/" end>
-            <img src={plannningIcon} alt="Planejamento" />
-            Planejamento
+            <PlanningIcon stroke={theme.colors.primary} /> Planejamento
           </StyledNavLink>
           <StyledNavLink to="/manutencoes">
-            <img src={maintenanceIcon} alt="Planejamento" />
+            <MaintenanceIcon stroke={theme.colors.primary} />
             Manutenções
           </StyledNavLink>
           <StyledNavLink to="/frota">
-            {" "}
-            <img src={vehiclesIcon} alt="Planejamento" />
+            <VehiclesIcon stroke={theme.colors.primary} />
             Frota de Veículos
           </StyledNavLink>
           <StyledNavLink to="/motoristas">
-            {" "}
-            <img src={driversIcon} alt="Planejamento" />
+            <DriversIcon stroke={theme.colors.primary} />
             Motoristas
           </StyledNavLink>
           <StyledNavLink to="/calculadora">
-            <img src={calculatorIcon} alt="Calculadora" />
+            <CalculatorIcon stroke={theme.colors.primary} />
             Calculadora
           </StyledNavLink>
           <StyledNavLink to="/orcamentos">
-            <img src={budgetIcon} alt="Orçamentos" />
+            <BudgetIcon stroke={theme.colors.primary} />
             Orçamentos
           </StyledNavLink>
         </NavList>
@@ -212,7 +209,7 @@ export function Sidebar({
           Mudar para {currentThemeName === "light" ? "Dark" : "Light"}
         </ThemeToggleButton>
         <LogoutButton onClick={handleLogout}>
-          <img src={exitIcon} alt="LogOut Icon" />
+          <ExitIcon stroke={theme.colors.primary} />
           <span>Sair</span>
         </LogoutButton>
       </BottomSection>
