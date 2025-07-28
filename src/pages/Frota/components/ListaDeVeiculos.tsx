@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { Vehicle } from "../../../services/veiculoService";
 import { CardDeVeiculo } from "./CardDeVeiculo";
-import BtnPagLft from "../../../assets/Expand Arrow.png";
-import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
+import BtnPagLft from "../../../assets/expandArrow.png";
+import BtnPagRgt from "../../../assets/expandArrowRigth.png";
 
 import {
   ListaContainer,

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import type { Viagem } from "../../../services/viagemService";
 import { CardDeViagem } from "./CardDeViagem";
-import BtnPagLft from "../../../assets/Expand Arrow.png";
-import BtnPagRgt from "../../../assets/Expand Arrow-right.png";
+import BtnPagLft from "../../../assets/expandArrow.png";
+import BtnPagRgt from "../../../assets/expandArrowRigth.png";
 
 import {
   ListaContainer,
