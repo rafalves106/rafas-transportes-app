@@ -20,6 +20,8 @@ import {
 import { InputRow } from "../../../components/ui/Layout";
 
 import { AutocompleteInput } from "../components/AutocompleteInput";
+import type { AxiosError } from "axios";
+import { type BackendErrorResponse } from "../../../services/manutencaoService";
 
 type MaintenanceStatus = "Agendada" | "Realizada";
 
@@ -298,17 +300,21 @@ export function FormularioNovaManutencao() {
       alert("Operação realizada com sucesso!");
       onSuccess();
     } catch (error) {
-      const errorMsg = (error as Error).message;
+      const axiosError = error as AxiosError<BackendErrorResponse>;
+      const backendErrorMessage =
+        axiosError.response?.data?.message || axiosError.message;
 
-      console.log("MENSAGEM DE ERRO RECEBIDA DO BACKEND:", errorMsg);
+      console.log("MENSAGEM DE ERRO RECEBIDA DO BACKEND:", backendErrorMessage);
 
       if (
-        errorMsg.toLowerCase().includes("data") ||
-        errorMsg.toLowerCase().includes("date")
+        backendErrorMessage &&
+        (backendErrorMessage.toLowerCase().includes("data futura") ||
+          backendErrorMessage.toLowerCase().includes("data") ||
+          backendErrorMessage.toLowerCase().includes("date"))
       ) {
-        setErros({ date: errorMsg });
+        setErros((prevErros) => ({ ...prevErros, date: backendErrorMessage }));
       } else {
-        alert(errorMsg);
+        alert(backendErrorMessage);
       }
     }
   };

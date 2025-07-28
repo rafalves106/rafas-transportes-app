@@ -13,6 +13,14 @@ export interface Maintenance {
   proximaKm?: number;
 }
 
+export interface BackendErrorResponse {
+  timestamp: string;
+  status: number;
+  error: string;
+  message: string;
+  path: string;
+}
+
 export type CreateMaintenanceData = Omit<
   Maintenance,
   "id" | "veiculoDescricao"
