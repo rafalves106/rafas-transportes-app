@@ -23,6 +23,10 @@ interface FormContextType {
   veiculo?: Vehicle;
 }
 
+interface FieldErrorsResponse {
+  [fieldName: string]: string;
+}
+
 export function FormularioNovoVeiculo() {
   const { vehicleId } = useParams();
   const { onAdicionar, onEditar, onExcluir, veiculo } =
@@ -34,7 +38,7 @@ export function FormularioNovoVeiculo() {
   >({
     model: "",
     plate: "",
-    status: "Ativo",
+    status: "ATIVO",
     currentKm: "",
   });
 
@@ -44,8 +48,17 @@ export function FormularioNovoVeiculo() {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    let finalValue = value;
 
-    setDados((prev) => ({ ...prev, [name]: value }));
+    if (name === "status" && value === "Em Manutenção") {
+      finalValue = "EM_MANUTENCAO";
+    } else if (name === "status" && value === "Ativo") {
+      finalValue = "ATIVO";
+    } else if (name === "status" && value === "Inativo") {
+      finalValue = "INATIVO";
+    }
+
+    setDados((prev) => ({ ...prev, [name]: finalValue }));
 
     if (erros[name]) {
       setErros((prevErros) => ({ ...prevErros, [name]: "" }));
@@ -57,7 +70,7 @@ export function FormularioNovoVeiculo() {
       setDados({
         model: veiculo.model,
         plate: veiculo.plate,
-        status: veiculo.status,
+        status: veiculo.status.toUpperCase().replace(/ /g, "_"),
         currentKm: String(veiculo.currentKm || ""),
       });
     }
@@ -114,44 +127,52 @@ export function FormularioNovoVeiculo() {
       }
       alert("Operação realizada com sucesso!");
     } catch (error) {
-      const axiosError = error as AxiosError<BackendErrorResponse>;
-      const backendErrorMessage =
-        axiosError.response?.data?.message || axiosError.message;
+      const axiosError = error as AxiosError<
+        BackendErrorResponse | FieldErrorsResponse
+      >;
 
-      console.log(
-        "MENSAGEM DE ERRO RECEBIDA DO BACKEND (VEICULO):",
-        backendErrorMessage
-      );
-
-      if (backendErrorMessage) {
+      if (axiosError.response && axiosError.response.status === 400) {
+        const errorData = axiosError.response.data;
         if (
-          backendErrorMessage.toLowerCase().includes("placa") &&
-          backendErrorMessage.toLowerCase().includes("cadastrada")
+          typeof errorData === "object" &&
+          errorData !== null &&
+          !Array.isArray(errorData) &&
+          "message" in errorData
         ) {
-          setErros((prevErros) => ({
-            ...prevErros,
-            plate: backendErrorMessage,
-          }));
+          const backendErrorMessage = (errorData as BackendErrorResponse)
+            .message;
+          console.log(
+            "MENSAGEM DE ERRO (BackendErrorResponse):",
+            backendErrorMessage
+          );
+          if (
+            backendErrorMessage.toLowerCase().includes("placa") &&
+            (backendErrorMessage.toLowerCase().includes("cadastrada") ||
+              backendErrorMessage.toLowerCase().includes("outro veículo"))
+          ) {
+            setErros((prevErros) => ({
+              ...prevErros,
+              plate: backendErrorMessage,
+            }));
+          } else {
+            alert(backendErrorMessage);
+          }
         } else if (
-          backendErrorMessage.toLowerCase().includes("quilometragem") &&
-          backendErrorMessage.toLowerCase().includes("maior que a atual")
+          typeof errorData === "object" &&
+          errorData !== null &&
+          !Array.isArray(errorData)
         ) {
-          setErros((prevErros) => ({
-            ...prevErros,
-            currentKm: backendErrorMessage,
-          }));
-        } else if (
-          backendErrorMessage.toLowerCase().includes("modelo é obrigatório")
-        ) {
-          setErros((prevErros) => ({
-            ...prevErros,
-            model: backendErrorMessage,
-          }));
+          const fieldErrors = errorData as FieldErrorsResponse;
+          console.log("ERROS DE CAMPO DO BACKEND:", fieldErrors);
+          setErros(fieldErrors);
+          alert("Por favor, corrija os erros no formulário.");
         } else {
-          alert(backendErrorMessage);
+          alert(String(errorData));
         }
       } else {
-        alert("Ocorreu um erro desconhecido ao salvar o veículo.");
+        const backendErrorMessage = axiosError.message;
+        console.log("MENSAGEM DE ERRO GERAL (AXIOS):", backendErrorMessage);
+        alert(backendErrorMessage);
       }
     }
   };
@@ -222,9 +243,9 @@ export function FormularioNovoVeiculo() {
           onChange={handleInputChange}
           hasError={!!erros.status}
         >
-          <option value="Ativo">Ativo</option>
-          <option value="Inativo">Inativo</option>
-          <option value="Em Manutenção">Em Manutenção</option>
+          <option value="ATIVO">Ativo</option>
+          <option value="INATIVO">Inativo</option>
+          <option value="EM_MANUTENCAO">Em Manutenção</option>
         </Select>
         {erros.status && <ErrorMessage>{erros.status}</ErrorMessage>}
       </InputGroup>

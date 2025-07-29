@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime; // Importe LocalDateTime
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class TratadorDeErros {
@@ -38,23 +40,12 @@ public class TratadorDeErros {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity tratarErro400(MethodArgumentNotValidException ex) {
-        var erros = ex.getFieldErrors();
-
-        String mensagemErro = "Erro de validação nos campos: ";
-        if (!erros.isEmpty()) {
-            mensagemErro = erros.get(0).getDefaultMessage();
-        }
-
-        ErrorResponse errorBody = new ErrorResponse(
-                java.time.LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST,
-                HttpStatus.BAD_REQUEST.value(),
-                "Validação de Campos",
-                mensagemErro
+    public ResponseEntity<Map<String, String>> tratarErro400(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
         );
-
-        return ResponseEntity.badRequest().body(errorBody);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
