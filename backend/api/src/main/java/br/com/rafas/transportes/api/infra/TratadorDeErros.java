@@ -41,9 +41,20 @@ public class TratadorDeErros {
     public ResponseEntity tratarErro400(MethodArgumentNotValidException ex) {
         var erros = ex.getFieldErrors();
 
-        String primeiraMensagemDeErro = erros.get(0).getDefaultMessage();
+        String mensagemErro = "Erro de validação nos campos: ";
+        if (!erros.isEmpty()) {
+            mensagemErro = erros.get(0).getDefaultMessage();
+        }
 
-        return ResponseEntity.badRequest().body(primeiraMensagemDeErro);
+        ErrorResponse errorBody = new ErrorResponse(
+                java.time.LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST,
+                HttpStatus.BAD_REQUEST.value(),
+                "Validação de Campos",
+                mensagemErro
+        );
+
+        return ResponseEntity.badRequest().body(errorBody);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
