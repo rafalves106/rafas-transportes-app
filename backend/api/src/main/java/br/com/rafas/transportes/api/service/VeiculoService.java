@@ -42,14 +42,26 @@ public class VeiculoService {
 
     @Transactional
     public Veiculo atualizar(Long id, DadosAtualizacaoVeiculo dados) {
+        System.out.println("DEBUG: ID do veículo sendo atualizado: " + id);
+        System.out.println("DEBUG: Nova placa recebida no DTO: " + dados.plate());
+
         var veiculo = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
 
+        System.out.println("DEBUG: Placa atual do veículo no banco: " + veiculo.getPlate());
+
         if (dados.plate() != null && !dados.plate().equals(veiculo.getPlate())) {
+            System.out.println("DEBUG: Entrou na condição de placa diferente da original e não nula.");
             if (repository.existsByPlateAndIdNot(dados.plate(), id)) {
+                System.out.println("DEBUG: Placa duplicada encontrada para outro veículo!");
                 throw new ValidationException("Já existe outro veículo cadastrado com esta placa: " + dados.plate());
             }
+        } else if (dados.plate() != null && dados.plate().equals(veiculo.getPlate())) {
+            System.out.println("DEBUG: Placa recebida é a mesma que a placa atual do veículo. Nenhuma validação de duplicidade necessária.");
+        } else if (dados.plate() == null) {
+            System.out.println("DEBUG: Placa recebida é nula. Validação de duplicidade não executada para este campo.");
         }
+
 
         veiculo.atualizarInformacoes(dados);
         repository.save(veiculo);

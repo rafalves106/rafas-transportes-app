@@ -3,7 +3,10 @@ import { useParams, useOutletContext } from "react-router-dom";
 
 import { AxiosError } from "axios";
 
-import type { Vehicle } from "../../../services/veiculoService";
+import type {
+  UpdateVehicleData,
+  Vehicle,
+} from "../../../services/veiculoService";
 import { Button } from "../../../components/ui/Button";
 
 import {
@@ -18,7 +21,7 @@ import type { BackendErrorResponse } from "@/services/manutencaoService";
 
 interface FormContextType {
   onAdicionar: (dados: Omit<Vehicle, "id">) => Promise<void>;
-  onEditar: (id: number, dados: Omit<Vehicle, "id">) => Promise<void>;
+  onEditar: (id: number, dados: UpdateVehicleData) => Promise<void>;
   onExcluir: (id: number) => void;
   veiculo?: Vehicle;
 }
@@ -76,6 +79,16 @@ export function FormularioNovoVeiculo() {
     }
   }, [vehicleId, isEditing, veiculo]);
 
+  const validatePlateFormat = (plate: string): boolean => {
+    const cleanedPlate = plate.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+    const oldPlateRegex = /^[A-Z]{3}[0-9]{4}$/;
+    const mercosulPlateRegex = /^[A-Z]{3}[0-9]{1}[A-Z]{1}[0-9]{2}$/;
+
+    return (
+      oldPlateRegex.test(cleanedPlate) || mercosulPlateRegex.test(cleanedPlate)
+    );
+  };
+
   const validate = () => {
     const novosErros: { [key: string]: string } = {};
 
@@ -84,6 +97,8 @@ export function FormularioNovoVeiculo() {
     }
     if (!dados.plate.trim()) {
       novosErros.plate = "A placa é obrigatória.";
+    } else if (!validatePlateFormat(dados.plate)) {
+      novosErros.plate = "Formato de placa inválido (Ex: ABC1234 ou ABC1D23).";
     }
 
     const kmNum = parseFloat(dados.currentKm);
@@ -112,18 +127,34 @@ export function FormularioNovoVeiculo() {
     }
     setErros({});
 
-    const dadosParaEnvio = {
+    const dadosParaAdicao = {
       model: dados.model,
       plate: dados.plate,
       status: dados.status,
       currentKm: dados.currentKm ? parseInt(dados.currentKm, 10) : 0,
     };
 
+    const dadosParaEdicao: Partial<Vehicle> = {};
+    if (isEditing && veiculo) {
+      if (dados.model !== veiculo.model) {
+        dadosParaEdicao.model = dados.model;
+      }
+      if (dados.plate !== veiculo.plate) {
+        dadosParaEdicao.plate = dados.plate;
+      }
+      if (dados.status !== veiculo.status) {
+        dadosParaEdicao.status = dados.status;
+      }
+      if (parseInt(String(dados.currentKm), 10) !== veiculo.currentKm) {
+        dadosParaEdicao.currentKm = parseInt(String(dados.currentKm), 10);
+      }
+    }
+
     try {
       if (isEditing && vehicleId) {
-        await onEditar(parseInt(vehicleId), dadosParaEnvio);
+        await onEditar(parseInt(vehicleId), dadosParaEdicao);
       } else {
-        await onAdicionar(dadosParaEnvio);
+        await onAdicionar(dadosParaAdicao);
       }
       alert("Operação realizada com sucesso!");
     } catch (error) {
