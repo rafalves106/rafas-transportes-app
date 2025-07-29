@@ -1,12 +1,5 @@
 package br.com.rafas.transportes.api.service;
 
-import br.com.rafas.transportes.api.domain.Motorista;
-import br.com.rafas.transportes.api.domain.StatusMotorista;
-import br.com.rafas.transportes.api.domain.StatusVeiculo;
-import br.com.rafas.transportes.api.domain.Veiculo;
-import br.com.rafas.transportes.api.dto.DadosCadastroManutencao;
-import br.com.rafas.transportes.api.dto.DadosCadastroOrcamento;
-import br.com.rafas.transportes.api.dto.DadosCadastroViagem;
 import br.com.rafas.transportes.api.repository.MotoristaRepository;
 import br.com.rafas.transportes.api.repository.OrcamentoRepository;
 import br.com.rafas.transportes.api.repository.VeiculoRepository;
@@ -14,10 +7,6 @@ import br.com.rafas.transportes.api.repository.ViagemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Component
 public class DataLoader implements CommandLineRunner {

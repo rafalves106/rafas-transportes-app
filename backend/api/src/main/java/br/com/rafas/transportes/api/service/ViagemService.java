@@ -1,6 +1,6 @@
 package br.com.rafas.transportes.api.service;
 import br.com.rafas.transportes.api.domain.Motorista;
-import br.com.rafas.transportes.api.domain.Veiculo;
+import br.com.rafas.transportes.api.domain.veiculo.Veiculo;
 import br.com.rafas.transportes.api.domain.Viagem;
 import br.com.rafas.transportes.api.domain.TipoViagem;
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoViagem;

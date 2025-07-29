@@ -130,8 +130,13 @@ export function FrotaPage() {
     } catch (err) {
       console.error("Falha ao excluir veículo:", err);
       if (axios.isAxiosError(err) && err.response) {
+        const backendErrorMessage = (err.response.data as { message?: string })
+          ?.message;
+
         alert(
-          `Erro ao excluir: ${err.response.status} - ${err.response.statusText}`
+          `Erro ao excluir: ${err.response.status} - ${
+            backendErrorMessage || err.response.statusText
+          }`
         );
       } else if (err instanceof Error) {
         alert(`Erro ao excluir: ${err.message}`);

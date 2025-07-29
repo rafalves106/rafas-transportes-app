@@ -6,7 +6,7 @@ package br.com.rafas.transportes.api.domain;
 
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoManutencao;
 import br.com.rafas.transportes.api.dto.DadosCadastroManutencao;
-import br.com.rafas.transportes.api.domain.Veiculo;
+import br.com.rafas.transportes.api.domain.veiculo.Veiculo;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

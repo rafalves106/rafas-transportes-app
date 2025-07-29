@@ -2,9 +2,10 @@ package br.com.rafas.transportes.api.service;
 
 import br.com.rafas.transportes.api.domain.Manutencao;
 import br.com.rafas.transportes.api.domain.Viagem;
-import br.com.rafas.transportes.api.domain.Veiculo;
+import br.com.rafas.transportes.api.domain.veiculo.Veiculo;
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoVeiculo;
 import br.com.rafas.transportes.api.dto.DadosCadastroVeiculo;
+import br.com.rafas.transportes.api.dto.DadosCadastroQuilometragemLog;
 import br.com.rafas.transportes.api.repository.ManutencaoRepository;
 import br.com.rafas.transportes.api.repository.VeiculoRepository;
 import br.com.rafas.transportes.api.repository.ViagemRepository;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -29,6 +31,9 @@ public class VeiculoService {
     @Autowired
     private ViagemRepository viagemRepository;
 
+    @Autowired
+    private QuilometragemLogService quilometragemLogService;
+
     @Transactional
     public Veiculo cadastrar(DadosCadastroVeiculo dados) {
         if (repository.existsByPlate(dados.plate())) {
@@ -37,6 +42,16 @@ public class VeiculoService {
         var veiculo = new Veiculo(dados);
 
         repository.save(veiculo);
+
+        quilometragemLogService.registrarLog(new DadosCadastroQuilometragemLog(
+                veiculo.getId(),
+                LocalDateTime.now(),
+                0,
+                veiculo.getCurrentKm(),
+                "CADASTRO_INICIAL",
+                null
+        ));
+
         return veiculo;
     }
 
@@ -51,8 +66,22 @@ public class VeiculoService {
             }
         }
 
+        Integer quilometragemAnterior = veiculo.getCurrentKm();
+
         veiculo.atualizarInformacoes(dados);
         repository.save(veiculo);
+
+        if (dados.currentKm() != null && !dados.currentKm().equals(quilometragemAnterior) && dados.currentKm() > quilometragemAnterior) {
+            quilometragemLogService.registrarLog(new DadosCadastroQuilometragemLog(
+                    veiculo.getId(),
+                    LocalDateTime.now(),
+                    quilometragemAnterior,
+                    veiculo.getCurrentKm(),
+                    "MANUAL",
+                    null
+            ));
+        }
+
         return veiculo;
     }
 

@@ -1,5 +1,6 @@
-package br.com.rafas.transportes.api.domain;
+package br.com.rafas.transportes.api.domain.veiculo;
 
+import br.com.rafas.transportes.api.domain.StatusVeiculo;
 import br.com.rafas.transportes.api.dto.DadosAtualizacaoVeiculo;
 import br.com.rafas.transportes.api.dto.DadosCadastroVeiculo;
 import jakarta.persistence.*;

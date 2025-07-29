@@ -1,7 +1,7 @@
 package br.com.rafas.transportes.api.dto;
 
 import br.com.rafas.transportes.api.domain.StatusVeiculo;
-import br.com.rafas.transportes.api.domain.Veiculo;
+import br.com.rafas.transportes.api.domain.veiculo.Veiculo;
 
 public record DadosDetalhamentoVeiculo(
         Long id,
