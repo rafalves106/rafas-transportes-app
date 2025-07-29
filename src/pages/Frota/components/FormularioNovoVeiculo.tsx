@@ -226,7 +226,7 @@ export function FormularioNovoVeiculo() {
           <option value="Inativo">Inativo</option>
           <option value="Em Manutenção">Em Manutenção</option>
         </Select>
-        {erros.status} && <ErrorMessage>{erros.status}</ErrorMessage>
+        {erros.status && <ErrorMessage>{erros.status}</ErrorMessage>}
       </InputGroup>
 
       {isEditing && (
