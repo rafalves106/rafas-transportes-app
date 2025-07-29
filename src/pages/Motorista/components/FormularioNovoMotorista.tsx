@@ -123,6 +123,7 @@ export function FormularioNovoMotorista() {
       onSubmit={handleSubmit}
     >
       <InputGroup>
+        <Label>Nome Completo: </Label>
         <Input
           name="nome"
           value={dados.nome}
@@ -133,7 +134,7 @@ export function FormularioNovoMotorista() {
         {erros.nome && <ErrorMessage>{erros.nome}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
-        <Label htmlFor="validadeCnh">Validade</Label>
+        <Label htmlFor="validadeCnh">Validade da CNH</Label>
         <Input
           name="validadeCnh"
           type="date"
@@ -145,6 +146,7 @@ export function FormularioNovoMotorista() {
         {erros.validadeCnh && <ErrorMessage>{erros.validadeCnh}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
+        <Label>Telefone: </Label>
         <Input
           name="telefone"
           placeholder="Telefone"

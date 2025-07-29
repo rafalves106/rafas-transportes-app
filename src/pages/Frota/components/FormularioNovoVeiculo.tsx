@@ -29,9 +29,6 @@ export function FormularioNovoVeiculo() {
     model: "",
     plate: "",
     status: "Ativo",
-    ano: "",
-    color: "",
-    renavam: "",
     currentKm: "",
   });
 
@@ -56,9 +53,6 @@ export function FormularioNovoVeiculo() {
         model: veiculo.model,
         plate: veiculo.plate,
         status: veiculo.status,
-        ano: veiculo.ano,
-        color: veiculo.color,
-        renavam: veiculo.renavam,
         currentKm: String(veiculo.currentKm || 0),
       });
     }
@@ -101,18 +95,21 @@ export function FormularioNovoVeiculo() {
       id={isEditing ? `form-editar-veiculo-${vehicleId}` : "form-novo-veiculo"}
       onSubmit={handleSubmit}
     >
+      <Label>Modelo:</Label>
       <Input
         name="model"
         placeholder="Modelo:"
         value={dados.model}
         onChange={handleInputChange}
       />
+      <Label>Placa:</Label>
       <Input
         name="plate"
         placeholder="Placa:"
         value={dados.plate}
         onChange={handleInputChange}
       />
+      <Label>Quilometragem:</Label>
       <Input
         name="currentKm"
         type="text"
@@ -120,25 +117,6 @@ export function FormularioNovoVeiculo() {
         value={dados.currentKm}
         onChange={handleInputChange}
       />
-      <Input
-        name="ano"
-        placeholder="Ano:"
-        value={dados.ano}
-        onChange={handleInputChange}
-      />
-      <Input
-        name="color"
-        placeholder="Cor:"
-        value={dados.color}
-        onChange={handleInputChange}
-      />
-      <Input
-        name="renavam"
-        placeholder="Renavam:"
-        value={dados.renavam}
-        onChange={handleInputChange}
-      />
-
       <Label>Status:</Label>
       <Select name="status" value={dados.status} onChange={handleInputChange}>
         <option value="Ativo">Ativo</option>

@@ -367,6 +367,7 @@ export function FormularioNovaManutencao() {
 
       <InputRow>
         <InputGroup>
+          <Label>Veículo: </Label>
           <Select
             id="veiculoId"
             name="veiculoId"
@@ -385,6 +386,7 @@ export function FormularioNovaManutencao() {
         </InputGroup>
 
         <InputGroup>
+          <Label>Data da Manutenção: </Label>
           <Input
             id="date"
             name="date"
@@ -399,6 +401,7 @@ export function FormularioNovaManutencao() {
 
       <InputRow>
         <InputGroup>
+          <Label>Custo da manutenção: </Label>
           <Input
             id="cost"
             name="cost"
@@ -412,6 +415,7 @@ export function FormularioNovaManutencao() {
         </InputGroup>
 
         <InputGroup>
+          <Label>Tipo de manutenção: </Label>
           <Select
             id="type"
             name="type"
@@ -424,6 +428,7 @@ export function FormularioNovaManutencao() {
         </InputGroup>
 
         <InputGroup>
+          <Label>Status da manutenção: </Label>
           <Select
             id="status"
             name="status"
@@ -438,6 +443,7 @@ export function FormularioNovaManutencao() {
 
       {dados.status === "Agendada" && (
         <InputGroup>
+          <Label>Quilometragem ideal para troca: </Label>
           <Input
             id="kmManutencao"
             name="kmManutencao"
@@ -457,7 +463,7 @@ export function FormularioNovaManutencao() {
         <>
           {veiculoSelecionadoKmAtual !== null && (
             <InputGroup>
-              <Label>KM Atual do Veículo</Label>
+              <Label>Quilometragem atual do veículo: </Label>
               <Input
                 id="veiculoKmAtual"
                 name="veiculoKmAtual"
@@ -469,6 +475,7 @@ export function FormularioNovaManutencao() {
           )}
 
           <InputGroup>
+            <Label>Quilometragem no momento da manutenção: </Label>
             <Input
               id="kmManutencao"
               name="kmManutencao"
@@ -487,6 +494,7 @@ export function FormularioNovaManutencao() {
 
       {dados.status === "Realizada" && (
         <InputGroup>
+          <Label>Quilometragem para próxima manutenção: </Label>
           <Input
             id="proximaKm"
             name="proximaKm"

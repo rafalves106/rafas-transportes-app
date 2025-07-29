@@ -1,6 +1,8 @@
 import { styled } from "styled-components";
 
 export const FormContainer = styled.form`
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
@@ -11,7 +13,7 @@ export const FormContainer = styled.form`
 export const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 `;
 
 export const Label = styled.label`
@@ -30,7 +32,7 @@ export const Input = styled.input<{ hasError?: boolean }>`
       props.hasError ? "var(--color-alert)" : "var(--color-border)"};
   background-color: transparent;
   border-radius: 6px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 `;
 
 export const Select = styled.select<{ hasError?: boolean }>`
@@ -43,7 +45,7 @@ export const Select = styled.select<{ hasError?: boolean }>`
       props.hasError ? "var(--color-alert)" : "var(--color-border)"};
   border-radius: 6px;
   background-color: transparent;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 `;
 
 export const Textarea = styled.textarea`
@@ -56,7 +58,7 @@ export const Textarea = styled.textarea`
   min-height: 3rem;
   resize: vertical;
   background-color: transparent;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 `;
 
 export const ErrorMessage = styled.span`

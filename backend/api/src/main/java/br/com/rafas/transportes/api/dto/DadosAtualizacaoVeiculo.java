@@ -6,6 +6,6 @@ public record DadosAtualizacaoVeiculo(
         String model,
         String plate,
         StatusVeiculo status,
-        Integer currentKm // NOVO CAMPO: Quilometragem atual
+        Integer currentKm
 ) {
 }

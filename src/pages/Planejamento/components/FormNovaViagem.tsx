@@ -33,7 +33,7 @@ const FormSection = styled.div`
   padding: 1rem 0 1rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   max-height: calc(90vh - 180px);
   overflow-y: auto;
   @media (max-width: 768px) {

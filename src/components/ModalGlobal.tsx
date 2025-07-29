@@ -39,7 +39,7 @@ const ModalContainer = styled.div`
 
 const ModalHeader = styled.header`
   margin: 0 1.5rem;
-  padding: 1rem 1.5rem;
+  padding: 1rem;
   border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
@@ -57,7 +57,7 @@ const ModalHeader = styled.header`
 `;
 
 const ModalBody = styled.div`
-  padding: 1.5rem 2rem;
+  padding: 0 2rem;
   overflow-y: auto;
 
   @media (max-width: 768px) {

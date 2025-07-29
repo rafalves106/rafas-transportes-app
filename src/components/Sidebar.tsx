@@ -148,12 +148,7 @@ const ThemeToggleButton = styled(Button)`
   }
 `;
 
-export function Sidebar({
-  novoItemLabel,
-  onNovoItemClick,
-  showActionButton,
-  isOpen,
-}: SidebarProps) {
+export function Sidebar({ isOpen }: SidebarProps) {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { toggleTheme, currentThemeName, theme } = useTheme();
@@ -169,14 +164,6 @@ export function Sidebar({
         <EmpresaInfo>
           <img src={logo} alt="Logo" />
         </EmpresaInfo>
-        {showActionButton && (
-          <Button variant="primary" onClick={onNovoItemClick}>
-            <span style={{ fontSize: "1.2rem", marginRight: "0.25rem" }}>
-              +
-            </span>{" "}
-            {novoItemLabel}
-          </Button>
-        )}
 
         <NavList>
           <StyledNavLink to="/" end>
