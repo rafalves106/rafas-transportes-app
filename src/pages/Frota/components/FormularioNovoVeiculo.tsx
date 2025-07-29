@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useOutletContext } from "react-router-dom";
+import { useParams, useOutletContext, useNavigate } from "react-router-dom";
 
 import { AxiosError } from "axios";
 
@@ -34,6 +34,7 @@ export function FormularioNovoVeiculo() {
   const { vehicleId } = useParams();
   const { onAdicionar, onEditar, onExcluir, veiculo } =
     useOutletContext<FormContextType>();
+  const navigate = useNavigate();
   const isEditing = !!vehicleId;
 
   const [dados, setDados] = useState<
@@ -157,6 +158,7 @@ export function FormularioNovoVeiculo() {
         await onAdicionar(dadosParaAdicao);
       }
       alert("Operação realizada com sucesso!");
+      navigate("/frota");
     } catch (error) {
       const axiosError = error as AxiosError<
         BackendErrorResponse | FieldErrorsResponse
