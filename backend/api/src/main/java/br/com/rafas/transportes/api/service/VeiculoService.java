@@ -12,7 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Import adicionado para o @Transactional
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -29,49 +29,52 @@ public class VeiculoService {
     @Autowired
     private ViagemRepository viagemRepository;
 
-    @Transactional // Adicionar @Transactional para operações de escrita
+    @Transactional
     public Veiculo cadastrar(DadosCadastroVeiculo dados) {
         if (repository.existsByPlate(dados.plate())) {
-            throw new ValidationException("Placa já cadastrada no sistema.");
+            throw new ValidationException("Já existe um veículo cadastrado com esta placa: " + dados.plate());
         }
         var veiculo = new Veiculo(dados);
-        // NOVO: Define a quilometragem inicial (0 ou null, dependendo da sua regra)
-        // Se DadosCadastroVeiculo fosse ter currentKm, seria dados.currentKm()
-        veiculo.setCurrentKm(0); // Assumindo 0 km para um veículo novo
 
         repository.save(veiculo);
         return veiculo;
     }
 
-    @Transactional // Adicionar @Transactional para operações de escrita
+    @Transactional
     public Veiculo atualizar(Long id, DadosAtualizacaoVeiculo dados) {
         var veiculo = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
-        // O método 'atualizarInformacoes' da entidade Veiculo já foi atualizado para lidar com currentKm.
+
+        if (dados.plate() != null && !dados.plate().equals(veiculo.getPlate())) {
+            if (repository.existsByPlateAndIdNot(dados.plate(), id)) {
+                throw new ValidationException("Já existe outro veículo cadastrado com esta placa: " + dados.plate());
+            }
+        }
+
         veiculo.atualizarInformacoes(dados);
-        // Não é necessário chamar save aqui, pois a entidade está no contexto de persistência da transação
+        repository.save(veiculo);
         return veiculo;
     }
 
-    @Transactional // Adicionar @Transactional para operações de escrita
+    @Transactional
     public void excluir(Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("Veículo não encontrado");
         }
 
-        List<Manutencao> manutenções = manutencaoRepository.findByVeiculoId(id);
+        List<Manutencao> manutencoes = manutencaoRepository.findByVeiculoId(id);
         List<Viagem> viagens = viagemRepository.findByVeiculoId(id);
 
-        if (!manutenções.isEmpty() || !viagens.isEmpty()) {
+        if (!manutencoes.isEmpty() || !viagens.isEmpty()) {
             StringBuilder erro = new StringBuilder("Este veículo não pode ser excluído, pois possui pendências:");
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-            if (!manutenções.isEmpty()) {
-                Manutencao manutencao = manutenções.get(0);
+            if (!manutencoes.isEmpty()) {
+                Manutencao manutencao = manutencoes.get(0);
                 erro.append(String.format(
                         " Manutenção '%s' agendada para %s.",
                         manutencao.getTitle(),
-                        manutencao.getDate().format(formatter)
+                        manutencao.getDate() != null ? manutencao.getDate().format(formatter) : "data não informada"
                 ));
             }
 
@@ -81,7 +84,7 @@ public class VeiculoService {
                         " Viagem '%s' para o cliente %s na data de %s.",
                         viagem.getTitle(),
                         viagem.getClientName(),
-                        viagem.getStartDate().format(formatter)
+                        viagem.getStartDate() != null ? viagem.getStartDate().format(formatter) : "data não informada"
                 ));
             }
 
