@@ -19,6 +19,8 @@ import {
 } from "../../../components/ui/Form";
 import type { BackendErrorResponse } from "@/services/manutencaoService";
 
+import { HistoricoQuilometragemModal } from "./HistoricoQuilometragemModal";
+
 interface FormContextType {
   onAdicionar: (dados: Omit<Vehicle, "id">) => Promise<void>;
   onEditar: (id: number, dados: UpdateVehicleData) => Promise<void>;
@@ -47,6 +49,7 @@ export function FormularioNovoVeiculo() {
   });
 
   const [erros, setErros] = useState<{ [key: string]: string }>({});
+  const [showHistoricoModal, setShowHistoricoModal] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -283,15 +286,46 @@ export function FormularioNovoVeiculo() {
         {erros.status && <ErrorMessage>{erros.status}</ErrorMessage>}
       </InputGroup>
 
-      {isEditing && (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: "1.5rem",
+        }}
+      >
         <Button
-          style={{ marginBottom: "1.5rem" }}
-          variant="danger"
+          variant="secondary"
           type="button"
-          onClick={handleExcluir}
+          onClick={() => navigate("/frota")}
         >
-          Excluir Veículo
+          Cancelar
         </Button>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          {isEditing && (
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => setShowHistoricoModal(true)}
+            >
+              Ver Histórico KM
+            </Button>
+          )}
+          {isEditing && (
+            <Button variant="danger" type="button" onClick={handleExcluir}>
+              Excluir Veículo
+            </Button>
+          )}
+          <Button variant="primary" type="submit">
+            {isEditing ? "Salvar Alterações" : "Salvar Veículo"}
+          </Button>
+        </div>
+      </div>
+
+      {showHistoricoModal && isEditing && (
+        <HistoricoQuilometragemModal
+          veiculoId={parseInt(vehicleId!, 10)}
+          onClose={() => setShowHistoricoModal(false)}
+        />
       )}
     </FormContainer>
   );
