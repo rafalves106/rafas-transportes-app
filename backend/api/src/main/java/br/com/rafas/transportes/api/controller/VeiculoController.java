@@ -47,8 +47,7 @@ public class VeiculoController {
     @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<DadosDetalhamentoVeiculo> atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoVeiculo dados) {
-        var veiculo = repository.getReferenceById(id);
-        veiculo.atualizarInformacoes(dados);
+        var veiculo = service.atualizar(id, dados);
         return ResponseEntity.ok(new DadosDetalhamentoVeiculo(veiculo));
     }
 
