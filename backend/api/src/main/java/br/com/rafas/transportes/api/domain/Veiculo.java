@@ -29,8 +29,8 @@ public class Veiculo {
     public Veiculo(DadosCadastroVeiculo dados) {
         this.model = dados.model();
         this.plate = dados.plate();
-        this.status = StatusVeiculo.ATIVO;
-        this.currentKm = 0;
+        this.status = StatusVeiculo.valueOf(dados.status().toUpperCase());
+        this.currentKm = dados.currentKM();
     }
 
     public void desativar() {
