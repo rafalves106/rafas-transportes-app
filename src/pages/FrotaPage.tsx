@@ -129,14 +129,18 @@ export function FrotaPage() {
       navigate("/frota");
     } catch (err) {
       console.error("Falha ao excluir veículo:", err);
+      // ALTERADO: Tenta pegar a mensagem detalhada do backend
       if (axios.isAxiosError(err) && err.response) {
+        // Assume que o backend retorna um JSON como { message: "..." } para 400 Bad Request
+        // Note: BackendErrorResponse não está importado diretamente neste arquivo,
+        // então usamos um type cast inline para acessar a propriedade 'message'.
         const backendErrorMessage = (err.response.data as { message?: string })
           ?.message;
 
         alert(
           `Erro ao excluir: ${err.response.status} - ${
             backendErrorMessage || err.response.statusText
-          }`
+          }` // Prioriza a message do backend
         );
       } else if (err instanceof Error) {
         alert(`Erro ao excluir: ${err.message}`);

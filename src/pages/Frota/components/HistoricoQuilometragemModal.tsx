@@ -66,26 +66,33 @@ export const HistoricoQuilometragemModal: React.FC<
               width: "100%",
               borderCollapse: "collapse",
               marginTop: "1rem",
+              marginBottom: "1rem",
             }}
           >
             <thead>
-              <tr style={{ borderBottom: "1px solid #ddd" }}>
-                <th style={{ padding: "8px", textAlign: "left" }}>Data/Hora</th>
-                <th style={{ padding: "8px", textAlign: "left" }}>
+              <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
+                <th style={{ padding: "0.5rem", textAlign: "left" }}>
+                  Data/Hora
+                </th>
+                <th style={{ padding: "0.5rem", textAlign: "left" }}>
                   KM Anterior
                 </th>
-                <th style={{ padding: "8px", textAlign: "left" }}>KM Atual</th>
-                <th style={{ padding: "8px", textAlign: "left" }}>Origem</th>
-                <th style={{ padding: "8px", textAlign: "left" }}>
+                <th style={{ padding: "0.5rem", textAlign: "left" }}>
+                  KM Atual
+                </th>
+                <th style={{ padding: "0.5rem", textAlign: "left" }}>Origem</th>
+                <th style={{ padding: "0.5rem", textAlign: "left" }}>
                   Ref. Origem
                 </th>
               </tr>
             </thead>
             <tbody>
               {logs.map((log) => (
-                <tr key={log.id} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ padding: "8px" }}>
-                    {/* Formate a data conforme sua preferência */}
+                <tr
+                  key={log.id}
+                  style={{ borderBottom: "1px solid var(--color-border)" }}
+                >
+                  <td style={{ padding: "0.5rem" }}>
                     {log.dataHoraRegistro
                       ? format(
                           new Date(log.dataHoraRegistro),
@@ -93,12 +100,14 @@ export const HistoricoQuilometragemModal: React.FC<
                         )
                       : "-"}
                   </td>
-                  <td style={{ padding: "8px" }}>
+                  <td style={{ padding: "0.5rem" }}>
                     {log.quilometragemAnterior}
                   </td>
-                  <td style={{ padding: "8px" }}>{log.quilometragemAtual}</td>
-                  <td style={{ padding: "8px" }}>{log.origemAlteracao}</td>
-                  <td style={{ padding: "8px" }}>
+                  <td style={{ padding: "0.5rem" }}>
+                    {log.quilometragemAtual}
+                  </td>
+                  <td style={{ padding: "0.5rem" }}>{log.origemAlteracao}</td>
+                  <td style={{ padding: "0.5rem" }}>
                     {log.idReferenciaOrigem || "-"}
                   </td>
                 </tr>
@@ -111,10 +120,13 @@ export const HistoricoQuilometragemModal: React.FC<
         style={{
           display: "flex",
           justifyContent: "flex-end",
-          marginTop: "1rem",
         }}
       >
-        <Button variant="secondary" onClick={onClose}>
+        <Button
+          style={{ marginBottom: "1rem" }}
+          variant="secondary"
+          onClick={onClose}
+        >
           Fechar
         </Button>
       </div>

@@ -3,11 +3,9 @@ import { useParams, useOutletContext, useNavigate } from "react-router-dom";
 
 import { AxiosError } from "axios";
 
-import type {
-  UpdateVehicleData,
-  Vehicle,
-} from "../../../services/veiculoService";
-import { Button } from "../../../components/ui/Button";
+import type { UpdateVehicleData, Vehicle } from "@/services/veiculoService";
+
+import { Button } from "@/components/ui/Button";
 
 import {
   FormContainer,
@@ -16,7 +14,7 @@ import {
   Select,
   ErrorMessage,
   InputGroup,
-} from "../../../components/ui/Form";
+} from "@/components/ui/Form";
 import type { BackendErrorResponse } from "@/services/manutencaoService";
 
 import { HistoricoQuilometragemModal } from "./HistoricoQuilometragemModal";
@@ -289,18 +287,13 @@ export function FormularioNovoVeiculo() {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           marginTop: "1.5rem",
         }}
       >
-        <Button
-          variant="secondary"
-          type="button"
-          onClick={() => navigate("/frota")}
-        >
-          Cancelar
-        </Button>
+        {" "}
         <div style={{ display: "flex", gap: "0.5rem" }}>
+          {" "}
           {isEditing && (
             <Button
               variant="secondary"
@@ -315,9 +308,6 @@ export function FormularioNovoVeiculo() {
               Excluir Veículo
             </Button>
           )}
-          <Button variant="primary" type="submit">
-            {isEditing ? "Salvar Alterações" : "Salvar Veículo"}
-          </Button>
         </div>
       </div>
 
