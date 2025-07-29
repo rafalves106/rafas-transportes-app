@@ -11,6 +11,6 @@ public record DadosCadastroVeiculo(
         @NotBlank @NotNull
         String status,
         @NotNull
-        Integer currentKM
+        Integer currentKm
 ) {
 }

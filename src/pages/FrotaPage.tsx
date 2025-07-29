@@ -92,18 +92,9 @@ export function FrotaPage() {
       await veiculoService.adicionar(dados);
       await fetchVeiculos();
       navigate("/frota");
-      alert("Veículo cadastrado com sucesso!");
     } catch (err) {
       console.error("Falha ao adicionar veículo:", err);
-      if (axios.isAxiosError(err) && err.response) {
-        alert(
-          `Erro ao adicionar: ${err.response.status} - ${err.response.statusText}`
-        );
-      } else if (err instanceof Error) {
-        alert(`Erro ao adicionar: ${err.message}`);
-      } else {
-        alert("Erro desconhecido ao adicionar.");
-      }
+      throw err;
     }
   };
 
@@ -124,15 +115,7 @@ export function FrotaPage() {
       navigate("/frota");
     } catch (err) {
       console.error("Falha ao editar veículo:", err);
-      if (axios.isAxiosError(err) && err.response) {
-        alert(
-          `Erro ao editar: ${err.response.status} - ${err.response.statusText}`
-        );
-      } else if (err instanceof Error) {
-        alert(`Erro ao editar: ${err.message}`);
-      } else {
-        alert("Erro desconhecido ao editar.");
-      }
+      throw err;
     }
   };
 

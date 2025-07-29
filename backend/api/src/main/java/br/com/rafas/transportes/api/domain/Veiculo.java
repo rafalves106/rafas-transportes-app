@@ -30,7 +30,7 @@ public class Veiculo {
         this.model = dados.model();
         this.plate = dados.plate();
         this.status = StatusVeiculo.valueOf(dados.status().toUpperCase());
-        this.currentKm = dados.currentKM();
+        this.currentKm = dados.currentKm();
     }
 
     public void desativar() {
