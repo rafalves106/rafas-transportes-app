@@ -1,4 +1,7 @@
 import { Outlet, useLocation, useNavigate, matchPath } from "react-router-dom";
+
+import { useInactivityLogout } from "./hooks/useInactivityLogout";
+
 import styled from "styled-components";
 import { Sidebar } from "./components/Sidebar";
 import { HeaderGlobal } from "./components/HeaderGlobal";
@@ -127,6 +130,8 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useInactivityLogout();
+
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [configAtual, setConfigAtual] = useState(defaultConfig);
 
@@ -150,7 +155,6 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  // CORREÇÃO APLICADA AQUI
   const handleNovoItemClick = () => {
     if (configAtual.novoPath) {
       navigate(configAtual.novoPath);
