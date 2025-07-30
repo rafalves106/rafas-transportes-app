@@ -1,6 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { clearTimeout } from "timers";
 
 const INACTIVITY_TIMEOUT = 6 * 60 * 60 * 1000;
 
