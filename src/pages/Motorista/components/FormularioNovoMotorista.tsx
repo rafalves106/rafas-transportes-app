@@ -59,6 +59,14 @@ export function FormularioNovoMotorista() {
     }
   };
 
+  const validatePhoneNumberFormat = (phoneNumber: string): boolean => {
+    const cleanedNumber = phoneNumber.replace(/\D/g, "");
+
+    const phoneRegex = /ˆ\d{10,11}%/;
+
+    return phoneRegex.test(cleanedNumber);
+  };
+
   const validate = () => {
     const novosErros: { [key: string]: string } = {};
 
@@ -81,6 +89,13 @@ export function FormularioNovoMotorista() {
 
     if (isEditing && !dados.status.trim()) {
       novosErros.status = "Status é obrigatório.";
+    }
+
+    if (!dados.telefone.trim()) {
+      novosErros.telefone = "O número de telefone é obrigatório.";
+    } else if (!validatePhoneNumberFormat(dados.telefone)) {
+      novosErros.telefone =
+        "Formato de telefone inválido. Use 10 ou 11 dígitos (incluindo DDD).";
     }
 
     return novosErros;
@@ -176,6 +191,7 @@ export function FormularioNovoMotorista() {
           placeholder="Telefone"
           value={dados.telefone}
           onChange={handleInputChange}
+          hasError={!!erros.telefone}
         />
       </InputGroup>
 

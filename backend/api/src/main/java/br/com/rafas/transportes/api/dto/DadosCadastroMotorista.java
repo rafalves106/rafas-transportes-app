@@ -4,6 +4,7 @@
 
 package br.com.rafas.transportes.api.dto;
 
+import br.com.rafas.transportes.api.domain.StatusMotorista;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +19,10 @@ public record DadosCadastroMotorista(
         @NotNull
         LocalDate validadeCnh,
 
-        String telefone
+        @NotBlank
+        String telefone,
+
+        @NotNull
+        StatusMotorista status
 ) {
 }
