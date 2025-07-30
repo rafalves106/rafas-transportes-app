@@ -61,7 +61,28 @@ export function FormularioNovoMotorista() {
 
   const validate = () => {
     const novosErros: { [key: string]: string } = {};
-    if (!dados.nome.trim()) novosErros.nome = "Nome é obrigatório.";
+
+    if (!dados.nome.trim()) {
+      novosErros.nome = "Nome é obrigatório.";
+    }
+
+    if (!dados.validadeCnh.trim()) {
+      novosErros.validadeCnh = "Validade da CNH é obrigatória.";
+    } else {
+      const dataCnh = new Date(dados.validadeCnh);
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+
+      if (dataCnh < hoje) {
+        novosErros.validadeCnh =
+          "A validade da CNH não pode ser uma data passada.";
+      }
+    }
+
+    if (isEditing && !dados.status.trim()) {
+      novosErros.status = "Status é obrigatório.";
+    }
+
     return novosErros;
   };
 
@@ -123,8 +144,9 @@ export function FormularioNovoMotorista() {
       onSubmit={handleSubmit}
     >
       <InputGroup>
-        <Label>Nome Completo: </Label>
+        <Label htmlFor="nome">Nome Completo: </Label>
         <Input
+          id="nome"
           name="nome"
           value={dados.nome}
           placeholder="Nome Completo"
@@ -136,6 +158,7 @@ export function FormularioNovoMotorista() {
       <InputGroup>
         <Label htmlFor="validadeCnh">Validade da CNH</Label>
         <Input
+          id="validadeCnh"
           name="validadeCnh"
           type="date"
           placeholder="Validade da CNH"
@@ -146,8 +169,9 @@ export function FormularioNovoMotorista() {
         {erros.validadeCnh && <ErrorMessage>{erros.validadeCnh}</ErrorMessage>}
       </InputGroup>
       <InputGroup>
-        <Label>Telefone: </Label>
+        <Label htmlFor="telefone">Telefone: </Label>
         <Input
+          id="telefone"
           name="telefone"
           placeholder="Telefone"
           value={dados.telefone}
@@ -155,19 +179,19 @@ export function FormularioNovoMotorista() {
         />
       </InputGroup>
 
-      {isEditing && (
-        <InputGroup>
-          <Select
-            name="status"
-            value={dados.status}
-            onChange={handleInputChange}
-          >
-            <option value="ATIVO">Ativo</option>
-            <option value="INATIVO">Inativo</option>
-            <option value="DE_FERIAS">Férias</option>
-          </Select>
-        </InputGroup>
-      )}
+      <InputGroup>
+        <Label htmlFor="status">Status do motorista:</Label>
+        <Select
+          id="status"
+          name="status"
+          value={dados.status}
+          onChange={handleInputChange}
+        >
+          <option value="ATIVO">Ativo</option>
+          <option value="INATIVO">Inativo</option>
+          <option value="DE_FERIAS">Férias</option>
+        </Select>
+      </InputGroup>
 
       {isEditing && (
         <Button

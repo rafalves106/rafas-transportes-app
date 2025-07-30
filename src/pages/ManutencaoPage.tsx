@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import { ModalGlobal } from "../components/ModalGlobal";
+import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
 import { ListaDeManutencoes } from "./Manutencoes/components/ListaDeManutencoes";
 import { Button } from "../components/ui/Button";
-import { ModalFooter } from "../components/ui/ModalFooter";
 
 import {
   manutencaoService,

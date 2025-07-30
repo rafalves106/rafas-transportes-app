@@ -6,7 +6,7 @@ import type { Viagem } from "../../../services/viagemService";
 import { CardTitle } from "../../../components/ui/Card";
 
 const CardContainer = styled(Link)`
-  background-color: white;
+  background-color: var(--color-cardBackground);
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -25,7 +25,7 @@ const CardContainer = styled(Link)`
 
 const InfoText = styled.p`
   margin: 0;
-  color: var(--color-infoText);
+  color: var(--color-text);
   font-size: 0.9rem;
   font-weight: 500;
 `;

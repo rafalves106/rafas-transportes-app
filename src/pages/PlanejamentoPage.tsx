@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeViagens } from "./Planejamento/components/ListaDeViagens";
 import { viagemService, type Viagem } from "../services/viagemService";
 import { format, addMonths, subMonths } from "date-fns";
@@ -11,7 +10,7 @@ import { CalendarioMensal } from "./Planejamento/components/CalendarioMensal";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
-import { ModalFooter } from "../components/ui/ModalFooter";
+import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
 import {
   SearchNotFind,
   SearchText,

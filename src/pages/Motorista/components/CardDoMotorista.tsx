@@ -99,6 +99,7 @@ export function CardDoMotorista({ motorista, viagens }: CardDoMotoristaProps) {
         <CardTitle>{motorista.nome}</CardTitle>
         <InfoTag status={statusFormatado}>{statusFormatado}</InfoTag>{" "}
       </CardHeader>
+      <InfoText>Validade da CNH: {motorista.validadeCnh}</InfoText>
       <InfoText>Telefone: {motorista.telefone}</InfoText>
       {viagemAtual && (
         <OnDutyContainer>

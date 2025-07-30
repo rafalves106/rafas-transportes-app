@@ -1,14 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams, Outlet, useOutlet } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import { ModalGlobal } from "../components/ModalGlobal";
+import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
 import { ListaDeVeiculos } from "./Frota/components/ListaDeVeiculos";
 import type { Vehicle } from "../services/veiculoService";
 import { veiculoService } from "../services/veiculoService";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
-import { ModalFooter } from "../components/ui/ModalFooter";
 
 import {
   SearchNotFind,

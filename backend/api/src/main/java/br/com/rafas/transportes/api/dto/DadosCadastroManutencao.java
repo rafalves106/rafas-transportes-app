@@ -17,7 +17,7 @@ public record DadosCadastroManutencao(
         String title,
 
         @NotBlank
-        String type, // Ex: "Preventiva", "Corretiva"
+        String type,
 
         LocalDate date,
 

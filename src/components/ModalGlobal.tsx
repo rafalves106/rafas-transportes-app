@@ -30,6 +30,7 @@ const ModalContainer = styled.div`
   max-width: 70vw;
   max-height: 95vh;
   overflow: hidden;
+  padding: 1.5rem;
 
   @media (max-width: 768px) {
     max-width: 75vw;
@@ -38,8 +39,7 @@ const ModalContainer = styled.div`
 `;
 
 const ModalHeader = styled.header`
-  margin: 0 1.5rem;
-  padding: 1rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
@@ -57,18 +57,13 @@ const ModalHeader = styled.header`
 `;
 
 const ModalBody = styled.div`
-  padding: 0 2rem;
   overflow-y: auto;
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
+  right: 1.5rem;
+  top: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,6 +76,20 @@ const CloseButton = styled.button`
   cursor: pointer;
   color: white;
   font-weight: 400;
+`;
+
+export const ModalFooter = styled.footer`
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem 0;
+    align-items: center;
+    justify-content: space-between;
+  }
 `;
 
 export function ModalGlobal({ title, children, onClose }: ModalGlobalProps) {

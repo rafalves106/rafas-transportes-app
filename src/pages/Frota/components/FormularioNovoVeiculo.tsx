@@ -288,7 +288,6 @@ export function FormularioNovoVeiculo() {
         style={{
           display: "flex",
           justifyContent: "flex-end",
-          marginTop: "1.5rem",
         }}
       >
         {" "}

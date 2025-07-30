@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import { ModalGlobal } from "../components/ModalGlobal";
+import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
 import { ListaDeMotoristas } from "./Motorista/components/ListaDeMotoristas";
 import type { Driver } from "../services/motoristaService";
 import type { Viagem } from "../services/viagemService";
@@ -10,7 +10,6 @@ import { viagemService } from "../services/viagemService";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
-import { ModalFooter } from "../components/ui/ModalFooter";
 import {
   SearchNotFind,
   SearchText,
