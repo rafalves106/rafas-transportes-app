@@ -6,6 +6,70 @@ import { CardTitle, CardHeader } from "../../../components/ui/Card";
 import type { Driver } from "../../../services/motoristaService";
 import type { Viagem } from "../../../services/viagemService";
 
+const CnhInfoTag = styled.span<{ color: string; background: string }>`
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  color: ${(props) => props.color};
+  background-color: ${(props) => props.background};
+  margin-right: 0.5rem;
+`;
+
+const getCnhAlertStyles = (validadeCnh: string) => {
+  const dataValidade = new Date(validadeCnh + "T00:00:00");
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const diffTime = dataValidade.getTime() - hoje.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) {
+    return {
+      text: "CNH VENCIDA",
+      color: "#842029",
+      background: "#f8d7da",
+      order: 1,
+    };
+  } else if (diffDays <= 30) {
+    return {
+      text: `Vence em ${diffDays} dias`,
+      color: "#842029",
+      background: "#f8d7da",
+      order: 2,
+    };
+  } else if (diffDays <= 60) {
+    return {
+      text: `Vence em ${diffDays} dias`,
+      color: "#664d03",
+      background: "#fff3cd",
+      order: 3,
+    };
+  } else if (diffDays <= 90) {
+    return {
+      text: `Vence em ${diffDays} dias`,
+      color: "#0f5132",
+      background: "#d1e7dd",
+      order: 4,
+    };
+  } else if (diffDays <= 180) {
+    return {
+      text: `Vence em ${diffDays} dias`,
+      color: "#0c5460",
+      background: "#d1ecf1",
+      order: 5,
+    };
+  } else if (diffDays <= 360) {
+    return {
+      text: `Vence em ${diffDays} dias`,
+      color: "#006400",
+      background: "#e0ffe0",
+      order: 6,
+    };
+  }
+  return null;
+};
+
 const OnDutyContainer = styled.div`
   margin-top: 0.75rem;
   padding-top: 0.75rem;
@@ -93,11 +157,22 @@ export function CardDoMotorista({ motorista, viagens }: CardDoMotoristaProps) {
 
   const statusFormatado = formatarStatus(motorista.status);
 
+  const cnhAlert = getCnhAlertStyles(motorista.validadeCnh);
+
   return (
     <CardContainer to={`/motoristas/editar/${motorista.id}`}>
-      <CardHeader>
+      <CardHeader
+        style={{ flexDirection: "column", alignItems: "start", gap: "1rem" }}
+      >
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <InfoTag status={statusFormatado}>{statusFormatado}</InfoTag>
+          {cnhAlert && (
+            <CnhInfoTag color={cnhAlert.color} background={cnhAlert.background}>
+              {cnhAlert.text}
+            </CnhInfoTag>
+          )}
+        </div>
         <CardTitle>{motorista.nome}</CardTitle>
-        <InfoTag status={statusFormatado}>{statusFormatado}</InfoTag>{" "}
       </CardHeader>
       <InfoText>Validade da CNH: {motorista.validadeCnh}</InfoText>
       <InfoText>Telefone: {motorista.telefone}</InfoText>

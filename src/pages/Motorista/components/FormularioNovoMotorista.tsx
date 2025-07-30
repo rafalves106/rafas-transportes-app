@@ -62,7 +62,7 @@ export function FormularioNovoMotorista() {
   const validatePhoneNumberFormat = (phoneNumber: string): boolean => {
     const cleanedNumber = phoneNumber.replace(/\D/g, "");
 
-    const phoneRegex = /ˆ\d{10,11}%/;
+    const phoneRegex = /^\d{10,11}$/;
 
     return phoneRegex.test(cleanedNumber);
   };
@@ -193,6 +193,7 @@ export function FormularioNovoMotorista() {
           onChange={handleInputChange}
           hasError={!!erros.telefone}
         />
+        {erros.telefone && <ErrorMessage>{erros.telefone}</ErrorMessage>}
       </InputGroup>
 
       <InputGroup>
