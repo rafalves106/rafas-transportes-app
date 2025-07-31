@@ -1,7 +1,3 @@
-/**
- * @author falvesmac
- */
-
 package br.com.rafas.transportes.api.service;
 
 import br.com.rafas.transportes.api.domain.Ferias;
@@ -14,10 +10,9 @@ import br.com.rafas.transportes.api.repository.ViagemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.scheduling.annotation.Scheduled;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -59,18 +54,39 @@ public class FeriasService {
     }
 
     Ferias novaFerias = new Ferias(motorista, dados.dataInicio(), dados.dataFim());
-    return feriasRepository.save(novaFerias);
+    feriasRepository.save(novaFerias);
+
+    if (dados.dataInicio().isEqual(LocalDate.now())) {
+      motorista.setStatus(StatusMotorista.DE_FERIAS);
+      motoristaRepository.save(motorista);
+    }
+
+    return novaFerias;
   }
 
   public List<Ferias> listarPorMotoristaId(Long motoristaId) {
     return feriasRepository.findByMotoristaId(motoristaId);
   }
 
+  @Transactional
   public void excluir(Long id) {
-    if (!feriasRepository.existsById(id)) {
-      throw new EntityNotFoundException("Férias não encontradas.");
-    }
+    Ferias feriasParaExcluir = feriasRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Férias não encontradas."));
+
+    Motorista motorista = feriasParaExcluir.getMotorista();
+
     feriasRepository.deleteById(id);
+
+    if (motorista.getStatus() == StatusMotorista.DE_FERIAS) {
+      LocalDate hoje = LocalDate.now();
+
+      boolean aindaEstaDeFerias = feriasRepository.existeFeriasEmPeriodo(motorista.getId(), hoje, hoje);
+
+      if (!aindaEstaDeFerias) {
+        motorista.setStatus(StatusMotorista.ATIVO);
+        motoristaRepository.save(motorista);
+      }
+    }
   }
 
   @Scheduled(cron = "0 0 1 * * *")

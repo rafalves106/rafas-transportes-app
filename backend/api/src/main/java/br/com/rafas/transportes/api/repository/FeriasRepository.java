@@ -22,6 +22,10 @@ public interface FeriasRepository extends JpaRepository<Ferias, Long> {
                                    @Param("dataInicio") LocalDate dataInicio,
                                    @Param("dataFim") LocalDate dataFim);
 
+    @Query("SELECT COUNT(f) > 0 FROM Ferias f WHERE f.motorista.id = :motoristaId " +
+            "AND (:dataHoje BETWEEN f.dataInicio AND f.dataFim)")
+    boolean existeFeriasEmPeriodo(@Param("motoristaId") Long motoristaId, @Param("dataHoje") LocalDate dataHoje, @Param("dataFim") LocalDate dataFim);
+
     List<Ferias> findByDataInicio(LocalDate dataInicio);
     List<Ferias> findByDataFim(LocalDate dataFim);
 }
