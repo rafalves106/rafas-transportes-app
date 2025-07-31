@@ -19,11 +19,13 @@ interface ModalCadastroFeriasProps {
   isOpen: boolean;
   onClose: () => void;
   motoristaId: number;
+  onSuccess: () => void;
 }
 
 export function ModalCadastroFerias({
   isOpen,
   onClose,
+  onSuccess,
   motoristaId,
 }: ModalCadastroFeriasProps) {
   const [formData, setFormData] = useState<CadastroFeriasData>({
@@ -66,6 +68,7 @@ export function ModalCadastroFerias({
     try {
       await feriasService.cadastrar(formData);
       alert("Período de férias cadastrado com sucesso!");
+      onSuccess();
       onClose();
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

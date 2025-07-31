@@ -170,7 +170,11 @@ export function MotoristaPage() {
   const handleCloseFeriasModal = () => {
     setIsFeriasModalOpen(false);
     setMotoristaParaFerias(null);
+  };
+
+  const handleFeriasSuccess = () => {
     carregarDados();
+    handleCloseFeriasModal();
   };
 
   const motoristaParaEditar = driverId
@@ -241,6 +245,7 @@ export function MotoristaPage() {
           isOpen={isFeriasModalOpen}
           onClose={handleCloseFeriasModal}
           motoristaId={motoristaParaFerias.id}
+          onSuccess={handleFeriasSuccess}
         />
       )}
     </div>
