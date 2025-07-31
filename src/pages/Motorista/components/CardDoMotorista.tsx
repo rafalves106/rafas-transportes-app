@@ -67,7 +67,12 @@ const getCnhAlertStyles = (validadeCnh: string) => {
       order: 6,
     };
   }
-  return null;
+  return {
+    text: `Vence em ${diffDays} dias`,
+    color: "#495057",
+    background: "#e9ecef",
+    order: 7,
+  };
 };
 
 const OnDutyContainer = styled.div`
@@ -133,6 +138,16 @@ const InfoText = styled.p`
   font-size: 0.9rem;
 `;
 
+const formatarData = (dataString: string): string => {
+  const data = new Date(dataString + "T00:00:00");
+
+  const dia = String(data.getDate()).padStart(2, "0");
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const ano = data.getFullYear();
+
+  return `${dia}/${mes}/${ano}`;
+};
+
 interface CardDoMotoristaProps {
   motorista: Driver;
   viagens: Viagem[];
@@ -174,7 +189,9 @@ export function CardDoMotorista({ motorista, viagens }: CardDoMotoristaProps) {
         </div>
         <CardTitle>{motorista.nome}</CardTitle>
       </CardHeader>
-      <InfoText>Validade da CNH: {motorista.validadeCnh}</InfoText>
+      <InfoText>
+        Validade da CNH: {formatarData(motorista.validadeCnh)}
+      </InfoText>
       <InfoText>Telefone: {motorista.telefone}</InfoText>
       {viagemAtual && (
         <OnDutyContainer>
