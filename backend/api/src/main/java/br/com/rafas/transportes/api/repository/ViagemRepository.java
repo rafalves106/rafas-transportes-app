@@ -2,6 +2,8 @@ package br.com.rafas.transportes.api.repository;
 import br.com.rafas.transportes.api.domain.Viagem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -68,4 +70,12 @@ public interface ViagemRepository extends JpaRepository<Viagem, Long> {
             LocalTime endTime,
             Long viagemIdToExclude
     );
+
+    @Query("SELECT COUNT(v) > 0 FROM Viagem v WHERE v.motorista.id = :motoristaId " +
+            "AND ((v.startDate BETWEEN :dataInicio AND :dataFim) OR " +
+            "(v.endDate BETWEEN :dataInicio AND :dataFim) OR " +
+            "(v.startDate < :dataInicio AND v.endDate > :dataFim))")
+    boolean existeViagemEmPeriodo(@Param("motoristaId") Long motoristaId,
+                                  @Param("dataInicio") LocalDate dataInicio,
+                                  @Param("dataFim") LocalDate dataFim);
 }
