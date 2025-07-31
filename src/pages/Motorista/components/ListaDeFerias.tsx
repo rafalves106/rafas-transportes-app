@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { feriasService, type Ferias } from "../../../services/feriasService";
 import { SearchText } from "../../../components/ui/Layout";
+import { Button } from "@/components/ui/Button";
 
 const FeriasListContainer = styled.div`
   margin-top: 2rem;
@@ -27,6 +28,12 @@ const FeriasItem = styled.div`
 
 const FeriasDates = styled.span`
   font-weight: 500;
+`;
+
+const DeleteButton = styled(Button)`
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  margin-left: 1rem;
 `;
 
 interface ListaDeFeriasProps {
@@ -58,6 +65,25 @@ export function ListaDeFerias({ motoristaId }: ListaDeFeriasProps) {
     fetchFerias();
   }, [motoristaId]);
 
+  const handleExcluirFerias = async (feriasId: number, dataInicio: string) => {
+    if (
+      window.confirm(
+        `Tem certeza que deseja excluir as férias a partir de ${formatarData(
+          dataInicio
+        )}`
+      )
+    ) {
+      try {
+        await feriasService.excluir(feriasId);
+        setFeriasList(feriasList.filter((f) => f.id !== feriasId));
+        alert("Férias excluídas com sucesso!");
+      } catch (err) {
+        alert("Erro ao excluir as férias.");
+        console.error("Erro ao excluir férias.", err);
+      }
+    }
+  };
+
   if (loading) return <SearchText>Carregando períodos de férias...</SearchText>;
   if (error) return <SearchText>{error}</SearchText>;
   if (feriasList.length === 0)
@@ -75,6 +101,12 @@ export function ListaDeFerias({ motoristaId }: ListaDeFeriasProps) {
           <FeriasDates>
             {formatarData(ferias.dataInicio)} - {formatarData(ferias.dataFim)}
           </FeriasDates>
+          <DeleteButton
+            variant="danger"
+            onClick={() => handleExcluirFerias(ferias.id, ferias.dataInicio)}
+          >
+            Excluir
+          </DeleteButton>
         </FeriasItem>
       ))}
     </FeriasListContainer>

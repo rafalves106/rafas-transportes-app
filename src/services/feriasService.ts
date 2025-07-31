@@ -26,4 +26,8 @@ export const feriasService = {
     );
     return response.data;
   },
+
+  excluir: async (id: number): Promise<void> => {
+    await api.delete(`/ferias/${id}`);
+  },
 };

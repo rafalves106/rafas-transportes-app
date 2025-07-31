@@ -62,4 +62,11 @@ public class FeriasService {
   public List<Ferias> listarPorMotoristaId(Long motoristaId) {
     return feriasRepository.findByMotoristaId(motoristaId);
   }
+
+  public void excluir(Long id) {
+    if (!feriasRepository.existsById(id)) {
+      throw new EntityNotFoundException("Férias não encontradas.");
+    }
+    feriasRepository.deleteById(id);
+  }
 }

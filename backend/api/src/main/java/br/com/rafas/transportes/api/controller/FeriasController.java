@@ -41,4 +41,11 @@ public class FeriasController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dadosDetalhados);
     }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity excluir(@PathVariable Long id) {
+        feriasService.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
 }
