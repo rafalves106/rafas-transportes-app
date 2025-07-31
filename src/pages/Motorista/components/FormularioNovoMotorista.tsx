@@ -16,17 +16,20 @@ import {
   Label,
 } from "../../../components/ui/Form";
 
+import { ListaDeFerias } from "./ListaDeFerias";
+
 interface FormContextType {
   onSuccess: (motoristaAtualizado?: Driver) => void;
   onExcluir: (id: number) => void;
   motorista?: Driver;
+  onOpenFeriasModal: (motorista: Driver) => void;
 }
 
 type FormState = CadastroDriverData & { status: string };
 
 export function FormularioNovoMotorista() {
   const { driverId } = useParams();
-  const { onSuccess, onExcluir, motorista } =
+  const { onSuccess, onExcluir, motorista, onOpenFeriasModal } =
     useOutletContext<FormContextType>();
   const isEditing = !!driverId;
 
@@ -36,6 +39,7 @@ export function FormularioNovoMotorista() {
     telefone: "",
     status: "ATIVO",
   });
+
   const [erros, setErros] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
@@ -212,6 +216,17 @@ export function FormularioNovoMotorista() {
 
       {isEditing && (
         <Button
+          variant="secondary"
+          type="button"
+          onClick={() => motorista && onOpenFeriasModal(motorista)}
+          style={{ marginTop: "1rem", padding: "0 1rem" }}
+        >
+          Cadastrar Período Férias
+        </Button>
+      )}
+
+      {isEditing && (
+        <Button
           variant="danger"
           type="button"
           onClick={handleExcluir}
@@ -220,6 +235,8 @@ export function FormularioNovoMotorista() {
           Excluir Motorista
         </Button>
       )}
+
+      {isEditing && motorista && <ListaDeFerias motoristaId={motorista.id} />}
     </FormContainer>
   );
 }

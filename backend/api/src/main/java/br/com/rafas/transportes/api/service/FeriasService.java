@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class FeriasService {
 
@@ -55,5 +57,9 @@ public class FeriasService {
 
     Ferias novaFerias = new Ferias(motorista, dados.dataInicio(), dados.dataFim());
     return feriasRepository.save(novaFerias);
+  }
+
+  public List<Ferias> listarPorMotoristaId(Long motoristaId) {
+    return feriasRepository.findByMotoristaId(motoristaId);
   }
 }

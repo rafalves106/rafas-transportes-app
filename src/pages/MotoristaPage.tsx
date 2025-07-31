@@ -16,6 +16,8 @@ import {
   SearchTextError,
 } from "../components/ui/Layout";
 
+import { ModalCadastroFerias } from "./Motorista/components/ModalCadastroFerias";
+
 export function MotoristaPage() {
   const [motoristas, setMotoristas] = useState<Driver[]>([]);
   const [viagens, setViagens] = useState<Viagem[]>([]);
@@ -31,6 +33,11 @@ export function MotoristaPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [isFeriasModalOpen, setIsFeriasModalOpen] = useState(false);
+  const [motoristaParaFerias, setMotoristaParaFerias] = useState<Driver | null>(
+    null
+  );
 
   const carregarDados = useCallback(async () => {
     if (!isLoggedIn) {
@@ -155,6 +162,17 @@ export function MotoristaPage() {
     }
   };
 
+  const handleOpenFeriasModal = (motorista: Driver) => {
+    setMotoristaParaFerias(motorista);
+    setIsFeriasModalOpen(true);
+  };
+
+  const handleCloseFeriasModal = () => {
+    setIsFeriasModalOpen(false);
+    setMotoristaParaFerias(null);
+    carregarDados();
+  };
+
   const motoristaParaEditar = driverId
     ? motoristas.find((d) => d.id === parseInt(driverId))
     : undefined;
@@ -192,6 +210,7 @@ export function MotoristaPage() {
               onSuccess: handleSuccess,
               onExcluir: handleExcluir,
               motorista: motoristaParaEditar,
+              onOpenFeriasModal: handleOpenFeriasModal,
             }}
           />
           <ModalFooter>
@@ -215,6 +234,14 @@ export function MotoristaPage() {
             </Button>
           </ModalFooter>
         </ModalGlobal>
+      )}
+
+      {isFeriasModalOpen && motoristaParaFerias && (
+        <ModalCadastroFerias
+          isOpen={isFeriasModalOpen}
+          onClose={handleCloseFeriasModal}
+          motoristaId={motoristaParaFerias.id}
+        />
       )}
     </div>
   );
