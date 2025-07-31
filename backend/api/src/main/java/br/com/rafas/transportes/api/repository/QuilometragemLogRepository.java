@@ -10,4 +10,7 @@ import java.util.List;
 public interface QuilometragemLogRepository extends JpaRepository<QuilometragemLog, Long> {
 
     List<QuilometragemLog> findByVeiculoIdOrderByDataHoraRegistroAsc(Long veiculoId);
+
+    void deleteAllByVeiculoId(Long veiculoId);
+
 }

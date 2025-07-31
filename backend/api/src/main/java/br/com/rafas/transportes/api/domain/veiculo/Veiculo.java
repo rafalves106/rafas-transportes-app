@@ -34,10 +34,6 @@ public class Veiculo {
         this.currentKm = dados.currentKm();
     }
 
-    public void desativar() {
-        this.status = StatusVeiculo.INATIVO;
-    }
-
     public void atualizarInformacoes(DadosAtualizacaoVeiculo dados) {
         if (dados.model() != null) {
             this.model = dados.model();
