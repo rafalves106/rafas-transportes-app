@@ -29,7 +29,7 @@ const ModalContainer = styled.div`
   width: 90%;
   max-width: 70vw;
   max-height: 95vh;
-  overflow: hidden;
+  overflow: none;
   padding: 1.5rem;
 
   @media (max-width: 768px) {

@@ -6,6 +6,7 @@ package br.com.rafas.transportes.api.service;
 
 import br.com.rafas.transportes.api.domain.Ferias;
 import br.com.rafas.transportes.api.domain.Motorista;
+import br.com.rafas.transportes.api.domain.StatusMotorista;
 import br.com.rafas.transportes.api.dto.DadosCadastroFerias;
 import br.com.rafas.transportes.api.repository.FeriasRepository;
 import br.com.rafas.transportes.api.repository.MotoristaRepository;
@@ -13,9 +14,11 @@ import br.com.rafas.transportes.api.repository.ViagemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -68,5 +71,25 @@ public class FeriasService {
       throw new EntityNotFoundException("Férias não encontradas.");
     }
     feriasRepository.deleteById(id);
+  }
+
+  @Scheduled(cron = "0 0 1 * * *")
+  @Transactional
+  public void verificarEAtualizarStatusFerias() {
+    LocalDate hoje = LocalDate.now();
+
+    feriasRepository.findByDataInicio(hoje).forEach(ferias -> {
+      Motorista motorista = ferias.getMotorista();
+      motorista.setStatus(StatusMotorista.DE_FERIAS);
+      motoristaRepository.save(motorista);
+      System.out.println("Status de motorista " + motorista.getNome() + " alterado para FÉRIAS.");
+    });
+
+    feriasRepository.findByDataFim(hoje).forEach(ferias -> {
+      Motorista motorista = ferias.getMotorista();
+      motorista.setStatus(StatusMotorista.ATIVO);
+      motoristaRepository.save(motorista);
+      System.out.println("Status de motorista " + motorista.getNome() + " alterado para ATIVO.");
+    });
   }
 }

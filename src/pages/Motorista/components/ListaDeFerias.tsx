@@ -5,9 +5,7 @@ import { SearchText } from "../../../components/ui/Layout";
 import { Button } from "@/components/ui/Button";
 
 const FeriasListContainer = styled.div`
-  margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--color-border);
 `;
 
 const FeriasTitle = styled.h3`
@@ -28,12 +26,6 @@ const FeriasItem = styled.div`
 
 const FeriasDates = styled.span`
   font-weight: 500;
-`;
-
-const DeleteButton = styled(Button)`
-  padding: 0.25rem;
-  font-size: 0.75rem;
-  margin-left: 1rem;
 `;
 
 interface ListaDeFeriasProps {
@@ -101,12 +93,12 @@ export function ListaDeFerias({ motoristaId }: ListaDeFeriasProps) {
           <FeriasDates>
             {formatarData(ferias.dataInicio)} - {formatarData(ferias.dataFim)}
           </FeriasDates>
-          <DeleteButton
+          <Button
             variant="danger"
             onClick={() => handleExcluirFerias(ferias.id, ferias.dataInicio)}
           >
-            Excluir
-          </DeleteButton>
+            Excluir Férias
+          </Button>
         </FeriasItem>
       ))}
     </FeriasListContainer>

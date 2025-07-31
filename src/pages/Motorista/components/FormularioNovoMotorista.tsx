@@ -17,6 +17,7 @@ import {
 } from "../../../components/ui/Form";
 
 import { ListaDeFerias } from "./ListaDeFerias";
+import { InputRow } from "@/components/ui/Layout";
 
 interface FormContextType {
   onSuccess: (motoristaAtualizado?: Driver) => void;
@@ -162,79 +163,84 @@ export function FormularioNovoMotorista() {
       }
       onSubmit={handleSubmit}
     >
-      <InputGroup>
-        <Label htmlFor="nome">Nome Completo: </Label>
-        <Input
-          id="nome"
-          name="nome"
-          value={dados.nome}
-          placeholder="Nome Completo"
-          onChange={handleInputChange}
-          hasError={!!erros.nome}
-        />
-        {erros.nome && <ErrorMessage>{erros.nome}</ErrorMessage>}
-      </InputGroup>
-      <InputGroup>
-        <Label htmlFor="validadeCnh">Validade da CNH</Label>
-        <Input
-          id="validadeCnh"
-          name="validadeCnh"
-          type="date"
-          placeholder="Validade da CNH"
-          value={dados.validadeCnh}
-          onChange={handleInputChange}
-          hasError={!!erros.validadeCnh}
-        />
-        {erros.validadeCnh && <ErrorMessage>{erros.validadeCnh}</ErrorMessage>}
-      </InputGroup>
-      <InputGroup>
-        <Label htmlFor="telefone">Telefone: </Label>
-        <Input
-          id="telefone"
-          name="telefone"
-          placeholder="Telefone"
-          value={dados.telefone}
-          onChange={handleInputChange}
-          hasError={!!erros.telefone}
-        />
-        {erros.telefone && <ErrorMessage>{erros.telefone}</ErrorMessage>}
-      </InputGroup>
+      <InputRow>
+        <InputGroup>
+          <Label htmlFor="nome">Nome Completo: </Label>
+          <Input
+            id="nome"
+            name="nome"
+            value={dados.nome}
+            placeholder="Nome Completo"
+            onChange={handleInputChange}
+            hasError={!!erros.nome}
+          />
+          {erros.nome && <ErrorMessage>{erros.nome}</ErrorMessage>}
+        </InputGroup>
+        <InputGroup>
+          <Label htmlFor="validadeCnh">Validade da CNH</Label>
+          <Input
+            id="validadeCnh"
+            name="validadeCnh"
+            type="date"
+            placeholder="Validade da CNH"
+            value={dados.validadeCnh}
+            onChange={handleInputChange}
+            hasError={!!erros.validadeCnh}
+          />
+          {erros.validadeCnh && (
+            <ErrorMessage>{erros.validadeCnh}</ErrorMessage>
+          )}
+        </InputGroup>
+        <InputGroup>
+          <Label htmlFor="telefone">Telefone: </Label>
+          <Input
+            id="telefone"
+            name="telefone"
+            placeholder="Telefone"
+            value={dados.telefone}
+            onChange={handleInputChange}
+            hasError={!!erros.telefone}
+          />
+          {erros.telefone && <ErrorMessage>{erros.telefone}</ErrorMessage>}
+        </InputGroup>
+        <InputGroup>
+          <Label htmlFor="status">Status do motorista:</Label>
+          <Select
+            id="status"
+            name="status"
+            value={dados.status}
+            onChange={handleInputChange}
+          >
+            <option value="ATIVO">Ativo</option>
+            <option value="INATIVO">Inativo</option>
+            <option value="DE_FERIAS">Férias</option>
+          </Select>
+        </InputGroup>
+      </InputRow>
 
-      <InputGroup>
-        <Label htmlFor="status">Status do motorista:</Label>
-        <Select
-          id="status"
-          name="status"
-          value={dados.status}
-          onChange={handleInputChange}
-        >
-          <option value="ATIVO">Ativo</option>
-          <option value="INATIVO">Inativo</option>
-          <option value="DE_FERIAS">Férias</option>
-        </Select>
-      </InputGroup>
+      <div style={{ display: "flex", flexDirection: "row", gap: "1rem" }}>
+        {isEditing && (
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => motorista && onOpenFeriasModal(motorista)}
+            style={{ marginTop: "1rem", padding: "0 1rem" }}
+          >
+            Cadastrar Período Férias
+          </Button>
+        )}
 
-      {isEditing && (
-        <Button
-          variant="secondary"
-          type="button"
-          onClick={() => motorista && onOpenFeriasModal(motorista)}
-          style={{ marginTop: "1rem", padding: "0 1rem" }}
-        >
-          Cadastrar Período Férias
-        </Button>
-      )}
-
-      {isEditing && (
-        <Button
-          variant="danger"
-          type="button"
-          onClick={handleExcluir}
-          style={{ marginTop: "1rem", marginBottom: "1.5rem" }}
-        >
-          Excluir Motorista
-        </Button>
-      )}
+        {isEditing && (
+          <Button
+            variant="danger"
+            type="button"
+            onClick={handleExcluir}
+            style={{ marginTop: "1rem" }}
+          >
+            Excluir Motorista
+          </Button>
+        )}
+      </div>
 
       {isEditing && motorista && <ListaDeFerias motoristaId={motorista.id} />}
     </FormContainer>

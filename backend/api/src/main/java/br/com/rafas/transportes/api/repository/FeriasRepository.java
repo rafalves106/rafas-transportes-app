@@ -21,4 +21,7 @@ public interface FeriasRepository extends JpaRepository<Ferias, Long> {
     boolean existeConflitoDeFerias(@Param("motoristaId") Long motoristaId,
                                    @Param("dataInicio") LocalDate dataInicio,
                                    @Param("dataFim") LocalDate dataFim);
+
+    List<Ferias> findByDataInicio(LocalDate dataInicio);
+    List<Ferias> findByDataFim(LocalDate dataFim);
 }

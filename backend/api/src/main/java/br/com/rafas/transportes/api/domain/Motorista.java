@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Table(name = "motoristas")
 @Entity(name = "Motorista")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -28,7 +29,6 @@ public class Motorista {
     @Column(nullable = false)
     private StatusMotorista status;
 
-    // Construtor para cadastro - MOVIDO PARA DENTRO DA CLASSE
     public Motorista(br.com.rafas.transportes.api.dto.DadosCadastroMotorista dados) {
         this.nome = dados.nome();
         this.validadeCnh = dados.validadeCnh();
@@ -36,7 +36,6 @@ public class Motorista {
         this.status = br.com.rafas.transportes.api.domain.StatusMotorista.ATIVO;
     }
 
-    // Método de atualização de informações - MOVIDO PARA DENTRO DA CLASSE
     public void atualizarInformacoes(br.com.rafas.transportes.api.dto.DadosAtualizacaoMotorista dados) {
         if (dados.nome() != null) { this.nome = dados.nome(); }
         if (dados.telefone() != null) { this.telefone = dados.telefone(); }
