@@ -58,10 +58,8 @@ const FilterTabsContainer = styled.div`
 
   @media (max-width: 768px) {
     width: fit-content;
-    overflow-x: auto;
     gap: 1rem;
     padding: 0 1rem;
-
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
 
@@ -69,6 +67,13 @@ const FilterTabsContainer = styled.div`
       display: none;
     }
   }
+`;
+
+const TabsWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const SearchInput = styled.input`
@@ -111,18 +116,21 @@ export function FiltroGlobal({
       </TopBarContainer>
 
       {filtros.length > 0 && (
-        <FilterTabsContainer>
-          {filtros.map((filtro) => (
-            <Button
-              key={filtro.id}
-              variant="filter"
-              isActive={filtroAtivo === filtro.id}
-              onClick={() => onFiltroChange(filtro.id)}
-            >
-              {filtro.label}
-            </Button>
-          ))}
-        </FilterTabsContainer>
+        <TabsWrapper>
+          {" "}
+          <FilterTabsContainer>
+            {filtros.map((filtro) => (
+              <Button
+                key={filtro.id}
+                variant="filter"
+                isActive={filtroAtivo === filtro.id}
+                onClick={() => onFiltroChange(filtro.id)}
+              >
+                {filtro.label}
+              </Button>
+            ))}
+          </FilterTabsContainer>
+        </TabsWrapper>
       )}
     </>
   );
