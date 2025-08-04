@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
+import {
+  useOutlet,
+  useNavigate,
+  Outlet,
+  useParams,
+  useOutletContext,
+} from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeManutencoes } from "./Manutencoes/components/ListaDeManutencoes";
@@ -18,12 +24,18 @@ import {
   SearchTextError,
 } from "../components/ui/Layout";
 
+interface OutletContext {
+  setIsModalOpen: (isOpen: boolean) => void;
+}
+
 export function ManutencaoPage() {
   const { maintenanceId } = useParams();
   const outlet = useOutlet();
   const navigate = useNavigate();
 
   const { isLoggedIn } = useAuth();
+  const { setIsModalOpen } = useOutletContext<OutletContext>();
+
   const [manutencoes, setManutencoes] = useState<Maintenance[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("Agendada");
   const [termoBusca, setTermoBusca] = useState("");
@@ -75,6 +87,12 @@ export function ManutencaoPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Effect para notificar o pai sobre o estado do modal
+  useEffect(() => {
+    setIsModalOpen(!!outlet); // Se 'outlet' existe, o modal está aberto
+    return () => setIsModalOpen(false); // Garante que o estado seja resetado ao desmontar
+  }, [outlet, setIsModalOpen]);
 
   const filtros: Filtro[] = [
     { id: "Agendada", label: "Agendadas" },

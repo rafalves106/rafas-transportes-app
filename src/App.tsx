@@ -1,7 +1,5 @@
 import { Outlet, useLocation, useNavigate, matchPath } from "react-router-dom";
-
 import { useInactivityLogout } from "./hooks/useInactivityLogout";
-
 import styled from "styled-components";
 import { Sidebar } from "./components/Sidebar";
 import { HeaderGlobal } from "./components/HeaderGlobal";
@@ -16,7 +14,6 @@ import BudgetIcon from "@/assets/budgetIcon.svg?react";
 const AppContainer = styled.div`
   display: flex;
   min-height: 100vh;
-
   @media (max-width: 768px) {
     flex-direction: column;
   }
@@ -31,7 +28,6 @@ const ConteudoPrincipal = styled.div`
 
 const Backdrop = styled.div<{ isOpen: boolean }>`
   display: none;
-
   @media (max-width: 768px) {
     display: ${({ isOpen }) => (isOpen ? "block" : "none")};
     position: fixed;
@@ -132,10 +128,13 @@ function App() {
   useInactivityLogout();
 
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [configAtual, setConfigAtual] = useState(defaultConfig);
 
   const toggleMenu = () => {
-    setMenuOpen(!isMenuOpen);
+    if (!isModalOpen) {
+      setMenuOpen(!isMenuOpen);
+    }
   };
 
   useEffect(() => {
@@ -190,9 +189,10 @@ function App() {
             onNovoItemClick={handleNovoItemClick}
             novoItemLabel={configAtual.novoLabel}
             onToggleMenu={toggleMenu}
+            isModalOpen={isModalOpen}
           />
           <AreaDaPagina>
-            <Outlet context={{}} />
+            <Outlet context={{ setIsModalOpen }} />
           </AreaDaPagina>
         </ConteudoPrincipal>
       </AppContainer>

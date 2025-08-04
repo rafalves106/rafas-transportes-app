@@ -1,5 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useParams, Outlet, useOutlet } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+  Outlet,
+  useOutlet,
+  useOutletContext,
+} from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeVeiculos } from "./Frota/components/ListaDeVeiculos";
@@ -14,6 +20,10 @@ import {
   SearchTextError,
 } from "../components/ui/Layout";
 
+interface OutletContext {
+  setIsModalOpen: (isOpen: boolean) => void;
+}
+
 export function FrotaPage() {
   const [veiculos, setVeiculos] = useState<Vehicle[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("Ativo");
@@ -24,6 +34,7 @@ export function FrotaPage() {
   const outlet = useOutlet();
 
   const { isLoggedIn } = useAuth();
+  const { setIsModalOpen } = useOutletContext<OutletContext>();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +95,12 @@ export function FrotaPage() {
     fetchVeiculos();
   }, [isLoggedIn, fetchVeiculos]);
 
+  // Effect para notificar o pai sobre o estado do modal
+  useEffect(() => {
+    setIsModalOpen(!!outlet); // Se 'outlet' existe, o modal está aberto
+    return () => setIsModalOpen(false); // Garante que o estado seja resetado ao desmontar
+  }, [outlet, setIsModalOpen]);
+
   const handleAdicionar = async (dados: Omit<Vehicle, "id">) => {
     try {
       await veiculoService.adicionar(dados);
@@ -126,18 +143,14 @@ export function FrotaPage() {
       navigate("/frota");
     } catch (err) {
       console.error("Falha ao excluir veículo:", err);
-      // ALTERADO: Tenta pegar a mensagem detalhada do backend
       if (axios.isAxiosError(err) && err.response) {
-        // Assume que o backend retorna um JSON como { message: "..." } para 400 Bad Request
-        // Note: BackendErrorResponse não está importado diretamente neste arquivo,
-        // então usamos um type cast inline para acessar a propriedade 'message'.
         const backendErrorMessage = (err.response.data as { message?: string })
           ?.message;
 
         alert(
           `Erro ao excluir: ${err.response.status} - ${
             backendErrorMessage || err.response.statusText
-          }` // Prioriza a message do backend
+          }`
         );
       } else if (err instanceof Error) {
         alert(`Erro ao excluir: ${err.message}`);

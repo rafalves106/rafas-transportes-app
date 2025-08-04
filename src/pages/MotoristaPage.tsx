@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
+import {
+  useOutlet,
+  useNavigate,
+  Outlet,
+  useParams,
+  useOutletContext,
+} from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeMotoristas } from "./Motorista/components/ListaDeMotoristas";
@@ -17,6 +23,10 @@ import {
 
 import { ModalCadastroFerias } from "./Motorista/components/ModalCadastroFerias";
 
+interface OutletContext {
+  setIsModalOpen: (isOpen: boolean) => void;
+}
+
 export function MotoristaPage() {
   const [motoristas, setMotoristas] = useState<Driver[]>([]);
   const [viagens, setViagens] = useState<Viagem[]>([]);
@@ -28,6 +38,7 @@ export function MotoristaPage() {
   const navigate = useNavigate();
 
   const { isLoggedIn } = useAuth();
+  const { setIsModalOpen } = useOutletContext<OutletContext>();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -81,6 +92,11 @@ export function MotoristaPage() {
   useEffect(() => {
     carregarDados();
   }, [carregarDados]);
+
+  useEffect(() => {
+    setIsModalOpen(!!outlet || isFeriasModalOpen);
+    return () => setIsModalOpen(false);
+  }, [outlet, isFeriasModalOpen, setIsModalOpen]);
 
   const filtros: Filtro[] = [
     { id: "Em Serviço", label: "Em Serviço" },
@@ -163,11 +179,13 @@ export function MotoristaPage() {
   const handleOpenFeriasModal = (motorista: Driver) => {
     setMotoristaParaFerias(motorista);
     setIsFeriasModalOpen(true);
+    setIsModalOpen(true); // Notifica o App.tsx que o modal de férias está aberto
   };
 
   const handleCloseFeriasModal = () => {
     setIsFeriasModalOpen(false);
     setMotoristaParaFerias(null);
+    setIsModalOpen(false); // Notifica o App.tsx que o modal de férias está fechado
   };
 
   const handleFeriasSuccess = () => {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { format } from "date-fns";
+import { useOutletContext } from "react-router-dom";
 
 import type {
   Orcamento,
@@ -57,12 +58,15 @@ interface Parametros {
   extras: number;
 }
 
+interface OutletContext {
+  setIsModalOpen: (isOpen: boolean) => void;
+}
+
 const MainGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 2rem;
   align-items: start;
-
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
@@ -75,7 +79,6 @@ const PageContainer = styled.div`
   flex-direction: column;
   gap: 2rem;
   padding: 0 1.5rem;
-
   @media (max-width: 768px) {
     padding: 1rem;
   }
@@ -136,6 +139,10 @@ export function CalculadoraPage() {
   const [parametros, setParametros] = useState<Parametros>(
     getInitialParameters()
   );
+  const [orcamentoParaGerarTexto, setOrcamentoParaGerarTexto] =
+    useState<Orcamento | null>(null);
+
+  const { setIsModalOpen } = useOutletContext<OutletContext>();
 
   useEffect(() => {
     localStorage.setItem("orcamentoParametros", JSON.stringify(parametros));
@@ -183,11 +190,9 @@ export function CalculadoraPage() {
       }
     } finally {
       setOrcamentoParaGerarTexto(null);
+      setIsModalOpen(false);
     }
   };
-
-  const [orcamentoParaGerarTexto, setOrcamentoParaGerarTexto] =
-    useState<Orcamento | null>(null);
 
   const handleParametroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -332,6 +337,12 @@ export function CalculadoraPage() {
       textoGerado: "",
     };
     setOrcamentoParaGerarTexto(orcamentoTemporario);
+    setIsModalOpen(true);
+  };
+
+  const handleFecharModal = () => {
+    setOrcamentoParaGerarTexto(null);
+    setIsModalOpen(false);
   };
 
   return (
@@ -425,7 +436,7 @@ export function CalculadoraPage() {
 
       <GeradorDeTextoModal
         orcamento={orcamentoParaGerarTexto}
-        onClose={() => setOrcamentoParaGerarTexto(null)}
+        onClose={handleFecharModal}
         onSalvar={handleSalvarOrcamento}
       />
     </PageContainer>

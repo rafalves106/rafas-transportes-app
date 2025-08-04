@@ -11,6 +11,7 @@ interface HeaderGlobalProps {
   novoItemLabel: string;
   showActionButton: boolean;
   onToggleMenu: () => void;
+  isModalOpen: boolean;
 }
 
 const HambuguerButton = styled.button`
@@ -142,6 +143,7 @@ export function HeaderGlobal({
   novoItemLabel,
   showActionButton,
   onToggleMenu,
+  isModalOpen,
 }: HeaderGlobalProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -170,7 +172,7 @@ export function HeaderGlobal({
   return (
     <HeaderContainer>
       <AppInfo>
-        <HambuguerButton onClick={onToggleMenu}>
+        <HambuguerButton onClick={onToggleMenu} disabled={isModalOpen}>
           <span />
           <span />
           <span />

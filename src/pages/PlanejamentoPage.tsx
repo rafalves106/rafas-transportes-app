@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
+import {
+  useOutlet,
+  useNavigate,
+  Outlet,
+  useParams,
+  useOutletContext,
+} from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
 import { ListaDeViagens } from "./Planejamento/components/ListaDeViagens";
 import { viagemService, type Viagem } from "../services/viagemService";
@@ -57,12 +63,17 @@ const Select = styled.select`
   }
 `;
 
+interface OutletContext {
+  setIsModalOpen: (isOpen: boolean) => void;
+}
+
 export function PlanejamentoPage() {
   const { tripId } = useParams();
   const outlet = useOutlet();
   const navigate = useNavigate();
   const isEditing = !!tripId;
   const { isLoggedIn } = useAuth();
+  const { setIsModalOpen } = useOutletContext<OutletContext>();
 
   const [viagens, setViagens] = useState<Viagem[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("AGENDADA");
@@ -142,6 +153,11 @@ export function PlanejamentoPage() {
   useEffect(() => {
     carregarViagens();
   }, [carregarViagens]);
+
+  useEffect(() => {
+    setIsModalOpen(!!outlet);
+    return () => setIsModalOpen(false);
+  }, [outlet, setIsModalOpen]);
 
   const filtrosPlanejamento: Filtro[] = [
     { id: "AGENDADA", label: "Agendadas" },
