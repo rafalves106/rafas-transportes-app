@@ -9,10 +9,12 @@ import br.com.rafas.transportes.api.dto.DadosCadastroOrcamento;
 import br.com.rafas.transportes.api.dto.DadosDetalhamentoOrcamento;
 import br.com.rafas.transportes.api.repository.OrcamentoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @Service
@@ -47,5 +49,22 @@ public class OrcamentoService {
     return repository.findAll().stream()
             .map(DadosDetalhamentoOrcamento::new)
             .toList();
+  }
+
+  @Transactional
+  public void excluir(Long id) {
+    repository.deleteById(id);
+  }
+
+  @Scheduled(cron = "0 0 2 * * *")
+  @Transactional
+  public void excluirOrcamentosAntigos() {
+    LocalDate dataLimite = LocalDate.now().minus(Period.ofDays(60));
+    List<Orcamento> orcamentosAntigos = repository.findByDataDoOrcamentoBefore(dataLimite);
+
+    if (!orcamentosAntigos.isEmpty()) {
+      repository.deleteAll(orcamentosAntigos);
+      System.out.println("Excluídos " + orcamentosAntigos.size() + " orçamentos com mais de 60 dias.");
+    }
   }
 }

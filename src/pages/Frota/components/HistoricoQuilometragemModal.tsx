@@ -33,7 +33,7 @@ export const HistoricoQuilometragemModal: React.FC<
         "Tem certeza que deseja limpar todo o histórico de quilometragem deste veículo? Esta ação não pode ser desfeita."
       )
     ) {
-      setDeleting(true); // Inicia o estado de carregamento da deleção
+      setDeleting(true);
       setDeleteError(null);
       try {
         await quilometragemLogService.limparLogs(veiculoId);
@@ -158,6 +158,7 @@ export const HistoricoQuilometragemModal: React.FC<
         style={{
           display: "flex",
           justifyContent: "flex-end",
+          gap: "0.5rem",
         }}
       >
         <Button variant="danger" onClick={handleLimparLog} disabled={deleting}>

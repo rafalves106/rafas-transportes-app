@@ -4,6 +4,7 @@ interface ThemeColors {
   background: string;
   cardBackground: string;
   activeCardBackground: string;
+  activeCardBackgroundHover: string;
   title: string;
   secondaryTitle: string;
   text: string;
@@ -25,6 +26,7 @@ export const lightTheme: Theme = {
     background: "#F5FBFF",
     cardBackground: "#E8F3FB",
     activeCardBackground: "rgb(175, 222, 255)",
+    activeCardBackgroundHover: "rgb(51, 150, 221)",
     title: "#000",
     secondaryTitle: "#929FA9",
     text: "#333333",
@@ -42,6 +44,7 @@ export const darkTheme: Theme = {
     background: "#1A1A1A",
     cardBackground: "#2B2B2B",
     activeCardBackground: "rgb(50, 80, 110)",
+    activeCardBackgroundHover: "rgb(25, 98, 171)",
     title: "#F8F8F8",
     secondaryTitle: "#A9A9A9",
     text: "#E0E0E0",

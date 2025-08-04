@@ -39,4 +39,11 @@ public class OrcamentoController {
         var lista = service.listarTodos();
         return ResponseEntity.ok(lista);
     }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity excluir(@PathVariable Long id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
+    }
 }

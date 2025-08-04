@@ -50,4 +50,8 @@ export const orcamentoService = {
     });
     return res.data;
   },
+
+  excluir: async (id: number): Promise<void> => {
+    await api.delete(`/orcamentos/${id}`);
+  },
 };

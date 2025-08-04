@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/Button";
 const InfoText = styled.p`
   margin: 0.25rem 0;
   font-size: 0.9rem;
-  color: var(--color-infoText);
+  color: var(--color-text);
 `;
 
 const TotalText = styled.strong`
@@ -18,10 +18,17 @@ const TotalText = styled.strong`
 
 interface CardDeOrcamentoProps {
   orcamento: Orcamento;
+  onDelete: (id: number) => void;
 }
 
-export function CardDeOrcamento({ orcamento }: CardDeOrcamentoProps) {
+export function CardDeOrcamento({ orcamento, onDelete }: CardDeOrcamentoProps) {
   const navigate = useNavigate();
+
+  const handleDelete = () => {
+    if (window.confirm("Tem certeza que deseja excluir este orçamento?")) {
+      onDelete(orcamento.id);
+    }
+  };
 
   const handleConverter = () => {
     navigate("/novo", {
@@ -61,6 +68,13 @@ export function CardDeOrcamento({ orcamento }: CardDeOrcamentoProps) {
         style={{ marginTop: "1rem", width: "100%" }}
       >
         Converter em Viagem
+      </Button>
+      <Button
+        variant="danger"
+        onClick={handleDelete}
+        style={{ marginTop: "0.5rem", width: "100%" }}
+      >
+        Excluir Orçamento
       </Button>
     </CardContainer>
   );

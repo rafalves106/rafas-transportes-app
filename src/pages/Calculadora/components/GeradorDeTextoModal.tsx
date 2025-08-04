@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import type { Orcamento } from "../../../services/orcamentoService";
 import { ModalGlobal } from "../../../components/ModalGlobal";
 import { Button } from "../../../components/ui/Button";
@@ -8,14 +8,19 @@ import {
   Label,
   Input,
   Select,
-  Textarea as UI_Textarea,
+  Textarea,
 } from "../../../components/ui/Form";
+import { InputRow } from "@/components/ui/Layout";
+
+import CopyIcon from "../../../assets/copy.svg?react";
+import CheckIcon from "../../../assets/check.svg?react";
+import { highlightAnimation } from "@/styles/GlobalStyle";
 
 const Container = styled.div`
-  display: grid;
-  grid-template-columns: 1.5fr 5fr;
+  display: flex;
   justify-content: space-between;
   gap: 1.5rem;
+  padding: 1.5rem;
 `;
 
 const ModalFooter = styled.footer`
@@ -36,18 +41,7 @@ const TemplateSection = styled.div`
 
 const TemplateTitle = styled.h4`
   margin: 0;
-  color: #343a40;
-`;
-
-const StyledTextarea = styled(UI_Textarea)`
-  width: 100%;
-  min-height: 8rem;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 0.8rem;
-  resize: vertical;
-  background-color: var(--color-background);
+  color: var(--color-title);
 `;
 
 const FormSectionInModal = styled.div`
@@ -55,6 +49,29 @@ const FormSectionInModal = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding-right: 1.5rem;
+`;
+
+const StyledButton = styled.button<{ $isAnimating?: boolean }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: var(--color-activeCardBackground);
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+
+  svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: stroke 0.3s ease-in-out;
+  }
+
+  ${(props) =>
+    props.$isAnimating &&
+    css`
+      animation: ${highlightAnimation} 1.5s ease-in-out;
+    `}
 `;
 
 interface GeradorDeTextoModalProps {
@@ -75,33 +92,29 @@ const generateDescription = (
     paradas && paradas.trim() !== "" ? ` Com paradas em: ${paradas}.` : "";
 
   switch (tipoViagem) {
-    case "fretamento_aeroporto":
+    case "FRETAMENTO_AEROPORTO":
       descricaoIda = `Buscar passageiros em ${origem} e levar ao Aeroporto de Confins.`;
       descricaoVolta = `Buscar passageiros no Aeroporto de Confins e levar para ${destino}.`;
       break;
-    case "ida_e_volta_mg":
+    case "IDA_E_VOLTA_MG":
       descricaoIda = `Percurso de ida para ${destino}. Saindo de ${origem}.${paradasText}`;
       descricaoVolta = `Percurso de volta de ${destino} para ${origem}.${paradasText}`;
       break;
-    case "somente_ida_mg":
+    case "SOMENTE_IDA_MG":
       descricaoIda = `Percurso somente de ida para ${destino}. Saindo de ${origem}.${paradasText}`;
       descricaoVolta = "";
       break;
-    case "ida_e_volta_fora_mg":
+    case "IDA_E_VOLTA_FORA_MG":
       descricaoIda = `Percurso ida e volta saindo de ${origem} para ${destino}.${paradasText}`;
       descricaoVolta = `Volta do percurso saindo de ${destino} para ${origem}.${paradasText}`;
       break;
-    case "somente_ida_fora_mg":
+    case "SOMENTE_IDA_FORA_MG":
       descricaoIda = `Percurso somente ida saindo de ${origem} para ${destino}.${paradasText}`;
-      descricaoVolta = "";
-      break;
-    case "rota_colaboradores":
-      descricaoIda = `Rota diária de colaboradores. Ponto de partida: ${origem}, destino: ${destino}.`;
       descricaoVolta = "";
       break;
     default:
       descricaoIda = `Percurso de ${origem} para ${destino}.`;
-      descricaoVolta = tipoViagem.includes("ida_e_volta")
+      descricaoVolta = tipoViagem.includes("IDA_E_VOLTA")
         ? `Retorno de ${destino} para ${origem}.`
         : "";
       break;
@@ -119,7 +132,7 @@ export function GeradorDeTextoModal({
   );
   const [telefoneLocal, setTelefoneLocal] = useState(orcamento?.telefone || "");
   const [tipoViagemLocal, setTipoViagemLocal] = useState(
-    orcamento?.tipoViagemOrcamento || "ida_e_volta_mg"
+    orcamento?.tipoViagemOrcamento || "IDA_E_VOLTA_MG"
   );
   const [descricaoIdaLocal, setDescricaoIdaLocal] = useState(
     orcamento?.descricaoIdaOrcamento || ""
@@ -131,11 +144,15 @@ export function GeradorDeTextoModal({
     orcamento?.textoGerado || ""
   );
 
-  const [textoCopiado, setTextoCopiado] = useState<"whatsapp" | "email" | null>(
-    null
-  );
+  const mostraVolta = tipoViagemLocal.includes("IDA_E_VOLTA");
 
-  const mostraVolta = tipoViagemLocal.includes("ida_e_volta");
+  const [textoCopiadoFeedback, setTextoCopiadoFeedback] = useState<
+    "whatsapp" | "email" | null
+  >(null);
+
+  const [animatingCopy, setAnimatingCopy] = useState<
+    "whatsapp" | "email" | null
+  >(null);
 
   useEffect(() => {
     if (orcamento) {
@@ -143,7 +160,7 @@ export function GeradorDeTextoModal({
       setTelefoneLocal(orcamento.telefone || "");
 
       const tipoViagemInicial =
-        orcamento.tipoViagemOrcamento || "ida_e_volta_mg";
+        orcamento.tipoViagemOrcamento || "IDA_E_VOLTA_MG";
       setTipoViagemLocal(tipoViagemInicial);
 
       const { descricaoIda, descricaoVolta } = generateDescription(
@@ -223,9 +240,13 @@ Atenciosamente,
 Equipe Rafas Transportes`;
 
   const handleCopiar = (texto: string, tipo: "whatsapp" | "email") => {
+    setAnimatingCopy(tipo);
     navigator.clipboard.writeText(texto).then(() => {
-      setTextoCopiado(tipo);
-      setTimeout(() => setTextoCopiado(null), 2000);
+      setTextoCopiadoFeedback(tipo);
+      setTimeout(() => {
+        setTextoCopiadoFeedback(null);
+        setAnimatingCopy(null);
+      }, 1500);
     });
   };
 
@@ -246,97 +267,147 @@ Equipe Rafas Transportes`;
   return (
     <ModalGlobal title="Gerar Textos para Orçamento" onClose={onClose}>
       <Container>
-        <FormSectionInModal>
-          <TemplateTitle>Dados do Orçamento</TemplateTitle>
-          <InputGroup>
-            <Label htmlFor="nomeCliente">Nome do Cliente</Label>
-            <Input
-              id="nomeCliente"
-              name="nomeCliente"
-              type="text"
-              value={nomeClienteLocal}
-              onChange={(e) => setNomeClienteLocal(e.target.value)}
-              required
-            />
-          </InputGroup>
-          <InputGroup>
-            <Label htmlFor="telefone">Telefone do Cliente</Label>
-            <Input
-              id="telefone"
-              name="telefone"
-              type="text"
-              value={telefoneLocal}
-              onChange={(e) => setTelefoneLocal(e.target.value)}
-            />
-          </InputGroup>
-          <InputGroup>
-            <Label htmlFor="tipoViagem">Tipo de Viagem do Orçamento</Label>
-            <Select
-              id="tipoViagem"
-              name="tipoViagem"
-              value={tipoViagemLocal}
-              onChange={(e) => setTipoViagemLocal(e.target.value)}
-            >
-              <option value="fretamento_aeroporto">Fretamento Aeroporto</option>
-              <option value="ida_e_volta_mg">Viagem Ida e Volta - MG</option>
-              <option value="somente_ida_mg">Viagem Somente Ida - MG</option>
-              <option value="ida_e_volta_fora_mg">
-                Viagem Ida e Volta - Fora de MG
-              </option>
-              <option value="somente_ida_fora_mg">
-                Viagem Somente Ida - Fora de MG
-              </option>
-              <option value="rota_colaboradores">Rota de Colaboradores</option>
-            </Select>
-          </InputGroup>
-          <InputGroup>
-            <Label htmlFor="descricaoIda">Descrição Percurso de Ida</Label>
-            <StyledTextarea
-              id="descricaoIda"
-              name="descricaoIda"
-              value={descricaoIdaLocal}
-              onChange={(e) => setDescricaoIdaLocal(e.target.value)}
-            />
-          </InputGroup>
-          {mostraVolta && (
+        <div style={{ flex: 1 }}>
+          <FormSectionInModal>
+            <TemplateTitle>Dados do Orçamento</TemplateTitle>
+            <InputRow>
+              <InputGroup>
+                <Label htmlFor="nomeCliente">Nome do Cliente</Label>
+                <Input
+                  id="nomeCliente"
+                  name="nomeCliente"
+                  type="text"
+                  value={nomeClienteLocal}
+                  onChange={(e) => setNomeClienteLocal(e.target.value)}
+                  required
+                />
+              </InputGroup>
+              <InputGroup>
+                <Label htmlFor="telefone">Telefone do Cliente</Label>
+                <Input
+                  id="telefone"
+                  name="telefone"
+                  type="text"
+                  value={telefoneLocal}
+                  onChange={(e) => setTelefoneLocal(e.target.value)}
+                />
+              </InputGroup>
+            </InputRow>
+
             <InputGroup>
-              <Label htmlFor="descricaoVolta">
-                Descrição Percurso de Volta
-              </Label>
-              <StyledTextarea
-                id="descricaoVolta"
-                name="descricaoVolta"
-                value={descricaoVoltaLocal}
-                onChange={(e) => setDescricaoVoltaLocal(e.target.value)}
-              />
+              <Label htmlFor="tipoViagem">Tipo de Viagem do Orçamento</Label>
+              <Select
+                id="tipoViagem"
+                name="tipoViagem"
+                value={tipoViagemLocal}
+                onChange={(e) => setTipoViagemLocal(e.target.value)}
+              >
+                <option value="FRETAMENTO_AEROPORTO">
+                  Fretamento Aeroporto
+                </option>
+                <option value="IDA_E_VOLTA_MG">Viagem Ida e Volta - MG</option>
+                <option value="SOMENTE_IDA_MG">Viagem Somente Ida - MG</option>
+                <option value="IDA_E_VOLTA_FORA_MG">
+                  Viagem Ida e Volta - Fora de MG
+                </option>
+                <option value="SOMENTE_IDA_FORA_MG">
+                  Viagem Somente Ida - Fora de MG
+                </option>
+              </Select>
             </InputGroup>
-          )}
-        </FormSectionInModal>
+
+            <InputRow>
+              <InputGroup>
+                <Label htmlFor="descricaoIda">Percurso de Ida</Label>
+                <Textarea
+                  style={{ minHeight: "7rem" }}
+                  id="descricaoIda"
+                  name="descricaoIda"
+                  value={descricaoIdaLocal}
+                  onChange={(e) => setDescricaoIdaLocal(e.target.value)}
+                />
+              </InputGroup>
+              {mostraVolta && (
+                <InputGroup>
+                  <Label htmlFor="descricaoVolta">Percurso de Volta</Label>
+                  <Textarea
+                    style={{ minHeight: "7rem" }}
+                    id="descricaoVolta"
+                    name="descricaoVolta"
+                    value={descricaoVoltaLocal}
+                    onChange={(e) => setDescricaoVoltaLocal(e.target.value)}
+                  />
+                </InputGroup>
+              )}
+            </InputRow>
+          </FormSectionInModal>
+        </div>
 
         <div
-          style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
+          }}
         >
-          <TemplateSection>
-            <TemplateTitle>Texto para WhatsApp</TemplateTitle>
-            <StyledTextarea readOnly value={templateWhatsApp} />
-            <Button
-              variant="secondary"
-              onClick={() => handleCopiar(templateWhatsApp, "whatsapp")}
-            >
-              {textoCopiado === "whatsapp" ? "Copiado!" : "Copiar Texto"}
-            </Button>
-          </TemplateSection>
+          <InputRow>
+            <TemplateSection>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <TemplateTitle>WhatsApp</TemplateTitle>
+                <StyledButton
+                  onClick={() => handleCopiar(templateWhatsApp, "whatsapp")}
+                  $isAnimating={animatingCopy === "whatsapp"}
+                >
+                  {textoCopiadoFeedback === "whatsapp" ? (
+                    <CheckIcon stroke="var(--color-success)" />
+                  ) : (
+                    <CopyIcon stroke="var(--color-primary)" />
+                  )}
+                </StyledButton>
+              </div>
+              <Textarea
+                style={{ minHeight: "20rem" }}
+                readOnly
+                value={templateWhatsApp}
+              />
+            </TemplateSection>
+            <TemplateSection>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <TemplateTitle>E-mail</TemplateTitle>
+                <StyledButton
+                  onClick={() => handleCopiar(templateEmail, "email")}
+                  $isAnimating={animatingCopy === "email"}
+                >
+                  {textoCopiadoFeedback === "email" ? (
+                    <CheckIcon stroke="var(--color-success)" />
+                  ) : (
+                    <CopyIcon stroke="var(--color-primary)" />
+                  )}
+                </StyledButton>
+              </div>
 
-          <TemplateSection>
-            <TemplateTitle>Texto para E-mail</TemplateTitle>
-            <StyledTextarea readOnly value={templateEmail} />
-            <Button
-              variant="secondary"
-              onClick={() => handleCopiar(templateEmail, "email")}
-            >
-              {textoCopiado === "email" ? "Copiado!" : "Copiar Texto"}
-            </Button>
-          </TemplateSection>
+              <Textarea
+                style={{ minHeight: "20rem" }}
+                readOnly
+                value={templateEmail}
+              />
+            </TemplateSection>
+          </InputRow>
         </div>
       </Container>
 

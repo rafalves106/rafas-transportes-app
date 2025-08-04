@@ -108,7 +108,6 @@ export function FormularioNovaViagem() {
     status: "AGENDADA",
   });
 
-  // NOVO: Estado para os dados originais completos do formulário
   const [originalFullState, setOriginalFullState] =
     useState<FullFormState | null>(null);
 
@@ -158,6 +157,11 @@ export function FormularioNovaViagem() {
       currentVeiculoId = String(viagem.veiculoId || "");
       currentMotoristaId = String(viagem.motoristaId || "");
     } else if (location.state?.dadosDoOrcamento) {
+      console.log(
+        "Dados do Orçamento recebidos na navegação:",
+        location.state?.dadosDoOrcamento
+      );
+
       const { dadosDoOrcamento } = location.state;
       currentDadosFormulario = {
         title: `Viagem de ${dadosDoOrcamento.nomeCliente} - ${dadosDoOrcamento.origem} para ${dadosDoOrcamento.destino}`,

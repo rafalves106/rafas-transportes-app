@@ -11,9 +11,13 @@ const SectionTitle = styled.h2`
 
 interface ListaDeOrcamentosProps {
   orcamentos: Orcamento[];
+  onDelete: (id: number) => void;
 }
 
-export function ListaDeOrcamentos({ orcamentos }: ListaDeOrcamentosProps) {
+export function ListaDeOrcamentos({
+  orcamentos,
+  onDelete,
+}: ListaDeOrcamentosProps) {
   if (orcamentos.length === 0) {
     return null;
   }
@@ -25,7 +29,11 @@ export function ListaDeOrcamentos({ orcamentos }: ListaDeOrcamentosProps) {
       <SectionTitle>Últimos Orçamentos Salvos</SectionTitle>
       <ListaContainer>
         {orcamentosOrdenados.map((orcamento) => (
-          <CardDeOrcamento key={orcamento.id} orcamento={orcamento} />
+          <CardDeOrcamento
+            onDelete={onDelete}
+            key={orcamento.id}
+            orcamento={orcamento}
+          />
         ))}
       </ListaContainer>
     </div>

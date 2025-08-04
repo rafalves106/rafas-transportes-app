@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import { keyframes } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
@@ -34,4 +35,20 @@ export const GlobalStyle = createGlobalStyle`
     ::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
     }
+    
+`;
+
+export const highlightAnimation = keyframes`
+0% {
+  stroke: var(--color-primary);
+  background-color: var(--color-activeCardBackground);
+}
+50% {
+  stroke: var(--color-success);
+  background-color: var(--color-activeCardBackgroundHover);
+}
+100% {
+  stroke: var(--color-primary);
+  background-color: var(--color-activeCardBackground);
+}
 `;

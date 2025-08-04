@@ -20,7 +20,6 @@ export function OrcamentosPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const carregarOrcamentos = async () => {
       if (!isLoggedIn) {
@@ -61,6 +60,17 @@ export function OrcamentosPage() {
     carregarOrcamentos();
   }, [isLoggedIn]);
 
+  const handleDeleteOrcamento = async (id: number) => {
+    try {
+      await orcamentoService.excluir(id);
+      setOrcamentos(orcamentos.filter((orc) => orc.id !== id));
+      alert("Orçamento excluído com sucesso!");
+    } catch (error) {
+      console.error("Erro ao excluir o orçamento:", error);
+      alert("Falha ao excluir o orçamento. Tente novamente.");
+    }
+  };
+
   return (
     <PageContainer>
       {loading ? (
@@ -70,7 +80,10 @@ export function OrcamentosPage() {
       ) : orcamentos.length === 0 ? (
         <SearchNotFind>Nenhum orçamento encontrado.</SearchNotFind>
       ) : (
-        <ListaDeOrcamentos orcamentos={orcamentos} />
+        <ListaDeOrcamentos
+          onDelete={handleDeleteOrcamento}
+          orcamentos={orcamentos}
+        />
       )}
     </PageContainer>
   );

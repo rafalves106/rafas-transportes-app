@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { format } from "date-fns";
 
@@ -48,6 +48,13 @@ interface OrcamentoResultado {
   custoCombustivel: number;
   custoMotorista: number;
   valorTotal: number;
+}
+
+interface Parametros {
+  precoDiesel: number;
+  diariaMotorista: number;
+  custoKmRodado: number;
+  extras: number;
 }
 
 const MainGrid = styled.div`
@@ -106,15 +113,33 @@ const ResultadoSection = styled.div`
   border: 1px solid var(--color-border);
 `;
 
-export function CalculadoraPage() {
-  const [resultado, setResultado] = useState<OrcamentoResultado[] | null>(null);
-  const [ultimoForm, setUltimoForm] = useState<OrcamentoForm | null>(null);
-  const [parametros, setParametros] = useState({
+const getInitialParameters = (): Parametros => {
+  const savedParameters = localStorage.getItem("orcamentoParametros");
+  if (savedParameters) {
+    try {
+      return JSON.parse(savedParameters);
+    } catch (e) {
+      console.error("Erro ao carregar parâmetros do localStorage:", e);
+    }
+  }
+  return {
     precoDiesel: 5.5,
     diariaMotorista: 200.0,
     custoKmRodado: 3.9,
     extras: 0,
-  });
+  };
+};
+
+export function CalculadoraPage() {
+  const [resultado, setResultado] = useState<OrcamentoResultado[] | null>(null);
+  const [ultimoForm, setUltimoForm] = useState<OrcamentoForm | null>(null);
+  const [parametros, setParametros] = useState<Parametros>(
+    getInitialParameters()
+  );
+
+  useEffect(() => {
+    localStorage.setItem("orcamentoParametros", JSON.stringify(parametros));
+  }, [parametros]);
 
   const handleSalvarOrcamento = async (dadosCompletosOrcamento: Orcamento) => {
     if (!dadosCompletosOrcamento) return;
@@ -166,7 +191,10 @@ export function CalculadoraPage() {
 
   const handleParametroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setParametros((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+    setParametros((prev: Parametros) => ({
+      ...prev,
+      [name]: parseFloat(value) || 0,
+    }));
   };
 
   const handleCalcular = async (dados: OrcamentoForm) => {
@@ -297,8 +325,8 @@ export function CalculadoraPage() {
       custoPedagios: resultadoEscolhido.custoPedagios,
       custoCombustivel: resultadoEscolhido.custoCombustivel,
       custoMotorista: resultadoEscolhido.custoMotorista,
+      tipoViagemOrcamento: "IDA_E_VOLTA_MG",
 
-      tipoViagemOrcamento: "ida_e_volta_mg",
       descricaoIdaOrcamento: "",
       descricaoVoltaOrcamento: "",
       textoGerado: "",
