@@ -11,6 +11,7 @@ import br.com.rafas.transportes.api.dto.DadosDetalhamentoQuilometragemLog;
 import br.com.rafas.transportes.api.repository.QuilometragemLogRepository;
 import br.com.rafas.transportes.api.repository.VeiculoRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,5 +63,13 @@ public class QuilometragemLogService {
         return logs.stream()
                 .map(DadosDetalhamentoQuilometragemLog::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void excluirLogsPorVeiculo(Long veiculoId) {
+        if (!veiculoRepository.existsById(veiculoId)) {
+            throw new ValidationException("Veículo não encontrado.");
+        }
+        quilometragemLogRepository.deleteAllByVeiculoId(veiculoId);
     }
 }

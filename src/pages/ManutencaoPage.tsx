@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
+import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeManutencoes } from "./Manutencoes/components/ListaDeManutencoes";
-import { Button } from "../components/ui/Button";
 
 import {
   manutencaoService,
@@ -24,7 +23,6 @@ export function ManutencaoPage() {
   const outlet = useOutlet();
   const navigate = useNavigate();
 
-  const isEditing = !!maintenanceId;
   const { isLoggedIn } = useAuth();
   const [manutencoes, setManutencoes] = useState<Maintenance[]>([]);
   const [filtroAtivo, setFiltroAtivo] = useState("Agendada");
@@ -159,25 +157,6 @@ export function ManutencaoPage() {
               todosOsVeiculos: todosOsVeiculos,
             }}
           />
-
-          <ModalFooter>
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => navigate("/manutencoes")}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form={
-                isEditing ? `form-editar-mnt-${maintenanceId}` : "form-nova-mnt"
-              }
-            >
-              {isEditing ? "Salvar Alterações" : "Salvar Manutenção"}
-            </Button>
-          </ModalFooter>
         </ModalGlobal>
       )}
     </div>

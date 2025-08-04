@@ -25,4 +25,10 @@ public class QuilometragemLogController {
     return ResponseEntity.ok(logs);
   }
 
+  @DeleteMapping("/{veiculoId}")
+  public ResponseEntity<Void> excluirLogsPorVeiculo(@PathVariable Long veiculoId) {
+    quilometragemLogService.excluirLogsPorVeiculo(veiculoId);
+    return ResponseEntity.noContent().build();
+  }
+
 }

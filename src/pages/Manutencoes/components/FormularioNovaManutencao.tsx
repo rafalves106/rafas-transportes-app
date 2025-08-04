@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useOutletContext } from "react-router-dom";
+import { useParams, useOutletContext, useNavigate } from "react-router-dom";
 import {
   manutencaoService,
   type Maintenance,
@@ -18,6 +18,8 @@ import {
 } from "../../../components/ui/Form";
 
 import { InputRow } from "../../../components/ui/Layout";
+
+import { ModalFooter } from "@/components/ModalGlobal";
 
 import { AutocompleteInput } from "../components/AutocompleteInput";
 import type { AxiosError } from "axios";
@@ -76,12 +78,24 @@ export function FormularioNovaManutencao() {
     useOutletContext<FormContextType>();
   const [listaDeVeiculos, setListaDeVeiculos] = useState<Vehicle[]>([]);
   const isEditing = !!maintenanceId;
+  const navigate = useNavigate();
 
   const [veiculoSelecionadoKmAtual, setVeiculoSelecionadoKmAtual] = useState<
     number | null
   >(null);
 
   const [dados, setDados] = useState<FormState>({
+    title: "",
+    veiculoId: 0,
+    type: "Preventiva",
+    date: "",
+    cost: "",
+    status: "Agendada",
+    kmManutencao: "",
+    proximaKm: "",
+  });
+
+  const [originalDados, setOriginalDados] = useState<FormState>({
     title: "",
     veiculoId: 0,
     type: "Preventiva",
@@ -128,6 +142,7 @@ export function FormularioNovaManutencao() {
             : "",
       };
       setDados(dadosDoFormulario);
+      setOriginalDados(dadosDoFormulario);
     }
   }, [maintenanceId, isEditing, manutencao]);
 
@@ -148,7 +163,8 @@ export function FormularioNovaManutencao() {
       dados.veiculoId !== 0 &&
       dados.veiculoId !== "" &&
       (dados.kmManutencao === "" || parseFloat(dados.kmManutencao) === 0) &&
-      veiculoSelecionadoKmAtual !== null
+      veiculoSelecionadoKmAtual !== null &&
+      (!isEditing || (isEditing && originalDados.kmManutencao === "0"))
     ) {
       setDados((prev) => ({
         ...prev,
@@ -160,6 +176,8 @@ export function FormularioNovaManutencao() {
     dados.veiculoId,
     dados.kmManutencao,
     veiculoSelecionadoKmAtual,
+    isEditing,
+    originalDados.kmManutencao,
   ]);
 
   const handleInputChange = (
@@ -346,141 +364,112 @@ export function FormularioNovaManutencao() {
     onExcluir(parseInt(maintenanceId));
   };
 
+  const hasChanged = JSON.stringify(dados) !== JSON.stringify(originalDados);
+
   return (
-    <FormContainer
-      id={isEditing ? `form-editar-mnt-${maintenanceId}` : "form-nova-mnt"}
-      onSubmit={handleSubmit}
-    >
-      <InputRow>
-        <AutocompleteInput
-          id="title"
-          name="title"
-          label="Título da Manutenção"
-          placeholder="Título da Manutenção"
-          value={dados.title}
-          onChange={handleInputChange}
-          suggestionsList={commonMaintenanceTitles}
-          hasError={!!erros.title}
-          errorMessage={erros.title}
-        />
-      </InputRow>
-
-      <InputRow>
-        <InputGroup>
-          <Label>Veículo: </Label>
-          <Select
-            id="veiculoId"
-            name="veiculoId"
-            value={dados.veiculoId}
+    <>
+      <FormContainer
+        id={isEditing ? `form-editar-mnt-${maintenanceId}` : "form-nova-mnt"}
+        onSubmit={handleSubmit}
+      >
+        <InputRow>
+          <AutocompleteInput
+            id="title"
+            name="title"
+            label="Título da Manutenção"
+            placeholder="Título da Manutenção"
+            value={dados.title}
             onChange={handleInputChange}
-            hasError={!!erros.veiculoId}
-          >
-            <option value={0}>Veículo</option>
-            {listaDeVeiculos.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.model} ({v.plate})
-              </option>
-            ))}
-          </Select>
-          {erros.veiculoId && <ErrorMessage>{erros.veiculoId}</ErrorMessage>}
-        </InputGroup>
-
-        <InputGroup>
-          <Label>Data da Manutenção: </Label>
-          <Input
-            id="date"
-            name="date"
-            type="date"
-            value={dados.date}
-            onChange={handleInputChange}
-            hasError={!!erros.date}
+            suggestionsList={commonMaintenanceTitles}
+            hasError={!!erros.title}
+            errorMessage={erros.title}
           />
-          {erros.date && <ErrorMessage>{erros.date}</ErrorMessage>}
-        </InputGroup>
-      </InputRow>
+        </InputRow>
 
-      <InputRow>
-        <InputGroup>
-          <Label>Custo da manutenção: </Label>
-          <Input
-            id="cost"
-            name="cost"
-            type="text"
-            placeholder="Custo (R$)"
-            value={dados.cost}
-            onChange={handleInputChange}
-            hasError={!!erros.cost}
-          />
-          {erros.cost && <ErrorMessage>{erros.cost}</ErrorMessage>}
-        </InputGroup>
-
-        <InputGroup>
-          <Label>Tipo de manutenção: </Label>
-          <Select
-            id="type"
-            name="type"
-            value={dados.type}
-            onChange={handleInputChange}
-          >
-            <option value="Preventiva">Preventiva</option>
-            <option value="Corretiva">Corretiva</option>
-          </Select>
-        </InputGroup>
-
-        <InputGroup>
-          <Label>Status da manutenção: </Label>
-          <Select
-            id="status"
-            name="status"
-            value={dados.status}
-            onChange={handleInputChange}
-          >
-            <option value="Agendada">Agendada</option>
-            <option value="Realizada">Realizada</option>
-          </Select>
-        </InputGroup>
-      </InputRow>
-
-      {dados.status === "Agendada" && (
-        <InputGroup>
-          <Label>Quilometragem ideal para troca: </Label>
-          <Input
-            id="kmManutencao"
-            name="kmManutencao"
-            type="text"
-            placeholder="KM Ideal para Troca"
-            value={dados.kmManutencao}
-            onChange={handleInputChange}
-            hasError={!!erros.kmManutencao}
-          />
-          {erros.kmManutencao && (
-            <ErrorMessage>{erros.kmManutencao}</ErrorMessage>
-          )}
-        </InputGroup>
-      )}
-
-      {dados.status === "Realizada" && (
-        <>
-          {veiculoSelecionadoKmAtual !== null && (
-            <InputGroup>
-              <Label>Quilometragem atual do veículo: </Label>
-              <Input
-                id="veiculoKmAtual"
-                name="veiculoKmAtual"
-                type="text"
-                value={`${veiculoSelecionadoKmAtual} km`}
-                disabled
-              />
-            </InputGroup>
-          )}
+        <InputRow>
+          <InputGroup>
+            <Label>Veículo: </Label>
+            <Select
+              id="veiculoId"
+              name="veiculoId"
+              value={dados.veiculoId}
+              onChange={handleInputChange}
+              hasError={!!erros.veiculoId}
+            >
+              <option value={0}>Veículo</option>
+              {listaDeVeiculos.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.model} ({v.plate})
+                </option>
+              ))}
+            </Select>
+            {erros.veiculoId && <ErrorMessage>{erros.veiculoId}</ErrorMessage>}
+          </InputGroup>
 
           <InputGroup>
-            <Label>Quilometragem no momento da manutenção: </Label>
+            <Label>Data da Manutenção: </Label>
+            <Input
+              id="date"
+              name="date"
+              type="date"
+              value={dados.date}
+              onChange={handleInputChange}
+              hasError={!!erros.date}
+            />
+            {erros.date && <ErrorMessage>{erros.date}</ErrorMessage>}
+          </InputGroup>
+        </InputRow>
+
+        <InputRow>
+          <InputGroup>
+            <Label>Custo da manutenção: </Label>
+            <Input
+              id="cost"
+              name="cost"
+              type="text"
+              placeholder="Custo (R$)"
+              value={dados.cost}
+              onChange={handleInputChange}
+              hasError={!!erros.cost}
+            />
+            {erros.cost && <ErrorMessage>{erros.cost}</ErrorMessage>}
+          </InputGroup>
+
+          <InputGroup>
+            <Label>Tipo de manutenção: </Label>
+            <Select
+              id="type"
+              name="type"
+              value={dados.type}
+              onChange={handleInputChange}
+            >
+              <option value="Preventiva">Preventiva</option>
+              <option value="Corretiva">Corretiva</option>
+            </Select>
+          </InputGroup>
+
+          <InputGroup>
+            <Label>Status da manutenção: </Label>
+            <Select
+              id="status"
+              name="status"
+              value={dados.status}
+              onChange={handleInputChange}
+            >
+              <option value="Agendada">Agendada</option>
+              <option value="Realizada">Realizada</option>
+            </Select>
+          </InputGroup>
+        </InputRow>
+
+        {dados.status === "Agendada" && (
+          <InputGroup>
+            <Label>Quilometragem ideal para troca: </Label>
             <Input
               id="kmManutencao"
               name="kmManutencao"
               type="text"
-              placeholder="KM da Manutenção Realizada"
+              placeholder="KM Ideal para Troca"
               value={dados.kmManutencao}
               onChange={handleInputChange}
               hasError={!!erros.kmManutencao}
@@ -489,35 +478,89 @@ export function FormularioNovaManutencao() {
               <ErrorMessage>{erros.kmManutencao}</ErrorMessage>
             )}
           </InputGroup>
-        </>
-      )}
+        )}
 
-      {dados.status === "Realizada" && (
-        <InputGroup>
-          <Label>Quilometragem para próxima manutenção: </Label>
-          <Input
-            id="proximaKm"
-            name="proximaKm"
-            type="text"
-            placeholder="(Opcional) Próxima Manutenção (km)"
-            value={dados.proximaKm}
-            onChange={handleInputChange}
-            hasError={!!erros.proximaKm}
-          />
-          {erros.proximaKm && <ErrorMessage>{erros.proximaKm}</ErrorMessage>}
-        </InputGroup>
-      )}
+        {dados.status === "Realizada" && (
+          <>
+            {veiculoSelecionadoKmAtual !== null && (
+              <InputGroup>
+                <Label>Quilometragem atual do veículo: </Label>
+                <Input
+                  id="veiculoKmAtual"
+                  name="veiculoKmAtual"
+                  type="text"
+                  value={`${veiculoSelecionadoKmAtual} km`}
+                  disabled
+                />
+              </InputGroup>
+            )}
 
-      {isEditing && (
-        <Button
-          style={{ marginBottom: "1.5rem" }}
-          variant="danger"
-          type="button"
-          onClick={handleExcluir}
-        >
-          Excluir Manutenção
-        </Button>
+            <InputGroup>
+              <Label>Quilometragem no momento da manutenção: </Label>
+              <Input
+                id="kmManutencao"
+                name="kmManutencao"
+                type="text"
+                placeholder="KM da Manutenção Realizada"
+                value={dados.kmManutencao}
+                onChange={handleInputChange}
+                hasError={!!erros.kmManutencao}
+              />
+              {erros.kmManutencao && (
+                <ErrorMessage>{erros.kmManutencao}</ErrorMessage>
+              )}
+            </InputGroup>
+          </>
+        )}
+
+        {dados.status === "Realizada" && (
+          <InputGroup>
+            <Label>Quilometragem para próxima manutenção: </Label>
+            <Input
+              id="proximaKm"
+              name="proximaKm"
+              type="text"
+              placeholder="(Opcional) Próxima Manutenção (km)"
+              value={dados.proximaKm}
+              onChange={handleInputChange}
+              hasError={!!erros.proximaKm}
+            />
+            {erros.proximaKm && <ErrorMessage>{erros.proximaKm}</ErrorMessage>}
+          </InputGroup>
+        )}
+
+        {isEditing && (
+          <Button
+            style={{ marginBottom: "1.5rem" }}
+            variant="danger"
+            type="button"
+            onClick={handleExcluir}
+          >
+            Excluir Manutenção
+          </Button>
+        )}
+      </FormContainer>
+
+      {hasChanged && (
+        <ModalFooter>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => navigate("/frota")}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            form={
+              isEditing ? `form-editar-mnt-${maintenanceId}` : "form-nova-mnt"
+            }
+          >
+            {isEditing ? "Salvar Alterações" : "Salvar Manutenção"}
+          </Button>
+        </ModalFooter>
       )}
-    </FormContainer>
+    </>
   );
 }

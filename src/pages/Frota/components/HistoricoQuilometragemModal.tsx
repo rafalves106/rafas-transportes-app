@@ -10,6 +10,7 @@ import {
   SearchNotFind,
 } from "@/components/ui/Layout";
 import { format } from "date-fns";
+import axios from "axios";
 
 interface HistoricoQuilometragemModalProps {
   veiculoId: number;
@@ -23,26 +24,59 @@ export const HistoricoQuilometragemModal: React.FC<
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchLogs = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const fetchedLogs = await quilometragemLogService.buscarLogsPorVeiculo(
-          veiculoId
-        );
-        setLogs(fetchedLogs);
-      } catch (err) {
-        console.error("Erro ao buscar histórico de quilometragem:", err);
-        setError(
-          "Não foi possível carregar o histórico de quilometragem. Tente novamente mais tarde."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const handleLimparLog = async () => {
+    if (
+      window.confirm(
+        "Tem certeza que deseja limpar todo o histórico de quilometragem deste veículo? Esta ação não pode ser desfeita."
+      )
+    ) {
+      setDeleting(true); // Inicia o estado de carregamento da deleção
+      setDeleteError(null);
+      try {
+        await quilometragemLogService.limparLogs(veiculoId);
+        alert("Histórico de quilometragem limpo com sucesso!");
+        await fetchLogs();
+        setDeleting(false);
+      } catch (err) {
+        setDeleting(false);
+        if (axios.isAxiosError(err) && err.response) {
+          const errorMessage =
+            (err.response.data as { message?: string })?.message ||
+            "Erro desconhecido";
+          setDeleteError(errorMessage);
+          alert(`Erro ao limpar log: ${errorMessage}`);
+        } else {
+          setDeleteError("Ocorreu um erro inesperado.");
+          alert("Erro ao tentar limpar o histórico de quilometragem.");
+        }
+      }
+    }
+  };
+
+  const fetchLogs = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const fetchedLogs = await quilometragemLogService.buscarLogsPorVeiculo(
+        veiculoId
+      );
+      setLogs(fetchedLogs);
+    } catch (err) {
+      console.error("Erro ao buscar histórico de quilometragem:", err);
+      setError(
+        "Não foi possível carregar o histórico de quilometragem. Tente novamente mais tarde."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [veiculoId]);
 
   return (
@@ -50,10 +84,14 @@ export const HistoricoQuilometragemModal: React.FC<
       title={`Histórico de Quilometragem - Veículo ID: ${veiculoId}`}
       onClose={onClose}
     >
-      {loading ? (
-        <SearchText>Carregando histórico...</SearchText>
-      ) : error ? (
-        <SearchTextError style={{ color: "red" }}>{error}</SearchTextError>
+      {loading || deleting ? (
+        <SearchText>
+          {deleting ? "Limpando histórico..." : "Carregando histórico..."}
+        </SearchText>
+      ) : error || deleteError ? (
+        <SearchTextError style={{ color: "red" }}>
+          {error || deleteError}
+        </SearchTextError>
       ) : logs.length === 0 ? (
         <SearchNotFind>
           Nenhum registro de quilometragem encontrado para este veículo.
@@ -122,6 +160,9 @@ export const HistoricoQuilometragemModal: React.FC<
           justifyContent: "flex-end",
         }}
       >
+        <Button variant="danger" onClick={handleLimparLog} disabled={deleting}>
+          Limpar Log
+        </Button>
         <Button
           style={{ marginBottom: "1rem" }}
           variant="secondary"

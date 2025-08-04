@@ -88,7 +88,6 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "end",
             gap: "1rem",
           }}
         >
@@ -104,6 +103,7 @@ export function FormularioOrcamento({ onCalcular }: FormularioOrcamentoProps) {
           </div>
 
           <AddButtonInline
+            style={{ marginTop: "1.4rem" }}
             variant="secondary"
             type="button"
             onClick={adicionarParada}

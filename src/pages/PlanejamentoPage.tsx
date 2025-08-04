@@ -7,10 +7,9 @@ import { format, addMonths, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { styled } from "styled-components";
 import { CalendarioMensal } from "./Planejamento/components/CalendarioMensal";
-import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
-import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
+import { ModalGlobal } from "../components/ModalGlobal";
 import {
   SearchNotFind,
   SearchText,
@@ -283,24 +282,6 @@ export function PlanejamentoPage() {
               viagem: viagemParaEditar,
             }}
           />
-          <ModalFooter>
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => navigate("/")}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form={
-                isEditing ? `form-editar-viagem-${tripId}` : "form-nova-viagem"
-              }
-            >
-              {isEditing ? "Salvar Alterações" : "Salvar Viagem"}
-            </Button>
-          </ModalFooter>
         </ModalGlobal>
       )}
     </div>

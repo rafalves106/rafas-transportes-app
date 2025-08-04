@@ -18,6 +18,7 @@ import {
 import type { BackendErrorResponse } from "@/services/manutencaoService";
 
 import { HistoricoQuilometragemModal } from "./HistoricoQuilometragemModal";
+import { ModalFooter } from "@/components/ModalGlobal";
 
 interface FormContextType {
   onAdicionar: (dados: Omit<Vehicle, "id">) => Promise<void>;
@@ -38,6 +39,15 @@ export function FormularioNovoVeiculo() {
   const isEditing = !!vehicleId;
 
   const [dados, setDados] = useState<
+    Omit<Vehicle, "id" | "currentKm"> & { currentKm: string }
+  >({
+    model: "",
+    plate: "",
+    status: "ATIVO",
+    currentKm: "",
+  });
+
+  const [originalDados, setOriginalDados] = useState<
     Omit<Vehicle, "id" | "currentKm"> & { currentKm: string }
   >({
     model: "",
@@ -72,12 +82,14 @@ export function FormularioNovoVeiculo() {
 
   useEffect(() => {
     if (isEditing && veiculo) {
-      setDados({
+      const dadosIniciais = {
         model: veiculo.model,
         plate: veiculo.plate,
         status: veiculo.status.toUpperCase().replace(/ /g, "_"),
         currentKm: String(veiculo.currentKm || ""),
-      });
+      };
+      setDados(dadosIniciais);
+      setOriginalDados(dadosIniciais);
     }
   }, [vehicleId, isEditing, veiculo]);
 
@@ -223,99 +235,128 @@ export function FormularioNovoVeiculo() {
     }
   };
 
+  const hasChanged = JSON.stringify(dados) !== JSON.stringify(originalDados);
+
   return (
-    <FormContainer
-      id={isEditing ? `form-editar-veiculo-${vehicleId}` : "form-novo-veiculo"}
-      onSubmit={handleSubmit}
-    >
-      <InputGroup>
-        <Label htmlFor="model">Modelo:</Label>
-        <Input
-          id="model"
-          name="model"
-          placeholder="Modelo:"
-          value={dados.model}
-          onChange={handleInputChange}
-          hasError={!!erros.model}
-        />
-        {erros.model && <ErrorMessage>{erros.model}</ErrorMessage>}
-      </InputGroup>
-
-      <InputGroup>
-        <Label htmlFor="plate">Placa:</Label>
-        <Input
-          id="plate"
-          name="plate"
-          placeholder="Placa:"
-          value={dados.plate}
-          onChange={handleInputChange}
-          hasError={!!erros.plate}
-        />
-        {erros.plate && <ErrorMessage>{erros.plate}</ErrorMessage>}
-      </InputGroup>
-
-      <InputGroup>
-        <Label htmlFor="currentKm">Quilometragem:</Label>
-        <Input
-          id="currentKm"
-          name="currentKm"
-          type="text"
-          placeholder="Quilometragem Atual:"
-          value={dados.currentKm}
-          onChange={handleInputChange}
-          hasError={!!erros.currentKm}
-        />
-        {erros.currentKm && <ErrorMessage>{erros.currentKm}</ErrorMessage>}
-      </InputGroup>
-
-      <InputGroup>
-        <Label htmlFor="status">Status:</Label>
-        <Select
-          id="status"
-          name="status"
-          value={dados.status}
-          onChange={handleInputChange}
-          hasError={!!erros.status}
-        >
-          <option value="ATIVO">Ativo</option>
-          <option value="INATIVO">Inativo</option>
-          <option value="EM_MANUTENCAO">Em Manutenção</option>
-        </Select>
-        {erros.status && <ErrorMessage>{erros.status}</ErrorMessage>}
-      </InputGroup>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-        }}
+    <>
+      <FormContainer
+        id={
+          isEditing ? `form-editar-veiculo-${vehicleId}` : "form-novo-veiculo"
+        }
+        onSubmit={handleSubmit}
       >
-        {" "}
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          {" "}
-          {isEditing && (
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => setShowHistoricoModal(true)}
-            >
-              Ver Histórico KM
-            </Button>
-          )}
-          {isEditing && (
-            <Button variant="danger" type="button" onClick={handleExcluir}>
-              Excluir Veículo
-            </Button>
-          )}
-        </div>
-      </div>
+        <InputGroup>
+          <Label htmlFor="model">Modelo:</Label>
+          <Input
+            id="model"
+            name="model"
+            placeholder="Modelo:"
+            value={dados.model}
+            onChange={handleInputChange}
+            hasError={!!erros.model}
+          />
+          {erros.model && <ErrorMessage>{erros.model}</ErrorMessage>}
+        </InputGroup>
 
-      {showHistoricoModal && isEditing && (
-        <HistoricoQuilometragemModal
-          veiculoId={parseInt(vehicleId!, 10)}
-          onClose={() => setShowHistoricoModal(false)}
-        />
+        <InputGroup>
+          <Label htmlFor="plate">Placa:</Label>
+          <Input
+            id="plate"
+            name="plate"
+            placeholder="Placa:"
+            value={dados.plate}
+            onChange={handleInputChange}
+            hasError={!!erros.plate}
+          />
+          {erros.plate && <ErrorMessage>{erros.plate}</ErrorMessage>}
+        </InputGroup>
+
+        <InputGroup>
+          <Label htmlFor="currentKm">Quilometragem:</Label>
+          <Input
+            id="currentKm"
+            name="currentKm"
+            type="text"
+            placeholder="Quilometragem Atual:"
+            value={dados.currentKm}
+            onChange={handleInputChange}
+            hasError={!!erros.currentKm}
+          />
+          {erros.currentKm && <ErrorMessage>{erros.currentKm}</ErrorMessage>}
+        </InputGroup>
+
+        <InputGroup>
+          <Label htmlFor="status">Status:</Label>
+          <Select
+            id="status"
+            name="status"
+            value={dados.status}
+            onChange={handleInputChange}
+            hasError={!!erros.status}
+          >
+            <option value="ATIVO">Ativo</option>
+            <option value="INATIVO">Inativo</option>
+            <option value="EM_MANUTENCAO">Em Manutenção</option>
+          </Select>
+          {erros.status && <ErrorMessage>{erros.status}</ErrorMessage>}
+        </InputGroup>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          {" "}
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            {" "}
+            {isEditing && (
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => setShowHistoricoModal(true)}
+              >
+                Ver Histórico KM
+              </Button>
+            )}
+            {isEditing && (
+              <Button variant="danger" type="button" onClick={handleExcluir}>
+                Excluir Veículo
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {showHistoricoModal && isEditing && (
+          <HistoricoQuilometragemModal
+            veiculoId={parseInt(vehicleId!, 10)}
+            onClose={() => setShowHistoricoModal(false)}
+          />
+        )}
+      </FormContainer>
+
+      {hasChanged && (
+        <ModalFooter>
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={() => navigate("/frota")}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            form={
+              isEditing
+                ? `form-editar-veiculo-${vehicleId}`
+                : "form-novo-veiculo"
+            }
+          >
+            {isEditing ? "Salvar Alterações" : "Salvar Veículo"}
+          </Button>
+        </ModalFooter>
       )}
-    </FormContainer>
+    </>
   );
 }

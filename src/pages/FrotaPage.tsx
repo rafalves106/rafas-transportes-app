@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams, Outlet, useOutlet } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
+import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeVeiculos } from "./Frota/components/ListaDeVeiculos";
 import type { Vehicle } from "../services/veiculoService";
 import { veiculoService } from "../services/veiculoService";
-import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
 
@@ -24,7 +23,6 @@ export function FrotaPage() {
   const { vehicleId } = useParams();
   const outlet = useOutlet();
 
-  const isEditing = !!vehicleId;
   const { isLoggedIn } = useAuth();
 
   const [loading, setLoading] = useState(true);
@@ -201,26 +199,6 @@ export function FrotaPage() {
               veiculo: veiculoParaEditar,
             }}
           />
-          <ModalFooter>
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => navigate("/frota")}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form={
-                isEditing
-                  ? `form-editar-veiculo-${vehicleId}`
-                  : "form-novo-veiculo"
-              }
-            >
-              {isEditing ? "Salvar Alterações" : "Salvar Veículo"}
-            </Button>
-          </ModalFooter>
         </ModalGlobal>
       )}
     </div>

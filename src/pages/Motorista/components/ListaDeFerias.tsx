@@ -30,6 +30,7 @@ const FeriasDates = styled.span`
 
 interface ListaDeFeriasProps {
   motoristaId: number;
+  refreshTrigger: number;
 }
 
 const formatarData = (dataString: string): string => {
@@ -37,7 +38,10 @@ const formatarData = (dataString: string): string => {
   return `${dia}/${mes}/${ano}`;
 };
 
-export function ListaDeFerias({ motoristaId }: ListaDeFeriasProps) {
+export function ListaDeFerias({
+  motoristaId,
+  refreshTrigger,
+}: ListaDeFeriasProps) {
   const [feriasList, setFeriasList] = useState<Ferias[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +59,7 @@ export function ListaDeFerias({ motoristaId }: ListaDeFeriasProps) {
       }
     };
     fetchFerias();
-  }, [motoristaId]);
+  }, [motoristaId, refreshTrigger]);
 
   const handleExcluirFerias = async (feriasId: number, dataInicio: string) => {
     if (

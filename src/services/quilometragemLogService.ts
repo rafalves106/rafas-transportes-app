@@ -27,6 +27,15 @@ export const quilometragemLogService = {
       throw error as AxiosError<BackendErrorResponse>;
     }
   },
+
+  async limparLogs(veiculoId: number): Promise<void> {
+    try {
+      await api.delete(`${ROTA}/${veiculoId}`);
+    } catch (error) {
+      console.error("Erro ao limpar logs de quilometragem:", error);
+      throw error;
+    }
+  },
 };
 
 export default quilometragemLogService;

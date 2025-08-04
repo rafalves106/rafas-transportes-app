@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { useParams, useLocation, useOutletContext } from "react-router-dom";
+import {
+  useParams,
+  useLocation,
+  useOutletContext,
+  useNavigate,
+} from "react-router-dom";
 import { isAxiosError } from "axios";
 import { FormContainer } from "../../../components/ui/Form";
 import { ConfirmationModal } from "../../../components/ConfirmationModal";
@@ -20,6 +25,8 @@ import { PercursoViagem } from "./sub-formularios/PercursoViagem";
 import { BotaoExcluirViagem } from "./sub-formularios/BotaoExcluirViagem";
 import { FormularioLateralViagem } from "./sub-formularios/FormularioLateralViagem";
 import { SelecaoTipoViagem } from "./sub-formularios/SelecaoTipoViagem";
+import { Button } from "../../../components/ui/Button";
+
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: 30% 1fr;
@@ -43,11 +50,13 @@ const FormSection = styled.div`
     border-top: 1px solid var(--color-border);
   }
 `;
+
 interface FormContextType {
   onSuccess: () => void;
   onExcluirViagem: (id: number) => void;
   viagem?: Viagem;
 }
+
 export interface ViagemFormState {
   title: string;
   clientName: string;
@@ -62,17 +71,28 @@ export interface ViagemFormState {
   endTime: string;
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
 }
+
+// NOVO: Adicionado tipo para o estado completo do formulário
+interface FullFormState {
+  dadosFormulario: ViagemFormState;
+  veiculoId: string;
+  motoristaId: string;
+}
+
 export function FormularioNovaViagem() {
   const { tripId } = useParams();
   const { onSuccess, onExcluirViagem, viagem } =
     useOutletContext<FormContextType>();
   const isEditing = !!tripId;
   const location = useLocation();
+  const navigate = useNavigate();
+
   const [listaVeiculos, setListaVeiculos] = useState<Vehicle[]>([]);
   const [listaMotoristas, setListaMotoristas] = useState<Driver[]>([]);
   const [veiculoIdSelecionado, setVeiculoIdSelecionado] = useState<string>("");
   const [motoristaIdSelecionado, setMotoristaIdSelecionado] =
     useState<string>("");
+
   const [dadosFormulario, setDadosFormulario] = useState<ViagemFormState>({
     title: "",
     clientName: "",
@@ -87,10 +107,16 @@ export function FormularioNovaViagem() {
     endLocation: "",
     status: "AGENDADA",
   });
+
+  // NOVO: Estado para os dados originais completos do formulário
+  const [originalFullState, setOriginalFullState] =
+    useState<FullFormState | null>(null);
+
   const [erros, setErros] = useState<{ [key: string]: string }>({});
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
   const [isPrePopulatedFromBudget, setIsPrePopulatedFromBudget] =
     useState<boolean>(false);
+
   useEffect(() => {
     const carregarListas = async () => {
       try {
@@ -107,9 +133,15 @@ export function FormularioNovaViagem() {
     };
     carregarListas();
   }, []);
+
   useEffect(() => {
+    let currentDadosFormulario: ViagemFormState;
+    let currentVeiculoId = "";
+    let currentMotoristaId = "";
+    let isPrePop = false;
+
     if (isEditing && viagem) {
-      setDadosFormulario({
+      currentDadosFormulario = {
         title: viagem.title,
         clientName: viagem.clientName || "",
         telefone: viagem.telefone || "",
@@ -122,13 +154,12 @@ export function FormularioNovaViagem() {
         endTime: viagem.endTime || "",
         endLocation: viagem.endLocation || "",
         status: viagem.status,
-      });
-      setVeiculoIdSelecionado(String(viagem.veiculoId || ""));
-      setMotoristaIdSelecionado(String(viagem.motoristaId || ""));
-      setIsPrePopulatedFromBudget(false);
+      };
+      currentVeiculoId = String(viagem.veiculoId || "");
+      currentMotoristaId = String(viagem.motoristaId || "");
     } else if (location.state?.dadosDoOrcamento) {
       const { dadosDoOrcamento } = location.state;
-      setDadosFormulario({
+      currentDadosFormulario = {
         title: `Viagem de ${dadosDoOrcamento.nomeCliente} - ${dadosDoOrcamento.origem} para ${dadosDoOrcamento.destino}`,
         clientName: dadosDoOrcamento.nomeCliente || "",
         telefone: dadosDoOrcamento.telefone || "",
@@ -149,12 +180,12 @@ export function FormularioNovaViagem() {
           dadosDoOrcamento.destino ||
           "",
         status: "AGENDADA",
-      });
-      setVeiculoIdSelecionado("");
-      setMotoristaIdSelecionado("");
-      setIsPrePopulatedFromBudget(true);
+      };
+      currentVeiculoId = "";
+      currentMotoristaId = "";
+      isPrePop = true;
     } else {
-      setDadosFormulario({
+      currentDadosFormulario = {
         title: "",
         clientName: "",
         telefone: "",
@@ -167,12 +198,24 @@ export function FormularioNovaViagem() {
         endTime: "",
         endLocation: "",
         status: "AGENDADA",
-      });
-      setVeiculoIdSelecionado("");
-      setMotoristaIdSelecionado("");
-      setIsPrePopulatedFromBudget(false);
+      };
+      currentVeiculoId = "";
+      currentMotoristaId = "";
     }
+
+    setDadosFormulario(currentDadosFormulario);
+    setVeiculoIdSelecionado(currentVeiculoId);
+    setMotoristaIdSelecionado(currentMotoristaId);
+    setIsPrePopulatedFromBudget(isPrePop);
+
+    // NOVO: Salva o estado completo original
+    setOriginalFullState({
+      dadosFormulario: currentDadosFormulario,
+      veiculoId: currentVeiculoId,
+      motoristaId: currentMotoristaId,
+    });
   }, [isEditing, viagem, location.state]);
+
   useEffect(() => {
     if (isEditing || isPrePopulatedFromBudget) return;
     let textoIda = "";
@@ -214,6 +257,7 @@ export function FormularioNovaViagem() {
       endLocation: textoVolta,
     }));
   }, [dadosFormulario.tipoViagem, isEditing, isPrePopulatedFromBudget]);
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -225,6 +269,7 @@ export function FormularioNovaViagem() {
       setErros((prevErros) => ({ ...prevErros, [name]: "" }));
     }
   };
+
   const validate = useCallback(() => {
     const novosErros: { [key: string]: string } = {};
     if (!dadosFormulario.title.trim()) {
@@ -284,6 +329,7 @@ export function FormularioNovaViagem() {
     }
     return novosErros;
   }, [dadosFormulario, veiculoIdSelecionado, motoristaIdSelecionado]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const errosDeValidacao = validate();
@@ -337,9 +383,9 @@ export function FormularioNovaViagem() {
           } else if (
             error.response.data &&
             typeof error.response.data === "object" &&
-            error.response.data.message
+            (error.response.data as { message?: string }).message
           ) {
-            errorMessage = error.response.data.message;
+            errorMessage = (error.response.data as { message: string }).message;
           } else if (error.response.status === 403) {
             errorMessage =
               "Acesso negado. Por favor, verifique suas credenciais.";
@@ -360,6 +406,7 @@ export function FormularioNovaViagem() {
       alert(errorMessage);
     }
   };
+
   const handleExcluirClick = () => {
     setIsConfirmModalOpen(true);
   };
@@ -368,6 +415,27 @@ export function FormularioNovaViagem() {
     onExcluirViagem(parseInt(tripId));
     setIsConfirmModalOpen(false);
   };
+
+  // NOVO: Lógica para verificar se o formulário foi alterado
+  const [hasChanged, setHasChanged] = useState(false);
+
+  useEffect(() => {
+    if (!originalFullState) return;
+    const currentFullState = {
+      dadosFormulario: dadosFormulario,
+      veiculoId: veiculoIdSelecionado,
+      motoristaId: motoristaIdSelecionado,
+    };
+    const hasFormChanged =
+      JSON.stringify(currentFullState) !== JSON.stringify(originalFullState);
+    setHasChanged(hasFormChanged);
+  }, [
+    dadosFormulario,
+    veiculoIdSelecionado,
+    motoristaIdSelecionado,
+    originalFullState,
+  ]);
+
   return (
     <>
       <FormContainer
@@ -375,7 +443,6 @@ export function FormularioNovaViagem() {
         onSubmit={handleSubmit}
       >
         <FormGrid>
-          {}
           <FormularioLateralViagem
             dadosFormulario={dadosFormulario}
             erros={erros}
@@ -388,13 +455,11 @@ export function FormularioNovaViagem() {
             onVeiculoChange={(e) => setVeiculoIdSelecionado(e.target.value)}
             onMotoristaChange={(e) => setMotoristaIdSelecionado(e.target.value)}
           />
-          {}
           <FormSection>
             <SelecaoTipoViagem
               tipoViagem={dadosFormulario.tipoViagem}
               onInputChange={handleInputChange}
             />
-            {}
             <PercursoViagem
               startDate={dadosFormulario.startDate}
               startTime={dadosFormulario.startTime}
@@ -406,12 +471,42 @@ export function FormularioNovaViagem() {
               erros={erros}
               onInputChange={handleInputChange}
             />
-            {}
             {isEditing && <BotaoExcluirViagem onClick={handleExcluirClick} />}
           </FormSection>
         </FormGrid>
       </FormContainer>
-      {}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "0.5rem",
+          marginTop: "1rem",
+        }}
+      >
+        {isEditing && hasChanged && (
+          <>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => navigate("/viagens")}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form={`form-editar-viagem-${tripId}`}
+            >
+              Salvar Alterações
+            </Button>
+          </>
+        )}
+        {!isEditing && (
+          <Button variant="primary" type="submit" form="form-nova-viagem">
+            Salvar Viagem
+          </Button>
+        )}
+      </div>
       <ConfirmationModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

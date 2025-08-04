@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useOutlet, useNavigate, Outlet, useParams } from "react-router-dom";
 import { FiltroGlobal, type Filtro } from "../components/FiltroGlobal";
-import { ModalGlobal, ModalFooter } from "../components/ModalGlobal";
+import { ModalGlobal } from "../components/ModalGlobal";
 import { ListaDeMotoristas } from "./Motorista/components/ListaDeMotoristas";
 import type { Driver } from "../services/motoristaService";
 import type { Viagem } from "../services/viagemService";
 import { motoristaService } from "../services/motoristaService";
 import { viagemService } from "../services/viagemService";
-import { Button } from "../components/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
 import {
@@ -28,7 +27,6 @@ export function MotoristaPage() {
   const outlet = useOutlet();
   const navigate = useNavigate();
 
-  const isEditing = !!driverId;
   const { isLoggedIn } = useAuth();
 
   const [loading, setLoading] = useState(true);
@@ -217,26 +215,6 @@ export function MotoristaPage() {
               onOpenFeriasModal: handleOpenFeriasModal,
             }}
           />
-          <ModalFooter>
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => navigate("/motoristas")}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              form={
-                isEditing
-                  ? `form-editar-motorista-${driverId}`
-                  : "form-novo-motorista"
-              }
-            >
-              {isEditing ? "Salvar Alterações" : "Salvar Motorista"}
-            </Button>
-          </ModalFooter>
         </ModalGlobal>
       )}
 
