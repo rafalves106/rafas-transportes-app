@@ -35,7 +35,7 @@ const SidebarContainer = styled.aside<{ isOpen: boolean }>`
     position: fixed;
     left: 0;
     top: 0;
-    height: 100vh;
+    height: 100%;
     width: 100vw;
     margin: 0;
     z-index: 1000;
@@ -49,6 +49,8 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  flex-grow: 1;
+  padding-bottom: 1rem;
 `;
 
 const EmpresaInfo = styled.div`
