@@ -16,7 +16,6 @@ import BudgetIcon from "@/assets/budgetIcon.svg?react";
 const AppContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  max-height: 100vh;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -138,6 +137,18 @@ function App() {
   const toggleMenu = () => {
     setMenuOpen(!isMenuOpen);
   };
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMenuOpen]);
 
   useEffect(() => {
     const matchingPath = Object.keys(pageConfig).find((path) =>
