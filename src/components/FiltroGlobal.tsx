@@ -59,9 +59,15 @@ const FilterTabsContainer = styled.div`
   @media (max-width: 768px) {
     width: fit-content;
     overflow-x: auto;
-    justify-content: space-between;
     gap: 1rem;
     padding: 0 1rem;
+
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 `;
 
