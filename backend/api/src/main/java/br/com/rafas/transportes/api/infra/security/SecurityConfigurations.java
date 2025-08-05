@@ -32,6 +32,7 @@ public class SecurityConfigurations {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
+                    req.requestMatchers("/hello").permitAll();
                     req.requestMatchers(HttpMethod.POST, "/login").permitAll();
                     req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     req.anyRequest().authenticated();
@@ -56,7 +57,8 @@ public class SecurityConfigurations {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://rafas-transportes-app.vercel.app/"
+                "https://rafas-transportes-app.vercel.app",
+                "https://rafastransportes.com.br"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(List.of("*"));

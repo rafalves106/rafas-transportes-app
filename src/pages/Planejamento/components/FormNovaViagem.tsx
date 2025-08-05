@@ -43,11 +43,13 @@ const FormSection = styled.div`
   gap: 1rem;
   max-height: calc(90vh - 180px);
   overflow-y: auto;
+
   @media (max-width: 768px) {
     margin-top: 1rem;
     gap: 1rem;
     padding: 1rem 0;
     border-top: 1px solid var(--color-border);
+    max-height: unset;
   }
 `;
 
@@ -72,7 +74,6 @@ export interface ViagemFormState {
   status: "AGENDADA" | "EM_CURSO" | "FINALIZADA" | "CANCELADA";
 }
 
-// NOVO: Adicionado tipo para o estado completo do formulário
 interface FullFormState {
   dadosFormulario: ViagemFormState;
   veiculoId: string;

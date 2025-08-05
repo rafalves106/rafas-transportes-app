@@ -21,7 +21,7 @@ const HambuguerButton = styled.button`
   cursor: pointer;
   padding: 0;
   margin-right: 1rem;
-  z-index: 1100;
+  z-index: 1001;
 
   @media (max-width: 768px) {
     display: block;

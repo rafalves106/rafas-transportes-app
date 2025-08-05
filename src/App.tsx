@@ -150,13 +150,20 @@ function App() {
   }, [isMenuOpen]);
 
   useEffect(() => {
-    const matchingPath = Object.keys(pageConfig).find((path) =>
-      matchPath({ path, end: true }, location.pathname)
+    let matchingPath = Object.keys(pageConfig).find((path) =>
+      matchPath({ path }, location.pathname)
     );
+
+    if (!matchingPath) {
+      matchingPath = Object.keys(pageConfig).find(
+        (path) => location.pathname.startsWith(path) && path !== "/"
+      );
+    }
+
+    const finalMatchingPath = matchingPath || "/";
+
     setConfigAtual(
-      matchingPath
-        ? pageConfig[matchingPath as keyof typeof pageConfig]
-        : defaultConfig
+      pageConfig[finalMatchingPath as keyof typeof pageConfig] || defaultConfig
     );
 
     if (isMenuOpen) {

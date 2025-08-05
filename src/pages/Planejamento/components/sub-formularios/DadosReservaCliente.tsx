@@ -12,6 +12,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+  }
 `;
 
 interface DadosReservaClienteProps {
@@ -33,8 +37,10 @@ export function DadosReservaCliente({
 }: DadosReservaClienteProps) {
   return (
     <Container>
+      <SectionTitle>Dados da Reserva e Cliente</SectionTitle>
+
+      {/* Dados da Reserva e Cliente podem estar no mesmo InputGroup ou em um agrupamento lógico único */}
       <InputGroup>
-        <SectionTitle>Dados da Reserva</SectionTitle>
         <Label htmlFor="title">Título da Reserva</Label>
         <Input
           id="title"
@@ -49,25 +55,26 @@ export function DadosReservaCliente({
       </InputGroup>
 
       <InputGroup>
-        <SectionTitle>Dados Cliente</SectionTitle>
         <Label htmlFor="clientName">Nome do Cliente</Label>
         <Input
           id="clientName"
           name="clientName"
           type="text"
-          placeholder="Nome Cliente"
+          placeholder="Nome do Cliente"
           value={clientName}
           onChange={onInputChange}
           hasError={!!erros.clientName}
         />
         {erros.clientName && <ErrorMessage>{erros.clientName}</ErrorMessage>}
+      </InputGroup>
 
+      <InputGroup>
         <Label htmlFor="telefone">Telefone do Cliente</Label>
         <Input
           id="telefone"
           name="telefone"
           type="text"
-          placeholder="Telefone Cliente"
+          placeholder="Telefone do Cliente"
           value={telefone}
           onChange={onInputChange}
         />

@@ -3,10 +3,10 @@ import { styled } from "styled-components";
 export const FormContainer = styled.form`
   margin-top: 1rem;
   margin-bottom: 1rem;
+
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
   }
 `;
 
@@ -33,6 +33,10 @@ export const Input = styled.input<{ hasError?: boolean }>`
   background-color: transparent;
   border-radius: 6px;
   margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    margin: 0;
+  }
 `;
 
 export const Select = styled.select<{ hasError?: boolean }>`
@@ -46,6 +50,10 @@ export const Select = styled.select<{ hasError?: boolean }>`
   border-radius: 6px;
   background-color: transparent;
   margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    margin: 0;
+  }
 `;
 
 export const Textarea = styled.textarea`
@@ -59,6 +67,10 @@ export const Textarea = styled.textarea`
   resize: vertical;
   background-color: transparent;
   margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    margin: 0;
+  }
 `;
 
 export const ErrorMessage = styled.span`
