@@ -35,6 +35,7 @@ public class SecurityConfigurations {
                     req.requestMatchers(HttpMethod.POST, "/api/login").permitAll();
                     req.requestMatchers("/hello").permitAll();
                     req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+                    req.requestMatchers("/api/**").permitAll();
                     req.anyRequest().authenticated();
                 })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -55,7 +56,10 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of(
+                "https://rafas-transportes-app.vercel.app",
+                "https://rafastransportes.com.br"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
