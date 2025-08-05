@@ -1,4 +1,4 @@
-# Arquivos de log e cache
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -6,33 +6,40 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-.eslintcache
 
-# Pastas de dependências e build
 node_modules
-/dist
-/build
-/out-tsc
-
-# Variáveis de ambiente
-.env
-.env.*.local
+dist
+dist-ssr
+*.local
 .env.local
 
-# Arquivos temporários e de sistema
-.DS_Store
-.history
-.tmp/
-
-# Configurações de IDEs
-.idea/
-.vscode/
+# Editor directories and files
+.vscode/*
 !.vscode/extensions.json
-*.iws
-*.iml
-*.ipr
+.idea
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Conteúdo que você adicionou
+# Java
+# Diretório de build do Maven
+target/
+
+# Arquivos de compilação do Java
+*.class
+
+# Arquivos JAR/WAR
+*.jar
+*.war
+
+# Diretórios de build de IDEs
+.idea/
+.vscode/
+
+# Arquivos de log e configurações
+*.log
+*.properties
