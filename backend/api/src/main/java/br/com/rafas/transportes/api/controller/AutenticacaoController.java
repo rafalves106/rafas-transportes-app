@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping("/api")
 public class AutenticacaoController {
     private final AuthenticationManager manager;
     private final TokenService tokenService;
@@ -29,7 +29,7 @@ public class AutenticacaoController {
         this.tokenService = tokenService;
     }
 
-    @PostMapping
+    @PostMapping("/login")
     public ResponseEntity<DadosTokenJWT> efetuarLogin(@RequestBody @Valid DadosAutenticacao dados) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
 
